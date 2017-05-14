@@ -12,8 +12,6 @@
 #include "Buffer.hpp"
 #include "Shutdown.hpp"
 
-#include "google/Glog.hpp"
-
 namespace uv
 {
 	template<typename T>
