@@ -48,7 +48,7 @@ namespace uv
 		inline int		fchown(uv_file file, uv_uid_t uid, uv_gid_t gid, std::function<void(uv::FileStream &)> handler);
 	private:
 		uv::Loop			&m_loop;
-		std::function<void(uv::FileStream &)>	m_callbackHandler = nullptr;
+		std::function<void(uv::FileStream &)>	m_callbackHandler = [](uv::FileStream &) {};
 	};
 
 

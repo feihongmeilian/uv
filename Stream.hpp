@@ -47,9 +47,9 @@ namespace uv
 		ssize_t			m_recvBytes	= 0;
 		ssize_t			m_useBytes	= 0;
 	private:
-		std::function<void(uv::Stream<T> &)> m_listenHandler	= nullptr;
-		std::function<void(uv::Stream<T> &)> m_shutdownHandler= nullptr;
-		std::function<void(uv::Stream<T> &)> m_readHandler	= nullptr;
+		std::function<void(uv::Stream<T> &)> m_listenHandler	= [](uv::Stream<T> &) {};
+		std::function<void(uv::Stream<T> &)> m_shutdownHandler= [](uv::Stream<T> &) {};
+		std::function<void(uv::Stream<T> &)> m_readHandler	= [](uv::Stream<T> &) {};
 	};
 
 

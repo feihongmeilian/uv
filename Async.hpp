@@ -18,7 +18,7 @@ namespace uv
 
 	private:
 		uv_async_t		m_handle;
-		std::function<void(uv::Async &)> m_callbackHandler = nullptr;
+		std::function<void(uv::Async &)> m_callbackHandler = [](uv::Async &) {};
 	};
 
 

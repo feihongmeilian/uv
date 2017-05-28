@@ -22,7 +22,7 @@ namespace uv
 		uv_check_t		m_handle;
 
 	private:
-		std::function<void(uv::Check &)>	m_startHandler;
+		std::function<void(uv::Check &)>	m_startHandler = [](uv::Check &) {};
 	};
 
 

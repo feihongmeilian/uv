@@ -28,7 +28,7 @@ namespace uv
 		inline uv_handle_type	pendingType();
 
 	private:
-		std::function<void(uv::Pipe &)>	m_connectHandler = nullptr;
+		std::function<void(uv::Pipe &)>	m_connectHandler = [](uv::Pipe &) {};
 	};
 
 

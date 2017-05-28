@@ -40,6 +40,7 @@ namespace uv
 		inline int		backendTimeout() const;
 		inline void		printAllHandles(FILE *stream);
 		inline void		printActiveHandles(FILE *stream);
+		inline uv_loop_t	&operator()();
 
 	private:
 		friend class Pipe;
@@ -121,6 +122,11 @@ namespace uv
 	void Loop::printActiveHandles(FILE *stream)
 	{
 		uv_print_active_handles(&m_loop, stream);
+	}
+
+	uv_loop_t &Loop::operator()()
+	{
+		return m_loop;
 	}
 }
 

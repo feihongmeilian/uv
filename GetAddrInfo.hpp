@@ -22,7 +22,7 @@ namespace uv
 		inline static void	freeaddrinfo(struct addrinfo *ai);
 	private:
 		uv::Loop			&m_loop;
-		std::function<void(uv::GetAddrInfo &, int status, struct addrinfo *res)> m_callbackHandler = nullptr;
+		std::function<void(uv::GetAddrInfo &, int status, struct addrinfo *res)> m_callbackHandler;
 	};
 
 
@@ -32,6 +32,7 @@ namespace uv
 	GetAddrInfo::GetAddrInfo(uv::Loop &loop)
 		: m_loop(loop)
 	{
+		m_callbackHandler = [](uv::GetAddrInfo &, int status, struct addrinfo *res) {};
 		m_handle.data = this;
 	}
 

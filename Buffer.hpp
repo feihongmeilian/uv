@@ -16,7 +16,7 @@ namespace uv
 		inline explicit	Buffer(uint16_t length = 50);
 		inline ~Buffer();
 
-		/************************************8********
+		/*********************************************
 		*将一块new的字节数组添加到缓存
 		**********************************************/
 		inline int		add(char *p, ssize_t len);

@@ -28,7 +28,7 @@ namespace uv
 		inline int		connect(const std::string &ip, int port, std::function<void(uv::Tcp &)> handler);
 
 	private:
-		std::function<void(uv::Tcp &)>	m_connectHandler = nullptr;
+		std::function<void(uv::Tcp &)>	m_connectHandler = [](uv::Tcp &) {};
 	};
 
 

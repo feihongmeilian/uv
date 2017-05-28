@@ -17,8 +17,8 @@ namespace uv
 		inline int		queue(uv::Loop &loop);
 
 	private:
-		std::function<void(uv::Work &)>			m_workHandler		= nullptr;
-		std::function<void(uv::Work &, int)>	m_afterWorkHandler= nullptr;
+		std::function<void(uv::Work &)>			m_workHandler		= [](uv::Work &) {};
+		std::function<void(uv::Work &, int)>	m_afterWorkHandler= [](uv::Work &) {};
 	};
 
 

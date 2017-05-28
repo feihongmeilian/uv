@@ -23,7 +23,7 @@ namespace uv
 
 	private:
 		uv_fs_event_t		m_handle;
-		std::function<void(uv::FileStreamEvent &, const std::string &filename, int events, int status)>	m_callbackHandler = nullptr;
+		std::function<void(uv::FileStreamEvent &, const std::string &filename, int events, int status)>	m_callbackHandler;
 	};
 
 
@@ -34,6 +34,7 @@ namespace uv
 	{
 		m_handle.data = this;
 		uv_fs_event_init(&loop.m_loop, &m_handle);
+		m_callbackHandler = [](uv::FileStreamEvent &, const std::string &filename, int events, int status) {};
 	}
 
 	int FileStreamEvent::start(const std::string &path, unsigned int flags,

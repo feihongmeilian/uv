@@ -27,7 +27,7 @@ namespace uv
 		uv_fs_poll_t		m_handle;
 		const uv_stat_t	*m_prevStat;
 		const uv_stat_t	*m_currStat;
-		std::function<void(uv::FileStreamPoll &, int status)>	m_callbackHandler = nullptr;
+		std::function<void(uv::FileStreamPoll &, int status)>	m_callbackHandler;
 	};
 
 
@@ -38,6 +38,7 @@ namespace uv
 	{
 		m_handle.data = this;
 		uv_fs_poll_init(&loop.m_loop, &m_handle);
+		m_callbackHandler = [](uv::FileStreamPoll &, int status) {};
 	}
 
 	int FileStreamPoll::start(const std::string &path, unsigned int interval, std::function<void(uv::FileStreamPoll &, int status)> handler)

@@ -24,7 +24,7 @@ namespace uv
         uv_timer_t		m_handle;
 
 	private:
-        std::function<void (uv::Timer &)>		m_startHandler;
+        std::function<void (uv::Timer &)>	m_startHandler = [](uv::Timer &) {};
     };
 
 

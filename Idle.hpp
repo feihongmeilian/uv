@@ -22,7 +22,7 @@ namespace uv
 		uv_idle_t		m_handle;
 
 	private:
-		std::function<void(uv::Idle &)>	m_startHandler;
+		std::function<void(uv::Idle &)>	m_startHandler = [](uv::Idle &) {};
 	};
 
 

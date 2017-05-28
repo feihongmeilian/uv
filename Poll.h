@@ -23,7 +23,7 @@ namespace uv
 		uv_poll_t		m_handle;
 
 	private:
-		std::function<void(uv::Poll &)>	m_startHandler;
+		std::function<void(uv::Poll &)>	m_startHandler = [](uv::Poll &) {};
 	};
 
 

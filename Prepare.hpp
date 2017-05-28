@@ -22,7 +22,7 @@ namespace uv
 		uv_prepare_t		m_handle;
 
 	private:
-		std::function<void(uv::Prepare &)>	m_startHandler;
+		std::function<void(uv::Prepare &)>	m_startHandler = [](uv::Prepare &) {};
 	};
 
 

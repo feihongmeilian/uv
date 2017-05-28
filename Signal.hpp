@@ -23,7 +23,7 @@ namespace uv
         uv_signal_t		m_handle;
 
 	private:
-        std::function<void (uv::Signal &, int)>	m_startHandler;
+        std::function<void (uv::Signal &, int)>	m_startHandler = [](uv::Signal &, int) {};
     };
 
 

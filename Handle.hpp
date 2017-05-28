@@ -24,7 +24,7 @@ namespace uv
 	protected:
 		T				m_handle;
 
-		std::function<void(uv::Handle<T> &)> m_closeHandler = nullptr;
+		std::function<void(uv::Handle<T> &)> m_closeHandler = [](uv::Handle<T> &) {};
 	};
 	
 
