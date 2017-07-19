@@ -25,10 +25,10 @@ namespace uv
 		inline int		bind(const std::string &ip, int port, unsigned int flags);
 		inline int		getsockname(struct sockaddr &name, int &namelen) const;
 		inline int		getpeername(struct sockaddr &name, int &namelen) const;
-		inline int		connect(const std::string &ip, int port, std::function<void()> handler);
+		inline int		connect(const std::string &ip, int port, std::function<void(int status)> handler);
 
 	private:
-		std::function<void()>	m_connectHandler = []() {};
+		std::function<void(int status)>	m_connectHandler = [](int status) {};
 	};
 
 
@@ -86,7 +86,7 @@ namespace uv
 		return uv_tcp_getpeername(&m_handle, &name, &namelen);
 	}
 	
-	int Tcp::connect(const std::string &ip, int port, std::function<void()> handler)
+	int Tcp::connect(const std::string &ip, int port, std::function<void(int status)> handler)
 	{
 		m_connectHandler = handler;
 
@@ -99,13 +99,10 @@ namespace uv
 		return uv_tcp_connect(&connect->m_handle, &m_handle, reinterpret_cast<sockaddr *>(&addr),
 			[](uv_connect_t *req, int status) {
 
-			//connected
-			if (!status) {
-				auto &tcp_t = *reinterpret_cast<uv_tcp_t *>(req->handle);
-				auto &tcp = *reinterpret_cast<uv::Tcp *>(tcp_t.data);
-				tcp.m_connectHandler();
-			}
-			delete reinterpret_cast<Connect *>(req->data);
+            std::shared_ptr<Connect> connect(reinterpret_cast<Connect *>(req->data));
+			
+            auto &tcp = *reinterpret_cast<uv::Tcp *>(req->handle->data);
+			tcp.m_connectHandler(status);
 		});
 	}
 }
