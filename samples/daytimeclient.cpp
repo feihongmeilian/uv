@@ -14,8 +14,8 @@ int main()
     uv::Loop loop;
 
     uv::Tcp tcp(loop);
-    tcp.connect("127.0.0.1",13, [&tcp](int status){
-        if (status) {
+    tcp.connect("127.0.0.1",13, [&tcp](const uv::Error &error){
+        if (error) {
             std::cout << "链接失败" << std::endl;
         }
         else {
