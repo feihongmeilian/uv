@@ -28,6 +28,7 @@ namespace uv
 	Async::Async(uv::Loop &loop, std::function<void()> handler)
 	{
 		m_handle.data = this;
+        m_callbackHandler = handler;
 		uv_async_init(loop.m_loop_ptr, &m_handle, [](uv_async_t *a) {
 			auto &async = *reinterpret_cast<uv::Async *>(a->data);
 			async.m_callbackHandler();
