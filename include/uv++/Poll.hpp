@@ -14,8 +14,9 @@ namespace uv
 	{
 	public:
 		inline Poll(uv::Loop &loop, int fd);
+#ifdef _MSC_VER
 		inline Poll(uv::Loop &loop, uv_os_sock_t socket);
-
+#endif
 		inline int		start(int events, std::function<void(uv::Poll &)> cb);
 		inline int		stop();
 
@@ -39,11 +40,13 @@ namespace uv
 		uv_poll_init(loop.m_loop_ptr, &m_handle, fd);
 	}
 
+#ifdef _MSC_VER
 	Poll::Poll(uv::Loop &loop, uv_os_sock_t socket)
 	{
 		m_handle.data = this;
 		uv_poll_init_socket(loop.m_loop_ptr, &m_handle, socket);
 	}
+#endif
 
 	int Poll::start(int events, std::function<void(uv::Poll &)> cb)
 	{
