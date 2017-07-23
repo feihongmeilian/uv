@@ -19,10 +19,13 @@ namespace uv
 		inline int		start(int events, std::function<void(uv::Poll &)> cb);
 		inline int		stop();
 
-	private:
-		uv_poll_t		m_handle;
+	public:
+		static const int READABLE		= UV_READABLE;
+		static const int WRITABLE		= UV_WRITABLE;
+		static const int DISCONNECT	= UV_DISCONNECT;
 
 	private:
+		uv_poll_t		m_handle;
 		std::function<void(uv::Poll &)>	m_startHandler = [](uv::Poll &) {};
 	};
 
