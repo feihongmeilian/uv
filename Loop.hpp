@@ -36,7 +36,7 @@ namespace uv
 		inline uint64_t	now() const;
 		inline void		updateTime();
 		inline int		alive() const;
-		inline uv_os_fd_t	backendFd() const;
+		inline int		backendFd() const;
 		inline int		backendTimeout() const;
 		inline void		printAllHandles(FILE *stream);
 		inline void		printActiveHandles(FILE *stream);
@@ -104,7 +104,7 @@ namespace uv
 		return uv_loop_alive(&m_loop);
 	}
 
-	uv_os_fd_t Loop::backendFd() const
+	int Loop::backendFd() const
 	{
 		return uv_backend_fd(&m_loop);
 	}
