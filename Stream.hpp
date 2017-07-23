@@ -3,7 +3,7 @@
 
 #include <functional>
 #include <algorithm>
-#include <array>
+#include <vector>
 
 #include <uv.h>
 
@@ -18,9 +18,12 @@ namespace uv
 	class Stream : public Handle<T>
 	{
 	public:
+		explicit inline	Stream(size_t buf_size = 64*1024);
+
 		inline int		listen(std::function<void(uv::Stream<T> &)> handler, int backlog=SOMAXCONN);
 		inline int		accept(uv::Stream<T> &client);
-		inline int		readStart(std::function<void(uv::Stream<T> &)> handler);
+		inline int		readStart(std::function<void(uv::Stream<T> &, char *data, int len)> handler);
+		inline void		read(size_t bytes);
 		inline int		readStop();
 		inline int		write(char *p, ssize_t len);
 		inline int		shutdown(std::function<void(uv::Stream<T> &)> handler);
@@ -28,12 +31,13 @@ namespace uv
 		inline int		isWritable();
 		inline int		setBlocking(int blocking=true);
 		
+
 		inline ssize_t	length() const;
 		inline char		*data();
-		inline void		use(ssize_t len);
+		inline void		use();
+
 	private:
 		inline int		write();
-		inline void		arrangeRecvBuf();
 
 	protected:
 		using Handle<T>::m_handle;
@@ -41,20 +45,28 @@ namespace uv
 	private:
 		uv::Write		m_write;
 		uv::Buffer		m_sendbuf;
-
-		static const ssize_t			PAGE_SIZE = 64 * 1024;
-		std::array<char, PAGE_SIZE>	m_recvbuf;
-		ssize_t			m_recvBytes	= 0;
-		ssize_t			m_useBytes	= 0;
+		std::vector<char>	m_recvbuf;
+		char				*m_head;
+		char				*m_tail;
+		size_t			m_needBytes	= 0;
 	private:
 		std::function<void(uv::Stream<T> &)> m_listenHandler	= [](uv::Stream<T> &) {};
 		std::function<void(uv::Stream<T> &)> m_shutdownHandler= [](uv::Stream<T> &) {};
-		std::function<void(uv::Stream<T> &)> m_readHandler	= [](uv::Stream<T> &) {};
+		std::function<void(uv::Stream<T> &, char *data, int len)> m_readHandler = [](uv::Stream<T> &, char *data, int len) {};
 	};
 
 
 
 
+
+
+	template<typename T>
+	Stream<T>::Stream(size_t buf_size)
+		: m_recvbuf(buf_size)
+	{
+		m_head = m_recvbuf.data();
+		m_tail = m_recvbuf.data();
+	}
 
 
 	template<typename T>
@@ -70,9 +82,22 @@ namespace uv
 	}
 
 	template<typename T>
-	void Stream<T>::use(ssize_t len)
+	void Stream<T>::use()
 	{
-		m_useBytes += len;
+		if (m_tail - m_head < m_needBytes) return;
+		char *head = m_head;
+		m_head += m_needBytes;
+
+		m_readHandler(*this, head, m_needBytes);
+
+		if (m_head == m_recvbuf.data()) return;
+
+		if (m_head == m_tail)	{
+			m_head = m_tail = m_recvbuf.data();
+			return;
+		}
+
+		memmove(m_recvbuf.data(), m_head, m_tail - m_head);
 	}
 
 	template<typename T>
@@ -94,16 +119,15 @@ namespace uv
 	}
 
 	template<typename T>
-	int Stream<T>::readStart(std::function<void(uv::Stream<T> &)> handler)
+	int Stream<T>::readStart(std::function<void(uv::Stream<T> &, char *data, int len)> handler)
 	{
 		m_readHandler = handler;
-
 		return uv_read_start(reinterpret_cast<uv_stream_t *>(&m_handle),
 			[](uv_handle_t* handle, size_t suggested_size, uv_buf_t *buff)
 		{
 			auto &stream = *reinterpret_cast<Stream<T> *>(handle->data);
-			buff->base = stream.m_recvbuf.data() + stream.m_recvBytes;
-			buff->len = stream.PAGE_SIZE - stream.m_recvBytes;
+			buff->base = stream.m_tail;
+			buff->len = stream.m_recvbuf.size() - (stream.m_tail - stream.m_head);
 		},
 			[](uv_stream_t *handle, ssize_t nread, const uv_buf_t *buff)
 		{
@@ -113,12 +137,19 @@ namespace uv
 				//stream.m_closeHandler(stream);
 				return;
 			}				
-			if (nread <= 0) return;
+			if (nread == 0) return;
 
-			stream.m_recvBytes += nread;
-			stream.m_readHandler(stream);
-			stream.arrangeRecvBuf();
+			stream.m_tail += nread;
+
+			stream.use();
 		});
+	}
+
+	template<typename T>
+	inline void Stream<T>::read(size_t bytes)
+	{
+		m_needBytes = bytes;
+		use();
 	}
 
 	template<typename T>
@@ -154,18 +185,6 @@ namespace uv
 				stream.write();
 			}
 		});
-	}
-
-	template<typename T>
-	void Stream<T>::arrangeRecvBuf()
-	{
-		if (m_useBytes == 0) return;
-		if (m_useBytes == m_recvBytes)
-		{
-			m_useBytes = 0;
-			m_recvBytes = 0;
-		}
-		std::reverse_copy(std::begin(m_recvbuf)+m_useBytes, std::begin(m_recvbuf) + m_recvBytes, std::begin(m_recvbuf));
 	}
 
 	template<typename T>
