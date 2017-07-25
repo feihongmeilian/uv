@@ -16,7 +16,7 @@ namespace uv
 	public:
 		inline explicit	FileStreamPoll(uv::Loop &loop);
 
-		inline int		start(const std::string &path, unsigned int interval, std::function<void(uv::FileStreamPoll &, int status)> handler);
+		inline int		start(const std::string &path, unsigned int interval, std::function<void(int status)> handler);
 		inline int		stop();
 		inline int		getpath(char *buffer, size_t &size);
 
@@ -27,7 +27,7 @@ namespace uv
 		uv_fs_poll_t		m_handle;
 		const uv_stat_t	*m_prevStat;
 		const uv_stat_t	*m_currStat;
-		std::function<void(uv::FileStreamPoll &, int status)>	m_callbackHandler;
+		std::function<void(int status)>	m_callbackHandler = [](int status) {};
 	};
 
 
@@ -41,7 +41,7 @@ namespace uv
 		m_callbackHandler = [](uv::FileStreamPoll &, int status) {};
 	}
 
-	int FileStreamPoll::start(const std::string &path, unsigned int interval, std::function<void(uv::FileStreamPoll &, int status)> handler)
+	int FileStreamPoll::start(const std::string &path, unsigned int interval, std::function<void(int status)> handler)
 	{
 		m_callbackHandler = handler;
 		return uv_fs_poll_start(&m_handle,
@@ -49,7 +49,7 @@ namespace uv
 			auto &fp = *reinterpret_cast<uv::FileStreamPoll *>(handle->data);
 			fp.m_prevStat = prev;
 			fp.m_currStat = curr;
-			fp.m_callbackHandler(fp, status);
+			fp.m_callbackHandler(status);
 		}, path.c_str(), interval);
 	}
 

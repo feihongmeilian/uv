@@ -19,7 +19,7 @@ namespace uv
 
 		inline int		open(uv_file file);
 		inline int		bind(const std::string &name);
-		inline int		connect(const std::string &name, std::function<void(uv::Pipe &)> handler);
+		inline int		connect(const std::string &name, std::function<void()> handler);
 		inline int		getsockname(char *buffer, size_t &size) const;
 		inline int		getpeername(char *buffer, size_t &size) const;
 		inline void		pendingInstances(int count);
@@ -28,7 +28,7 @@ namespace uv
 		inline uv_handle_type	pendingType();
 
 	private:
-		std::function<void(uv::Pipe &)>	m_connectHandler = [](uv::Pipe &) {};
+		std::function<void()>	m_connectHandler = []() {};
 	};
 
 
@@ -51,7 +51,7 @@ namespace uv
 		return uv_pipe_bind(&m_handle, name.c_str());
 	}
 	
-	int Pipe::connect(const std::string &name, std::function<void(uv::Pipe &)> handler)
+	int Pipe::connect(const std::string &name, std::function<void()> handler)
 	{
 		auto connect = new (std::nothrow) Connect;
 		if (connect == nullptr) return ENOMEM;
@@ -64,7 +64,7 @@ namespace uv
 			if (!status) {
 				auto &pipe_t = *reinterpret_cast<uv_pipe_t *>(req->handle);
 				auto &pipe = *reinterpret_cast<uv::Pipe *>(pipe_t.data);
-				pipe.m_connectHandler(pipe);
+				pipe.m_connectHandler();
 			}
 			delete reinterpret_cast<Connect *>(req->data);
 		});

@@ -13,24 +13,24 @@ namespace uv
 	class Async : public Noncopyable
 	{
 	public:
-		inline Async(uv::Loop &loop, std::function<void(uv::Async &)> handler);
+		inline Async(uv::Loop &loop, std::function<void()> handler);
 		inline int		send();
 
 	private:
 		uv_async_t		m_handle;
-		std::function<void(uv::Async &)> m_callbackHandler = [](uv::Async &) {};
+		std::function<void()> m_callbackHandler = []() {};
 	};
 
 
 
 
 
-	Async::Async(uv::Loop &loop, std::function<void(uv::Async &)> handler)
+	Async::Async(uv::Loop &loop, std::function<void()> handler)
 	{
 		m_handle.data = this;
 		uv_async_init(&loop.m_loop, &m_handle, [](uv_async_t *a) {
 			auto &async = *reinterpret_cast<uv::Async *>(a->data);
-			async.m_callbackHandler(async);
+			async.m_callbackHandler();
 		});
 	}
 

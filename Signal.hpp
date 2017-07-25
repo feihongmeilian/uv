@@ -16,14 +16,14 @@ namespace uv
 		inline explicit	Signal(uv::Loop &);
 
     public:
-		inline int		start(std::function<void (uv::Signal &, int)> handler, int sigNum);
+		inline int		start(std::function<void(int signum)> handler, int sigNum);
 		inline int		stop();
 
     private:
         uv_signal_t		m_handle;
 
 	private:
-        std::function<void (uv::Signal &, int)>	m_startHandler = [](uv::Signal &, int) {};
+        std::function<void(int signum)>	m_startHandler = [](int signum) {};
     };
 
 
@@ -36,13 +36,13 @@ namespace uv
 		m_handle.data = this;
 	}
 
-	int Signal::start(std::function<void(uv::Signal &, int)> handler, int sigNum)
+	int Signal::start(std::function<void(int signum)> handler, int sigNum)
 	{
 		m_startHandler = handler;
 		return uv_signal_start(&m_handle, [](uv_signal_t *handle, int num)
 		{
 			auto &signal = *reinterpret_cast<uv::Signal *>(handle->data);
-			signal.m_startHandler(signal, num);
+			signal.m_startHandler(num);
 		}, sigNum);
 	}
 

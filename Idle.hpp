@@ -15,14 +15,14 @@ namespace uv
 	public:
 		inline explicit	Idle(uv::Loop &loop);
 
-		inline int		start(std::function<void(uv::Idle &)> cb);
+		inline int		start(std::function<void()> cb);
 		inline int		stop();
 
 	private:
 		uv_idle_t		m_handle;
 
 	private:
-		std::function<void(uv::Idle &)>	m_startHandler = [](uv::Idle &) {};
+		std::function<void()>	m_startHandler = []() {};
 	};
 
 
@@ -35,12 +35,12 @@ namespace uv
 		uv_idle_init(&loop.m_loop, &m_handle);
 	}
 
-	int Idle::start(std::function<void(uv::Idle &)> cb)
+	int Idle::start(std::function<void()> cb)
 	{
 		m_startHandler = cb;
 		return uv_idle_start(&m_handle, [](uv_idle_t *handle) {
 			auto &idle = *reinterpret_cast<uv::Idle *>(handle->data);
-			idle.m_startHandler(idle);
+			idle.m_startHandler();
 		});
 	}
 

@@ -13,19 +13,19 @@ namespace uv
 	class Work : public Req<uv_work_t>
 	{
 	public:
-		inline Work(std::function<void(Work &)> wh, std::function<void(uv::Work &, int)> ah);
+		inline Work(std::function<void()> wh, std::function<void(int)> ah);
 		inline int		queue(uv::Loop &loop);
 
 	private:
-		std::function<void(uv::Work &)>			m_workHandler		= [](uv::Work &) {};
-		std::function<void(uv::Work &, int)>	m_afterWorkHandler= [](uv::Work &) {};
+		std::function<void()>				m_workHandler		= []() {};
+		std::function<void(int status)>	m_afterWorkHandler= [](int status) {};
 	};
 
 
 
 
 
-	Work::Work(std::function<void(uv::Work &)> wh, std::function<void(uv::Work &, int)> ah)
+	Work::Work(std::function<void()> wh, std::function<void(int)> ah)
 	{
 		m_handle.data = this;
 		m_workHandler = wh;
@@ -37,11 +37,11 @@ namespace uv
 		return uv_queue_work(&loop.m_loop, &m_handle,
 			[](uv_work_t *r) {
 				auto &req = *reinterpret_cast<uv::Work *>(r->data);
-				req.m_workHandler(req);
+				req.m_workHandler();
 			}, 
 			[](uv_work_t *r,int status) {
 				auto &req = *reinterpret_cast<uv::Work *>(r->data);
-				req.m_afterWorkHandler(req, status);
+				req.m_afterWorkHandler(status);
 		});
 	}
 }

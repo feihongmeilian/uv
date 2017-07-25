@@ -15,14 +15,14 @@ namespace uv
 	public:
 		inline explicit	Prepare(uv::Loop &loop);
 
-		inline int		start(std::function<void(uv::Prepare &)> cb);
+		inline int		start(std::function<void()> cb);
 		inline int		stop();
 
 	private:
 		uv_prepare_t		m_handle;
 
 	private:
-		std::function<void(uv::Prepare &)>	m_startHandler = [](uv::Prepare &) {};
+		std::function<void()>	m_startHandler = []() {};
 	};
 
 
@@ -35,12 +35,12 @@ namespace uv
 		uv_prepare_init(&loop.m_loop, &m_handle);
 	}
 
-	int Prepare::start(std::function<void(uv::Prepare &)> cb)
+	int Prepare::start(std::function<void()> cb)
 	{
 		m_startHandler = cb;
 		return uv_prepare_start(&m_handle, [](uv_prepare_t *handle) {
 			auto &prepare = *reinterpret_cast<uv::Prepare *>(handle->data);
-			prepare.m_startHandler(prepare);
+			prepare.m_startHandler();
 		});
 	}
 

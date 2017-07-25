@@ -20,11 +20,11 @@ namespace uv
 		inline int		sendBufferSize(int &value);
 		inline int		recvBufferSize(int &value);
 		inline int		fileno(uv_os_fd_t &fd);
-		inline void		close(std::function<void(uv::Handle<T> &)> handler);
+		inline void		close(std::function<void()> handler);
 	protected:
 		T				m_handle;
 
-		std::function<void(uv::Handle<T> &)> m_closeHandler = [](uv::Handle<T> &) {};
+		std::function<void()> m_closeHandler = []() {};
 	};
 	
 
@@ -81,13 +81,13 @@ namespace uv
 	}
 
 	template<typename T>
-	void Handle<T>::close(std::function<void(uv::Handle<T> &)> handler)
+	void Handle<T>::close(std::function<void()> handler)
 	{
 		m_closeHandler = handler;
 		uv_close(reinterpret_cast<uv_handle_t *>(&m_handle), [](uv_handle_t *h) {
 			auto &handle = *reinterpret_cast<uv::Handle<T> *>(h->data);
 			if(handle.m_closeHandler != nullptr)
-				handle.m_closeHandler(handle);
+				handle.m_closeHandler();
 		});
 	}
 }

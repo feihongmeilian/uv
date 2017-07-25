@@ -25,10 +25,10 @@ namespace uv
 		inline int		bind(const std::string &ip, int port, unsigned int flags);
 		inline int		getsockname(struct sockaddr &name, int &namelen) const;
 		inline int		getpeername(struct sockaddr &name, int &namelen) const;
-		inline int		connect(const std::string &ip, int port, std::function<void(uv::Tcp &)> handler);
+		inline int		connect(const std::string &ip, int port, std::function<void()> handler);
 
 	private:
-		std::function<void(uv::Tcp &)>	m_connectHandler = [](uv::Tcp &) {};
+		std::function<void()>	m_connectHandler = []() {};
 	};
 
 
@@ -86,7 +86,7 @@ namespace uv
 		return uv_tcp_getpeername(&m_handle, &name, &namelen);
 	}
 	
-	int Tcp::connect(const std::string &ip, int port, std::function<void(uv::Tcp &)> handler)
+	int Tcp::connect(const std::string &ip, int port, std::function<void()> handler)
 	{
 		m_connectHandler = handler;
 
@@ -103,7 +103,7 @@ namespace uv
 			if (!status) {
 				auto &tcp_t = *reinterpret_cast<uv_tcp_t *>(req->handle);
 				auto &tcp = *reinterpret_cast<uv::Tcp *>(tcp_t.data);
-				tcp.m_connectHandler(tcp);
+				tcp.m_connectHandler();
 			}
 			delete reinterpret_cast<Connect *>(req->data);
 		});

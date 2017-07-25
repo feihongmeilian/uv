@@ -16,13 +16,13 @@ namespace uv
 	public:
 		inline explicit	GetAddrInfo(uv::Loop &loop);
 		inline int		get(const std::string &node, const std::string &service, const struct addrinfo &hints,
-							std::function<void(uv::GetAddrInfo &, int status, struct addrinfo *res)> handler);
+							std::function<void(int status, struct addrinfo *res)> handler);
 		
 		
 		inline static void	freeaddrinfo(struct addrinfo *ai);
 	private:
 		uv::Loop			&m_loop;
-		std::function<void(uv::GetAddrInfo &, int status, struct addrinfo *res)> m_callbackHandler;
+		std::function<void(int status, struct addrinfo *res)> m_callbackHandler;
 	};
 
 
@@ -37,12 +37,12 @@ namespace uv
 	}
 
 	int	GetAddrInfo::get(const std::string &node, const std::string &service, const struct addrinfo &hints,
-		std::function<void(uv::GetAddrInfo &, int status, struct addrinfo *res)> handler)
+		std::function<void(int status, struct addrinfo *res)> handler)
 	{
 		m_callbackHandler = handler;
 		return uv_getaddrinfo(&m_loop.m_loop, &m_handle, [](uv_getaddrinfo_t* req, int status, struct addrinfo *res) {
 			auto &addr = *reinterpret_cast<uv::GetAddrInfo *>(req->data);
-			addr.m_callbackHandler(addr, status, res);
+			addr.m_callbackHandler(status, res);
 		}, node.c_str(), service.c_str(), &hints);
 	}
 

@@ -15,14 +15,14 @@ namespace uv
 	public:
 		inline explicit	Check(uv::Loop &loop);
 
-		inline int		start(std::function<void(uv::Check &)> cb);
+		inline int		start(std::function<void()> cb);
 		inline int		stop();
 
 	private:
 		uv_check_t		m_handle;
 
 	private:
-		std::function<void(uv::Check &)>	m_startHandler = [](uv::Check &) {};
+		std::function<void()>	m_startHandler = []() {};
 	};
 
 
@@ -35,12 +35,12 @@ namespace uv
 		uv_check_init(&loop.m_loop, &m_handle);
 	}
 
-	int Check::start(std::function<void(uv::Check &)> cb)
+	int Check::start(std::function<void()> cb)
 	{
 		m_startHandler = cb;
 		return uv_check_start(&m_handle, [](uv_check_t *handle) {
 			auto &check = *reinterpret_cast<uv::Check *>(handle->data);
-			check.m_startHandler(check);
+			check.m_startHandler();
 		});
 	}
 

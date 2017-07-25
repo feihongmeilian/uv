@@ -14,7 +14,7 @@ namespace uv
 		inline explicit	Timer(uv::Loop &);
 
     public:
-		inline int		start(std::function<void (uv::Timer &)> handler, uint64_t timeout, uint64_t repeat);
+		inline int		start(std::function<void ()> handler, uint64_t timeout, uint64_t repeat);
 		inline int		stop();
 		inline int		again();
 		inline void		setRepeat(uint64_t repeat);
@@ -24,7 +24,7 @@ namespace uv
         uv_timer_t		m_handle;
 
 	private:
-        std::function<void (uv::Timer &)>	m_startHandler = [](uv::Timer &) {};
+        std::function<void ()>	m_startHandler = []() {};
     };
 
 
@@ -37,13 +37,13 @@ namespace uv
 		m_handle.data = this;
 	}
 
-	int Timer::start(std::function<void(uv::Timer &)> handler, uint64_t timeout, uint64_t repeat)
+	int Timer::start(std::function<void()> handler, uint64_t timeout, uint64_t repeat)
 	{
 		m_startHandler = handler;
 		return uv_timer_start(&m_handle, [](uv_timer_t *handle)
 		{
 			auto &timer = *reinterpret_cast<uv::Timer *>(handle->data);
-			timer.m_startHandler(timer);
+			timer.m_startHandler();
 		}, timeout, repeat);
 	}
 
