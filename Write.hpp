@@ -13,18 +13,22 @@ namespace uv
 	class Write : public Req<uv_write_t>
 	{
 	public:
-		inline Write();
+		inline Write(const char *p, ssize_t len);
 
 	private:
 		template<typename T> friend class Stream;
+	private:
+		uv_buf_t		m_buf;
 	};
 
 
 
 
 
-	Write::Write()
+	Write::Write(const char *p, ssize_t len)
 	{
+		m_buf.base = const_cast<char*>(p);
+		m_buf.len = static_cast<size_t>(len);
 		m_handle.data = this;
 	}
 }

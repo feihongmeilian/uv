@@ -9,7 +9,6 @@
 
 #include "Write.hpp"
 #include "Handle.hpp"
-#include "Buffer.hpp"
 #include "Shutdown.hpp"
 
 namespace uv
@@ -22,28 +21,24 @@ namespace uv
 		inline int		accept(uv::Stream<T> &client);
 		inline int		readStart(std::function<void(char *data, ssize_t len)> handler);
 		inline int		readStop();
-		inline int		write(char *p, ssize_t len);
+		inline int		write(const char *p, ssize_t len);
+		inline void		onWrite(std::function<void(int status)>	 handler);
 		inline int		shutdown(std::function<void()> handler);
 		inline int		isReadable();
 		inline int		isWritable();
 		inline int		setBlocking(int blocking=true);
 
-	private:
-		inline int		write();
-
 	protected:
 		using Handle<T>::m_handle;
 		using Handle<T>::m_closeHandler;
+
 	private:
-		uv::Write		m_write;
-		uv::Buffer		m_sendbuf;
-	private:
-		std::function<void()> m_listenHandler	= []() {};
-		std::function<void()> m_shutdownHandler= []() {};
-		std::function<void(char *data, ssize_t len)> m_readHandler = [](char *data, ssize_t len) {};
+		std::function<void()>				m_listenHandler	= []() {};
+		std::function<void()>				m_shutdownHandler	= []() {};
+		std::function<void(int status)>	m_writeHandler	= [](int status) {};
+		std::function<void(char *data, ssize_t len)>	m_readHandler = [](char *data, ssize_t len) {};
+		
 	};
-
-
 
 
 
@@ -97,33 +92,28 @@ namespace uv
 		return uv_read_stop(reinterpret_cast<uv_stream_t *>(&m_handle));
 	}
 
+	//传入的p指针必须是通过new的
 	template<typename T>
-	int Stream<T>::write(char *p, ssize_t len)
+	int Stream<T>::write(const char *p, ssize_t len)
 	{
-		auto status = m_sendbuf.add(p, len);
-		if (status) return status;
+		auto writeHandler = new (std::nothrow) uv::Write(p, len);
+		if (writeHandler == nullptr) return ENOMEM;
 
-		return this->write();
+		return uv_write(&writeHandler->m_handle, reinterpret_cast<uv_stream_t *>(&m_handle),
+			&writeHandler->m_buf, 1, [](uv_write_t *req, int status) {
+
+			std::shared_ptr<uv::Write> writeHandler(reinterpret_cast<uv::Write *>(req->data));
+			std::shared_ptr<char> bytes(writeHandler->m_buf.base, std::default_delete<char[]>());
+
+			auto &stream = *reinterpret_cast<Stream<T> *>(req->handle->data);
+			stream.m_writeHandler(status);
+		});
 	}
 
 	template<typename T>
-	int Stream<T>::write()
+	void Stream<T>::onWrite(std::function<void(int status)> handler)
 	{
-		auto buff = m_sendbuf.get();
-		if (std::get<1>(buff) == 0) {
-			return 0;
-		}
-		return uv_write(&m_write.m_handle, reinterpret_cast<uv_stream_t *>(&m_handle),
-			std::get<0>(buff), std::get<1>(buff), [](uv_write_t *req, int status) {
-
-			if (status == 0) {
-				auto &stream = *reinterpret_cast<Stream<T> *>(req->handle->data);
-
-				stream.m_sendbuf.used();
-
-				stream.write();
-			}
-		});
+		m_writeHandler = handler;
 	}
 
 	template<typename T>
