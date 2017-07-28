@@ -7,6 +7,7 @@
 
 #include <uv.h>
 
+#include "Error.hpp"
 #include "Write.hpp"
 #include "Handle.hpp"
 #include "Shutdown.hpp"
@@ -17,13 +18,13 @@ namespace uv
 	class Stream : public Handle<T>
 	{
 	public:
-		inline int		listen(std::function<void()> handler, int backlog=SOMAXCONN);
+		inline int		listen(std::function<void(const Error &error)> handler, int backlog=SOMAXCONN);
 		inline int		accept(uv::Stream<T> &client);
 		inline int		readStart(std::function<void(char *data, ssize_t len)> handler);
 		inline int		readStop();
 		inline int		write(const char *p, ssize_t len);
-		inline void		onWrite(std::function<void(int status)>	 handler);
-		inline int		shutdown(std::function<void()> handler);
+		inline void		onWrite(std::function<void(const Error &error)>	 handler);
+		inline int		shutdown(std::function<void(const Error &error)> handler);
 		inline int		isReadable();
 		inline int		isWritable();
 		inline int		setBlocking(int blocking=true);
@@ -33,9 +34,9 @@ namespace uv
 		using Handle<T>::m_closeHandler;
 
 	private:
-		std::function<void()>				m_listenHandler	= []() {};
-		std::function<void()>				m_shutdownHandler	= []() {};
-		std::function<void(int status)>	m_writeHandler	= [](int status) {};
+		std::function<void(const Error &error)>			m_listenHandler	= [](const Error &error) {};
+		std::function<void(const Error &error)>			m_shutdownHandler	= [](const Error &error) {};
+		std::function<void(const Error &error)>			m_writeHandler= [](const Error &errors) {};
 		std::function<void(char *data, ssize_t len)>	m_readHandler = [](char *data, ssize_t len) {};
 		
 	};
@@ -45,13 +46,12 @@ namespace uv
 
 
 	template<typename T>
-	int Stream<T>::listen(std::function<void()> handler,int backlog)
+	int Stream<T>::listen(std::function<void(const Error &error)> handler,int backlog)
 	{
 		m_listenHandler = handler;
 		return uv_listen(reinterpret_cast<uv_stream_t *>(&m_handle), backlog, [](uv_stream_t *st, int status) {
-			if (status) return;
 			auto &stream = *reinterpret_cast<uv::Stream<T> *>(st->data);
-			stream.m_listenHandler();
+			stream.m_listenHandler(Error(status));
 		});
 	}
 
@@ -106,18 +106,18 @@ namespace uv
 			std::shared_ptr<char> bytes(writeHandler->m_buf.base, std::default_delete<char[]>());
 
 			auto &stream = *reinterpret_cast<Stream<T> *>(req->handle->data);
-			stream.m_writeHandler(status);
+			stream.m_writeHandler(Error(status));
 		});
 	}
 
 	template<typename T>
-	void Stream<T>::onWrite(std::function<void(int status)> handler)
+	void Stream<T>::onWrite(std::function<void(const Error &error)> handler)
 	{
 		m_writeHandler = handler;
 	}
 
 	template<typename T>
-	int Stream<T>::shutdown(std::function<void()> handler)
+	int Stream<T>::shutdown(std::function<void(const Error &error)> handler)
 	{
 		m_shutdownHandler = handler;
 
@@ -126,11 +126,11 @@ namespace uv
 
 		return uv_shutdown(&req->m_handle, reinterpret_cast<uv_stream_t *>(&m_handle),
 			[](uv_shutdown_t *req, int status) {
-			if (!status) {
-				auto &stream = *reinterpret_cast<uv::Stream<T> *>(req->handle->data);
-				stream.m_shutdownHandler();
-			}
-			delete reinterpret_cast<Shutdown *>(req->data);
+
+			std::shared_ptr<uv::Shutdown> shutdown(reinterpret_cast<Shutdown *>(req->data));
+			
+			auto &stream = *reinterpret_cast<uv::Stream<T> *>(req->handle->data);
+			stream.m_shutdownHandler(Error(status));
 		});
 	}
 

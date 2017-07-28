@@ -8,11 +8,11 @@
 
 namespace uv
 {
-    #define uv_assert(c, status) \
+    #define uv_assert(error) \
         do { \
-            if(!(c)) { \
+            if((error)) { \
                 std::stringstream s; \
-                s << "call uv function failed [ " << uv_strerror(status) <<"] "<< __FILE__ << ":" << __LINE__ ; \
+                s << "call uv function failed [ " << error.toString() <<"] "<< __FILE__ << ":" << __LINE__ ; \
                 throw std::runtime_error(s.str()); \
             } \
         } while(0)

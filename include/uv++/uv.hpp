@@ -4,6 +4,7 @@
 #include "Async.hpp"
 #include "Check.hpp"
 #include "Connect.hpp"
+#include "Error.hpp"
 #include "FileStream.hpp"
 #include "FileStreamEvent.hpp"
 #include "FileStreamPoll.hpp"

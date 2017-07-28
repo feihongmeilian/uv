@@ -6,6 +6,7 @@
 
 #include <uv.h>
 
+#include "Error.hpp"
 #include "Loop.hpp"
 #include "Connect.hpp"
 #include "Stream.hpp"
@@ -19,7 +20,7 @@ namespace uv
 
 		inline int		open(uv_file file);
 		inline int		bind(const std::string &name);
-		inline int		connect(const std::string &name, std::function<void()> handler);
+		inline int		connect(const std::string &name, std::function<void(const Error &error)> handler);
 		inline int		getsockname(char *buffer, size_t &size) const;
 		inline int		getpeername(char *buffer, size_t &size) const;
 		inline void		pendingInstances(int count);
@@ -28,7 +29,7 @@ namespace uv
 		inline uv_handle_type	pendingType();
 
 	private:
-		std::function<void()>	m_connectHandler = []() {};
+		std::function<void(const Error &error)>		m_connectHandler = [](const Error &error) {};
 	};
 
 
@@ -51,7 +52,7 @@ namespace uv
 		return uv_pipe_bind(&m_handle, name.c_str());
 	}
 	
-	int Pipe::connect(const std::string &name, std::function<void()> handler)
+	int Pipe::connect(const std::string &name, std::function<void(const Error &error)> handler)
 	{
 		auto connect = new (std::nothrow) Connect;
 		if (connect == nullptr) return ENOMEM;
@@ -60,13 +61,10 @@ namespace uv
 		uv_pipe_connect(&connect->m_handle, &m_handle, name.c_str(),
 			[](uv_connect_t *req, int status) {
 
-			//connected
-			if (!status) {
-				auto &pipe_t = *reinterpret_cast<uv_pipe_t *>(req->handle);
-				auto &pipe = *reinterpret_cast<uv::Pipe *>(pipe_t.data);
-				pipe.m_connectHandler();
-			}
-			delete reinterpret_cast<Connect *>(req->data);
+			std::shared_ptr<Connect> connect(reinterpret_cast<Connect *>(req->data));
+
+			auto &pipe = *reinterpret_cast<uv::Pipe *>(req->handle->data);
+			pipe.m_connectHandler(Error(status));
 		});
 
 		return 0;

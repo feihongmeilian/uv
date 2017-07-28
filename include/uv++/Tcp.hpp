@@ -6,6 +6,7 @@
 
 #include <uv.h>
 
+#include "Error.hpp"
 #include "Loop.hpp"
 #include "Connect.hpp"
 #include "Stream.hpp"
@@ -25,10 +26,11 @@ namespace uv
 		inline int		bind(const std::string &ip, int port, unsigned int flags);
 		inline int		getsockname(struct sockaddr &name, int &namelen) const;
 		inline int		getpeername(struct sockaddr &name, int &namelen) const;
-		inline int		connect(const std::string &ip, int port, std::function<void(int status)> handler);
+		inline int		connect(const std::string &ip, int port,
+							std::function<void(const Error &error)> handler);
 
 	private:
-		std::function<void(int status)>	m_connectHandler = [](int status) {};
+		std::function<void(const Error &error)>	m_connectHandler = [](const Error &error) {};
 	};
 
 
@@ -86,7 +88,7 @@ namespace uv
 		return uv_tcp_getpeername(&m_handle, &name, &namelen);
 	}
 	
-	int Tcp::connect(const std::string &ip, int port, std::function<void(int status)> handler)
+	int Tcp::connect(const std::string &ip, int port, std::function<void(const Error &error)> handler)
 	{
 		m_connectHandler = handler;
 
@@ -102,7 +104,7 @@ namespace uv
             std::shared_ptr<Connect> connect(reinterpret_cast<Connect *>(req->data));
 			
             auto &tcp = *reinterpret_cast<uv::Tcp *>(req->handle->data);
-			tcp.m_connectHandler(status);
+			tcp.m_connectHandler(Error(status));
 		});
 	}
 }

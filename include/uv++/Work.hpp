@@ -5,6 +5,7 @@
 
 #include <uv.h>
 
+#include "Error.hpp"
 #include "Req.hpp"
 #include "Loop.hpp"
 
@@ -13,19 +14,19 @@ namespace uv
 	class Work : public Req<uv_work_t>
 	{
 	public:
-		inline Work(std::function<void()> wh, std::function<void(int)> ah);
+		inline Work(std::function<void()> wh, std::function<void(const Error &error)> ah);
 		inline int		queue(uv::Loop &loop);
 
 	private:
-		std::function<void()>				m_workHandler		= []() {};
-		std::function<void(int status)>	m_afterWorkHandler= [](int status) {};
+		std::function<void()>					m_workHandler		= []() {};
+		std::function<void(const Error &error)>	m_afterWorkHandler = [](const Error &error) {};
 	};
 
 
 
 
 
-	Work::Work(std::function<void()> wh, std::function<void(int)> ah)
+	Work::Work(std::function<void()> wh, std::function<void(const Error &error)> ah)
 	{
 		m_handle.data = this;
 		m_workHandler = wh;
@@ -41,7 +42,7 @@ namespace uv
 			}, 
 			[](uv_work_t *r,int status) {
 				auto &req = *reinterpret_cast<uv::Work *>(r->data);
-				req.m_afterWorkHandler(status);
+				req.m_afterWorkHandler(Error(status));
 		});
 	}
 }

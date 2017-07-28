@@ -5,6 +5,7 @@
 
 #include <uv.h>
 
+#include "Error.hpp"
 #include "Loop.hpp"
 #include "Noncopyable.hpp"
 
@@ -17,7 +18,7 @@ namespace uv
 #ifdef _MSC_VER
 		inline Poll(uv::Loop &loop, uv_os_sock_t socket);
 #endif
-		inline int		start(int events, std::function<void(uv::Poll &)> cb);
+		inline int		start(int events, std::function<void(const Error &error, int events)> cb);
 		inline int		stop();
 
 	public:
@@ -27,7 +28,7 @@ namespace uv
 
 	private:
 		uv_poll_t		m_handle;
-		std::function<void(uv::Poll &)>	m_startHandler = [](uv::Poll &) {};
+		std::function<void(const Error &error, int events)>	m_startHandler = [](const Error &error, int events) {};
 	};
 
 
@@ -48,14 +49,13 @@ namespace uv
 	}
 #endif
 
-	int Poll::start(int events, std::function<void(uv::Poll &)> cb)
+	int Poll::start(int events, std::function<void(const Error &error, int events)> cb)
 	{
 		m_startHandler = cb;
 		return uv_poll_start(&m_handle, events, [](uv_poll_t* handle, int status, int events) {
-			if (status) return;
 
 			auto &poll = *reinterpret_cast<uv::Poll *>(handle->data);
-			poll.m_startHandler(poll);
+			poll.m_startHandler(Error(status), events);
 		});
 	}
 

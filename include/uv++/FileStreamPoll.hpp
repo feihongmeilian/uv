@@ -6,6 +6,7 @@
 
 #include <uv.h>
 
+#include "Error.hpp"
 #include "Loop.hpp"
 #include "Noncopyable.hpp"
 
@@ -16,7 +17,8 @@ namespace uv
 	public:
 		inline explicit	FileStreamPoll(uv::Loop &loop);
 
-		inline int		start(const std::string &path, unsigned int interval, std::function<void(int status)> handler);
+		inline int		start(const std::string &path, unsigned int interval, 
+							std::function<void(const Error &error)> handler);
 		inline int		stop();
 		inline int		getpath(char *buffer, size_t &size);
 
@@ -27,7 +29,7 @@ namespace uv
 		uv_fs_poll_t		m_handle;
 		const uv_stat_t	*m_prevStat;
 		const uv_stat_t	*m_currStat;
-		std::function<void(int status)>	m_callbackHandler = [](int status) {};
+		std::function<void(const Error &error)>	m_callbackHandler = [](const Error &error) {};
 	};
 
 
@@ -41,7 +43,8 @@ namespace uv
 		m_callbackHandler = [](int status) {};
 	}
 
-	int FileStreamPoll::start(const std::string &path, unsigned int interval, std::function<void(int status)> handler)
+	int FileStreamPoll::start(const std::string &path, unsigned int interval,
+		std::function<void(const Error &error)> handler)
 	{
 		m_callbackHandler = handler;
 		return uv_fs_poll_start(&m_handle,
@@ -49,7 +52,7 @@ namespace uv
 			auto &fp = *reinterpret_cast<uv::FileStreamPoll *>(handle->data);
 			fp.m_prevStat = prev;
 			fp.m_currStat = curr;
-			fp.m_callbackHandler(status);
+			fp.m_callbackHandler(Error(status));
 		}, path.c_str(), interval);
 	}
 
