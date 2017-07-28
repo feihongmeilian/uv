@@ -1,0 +1,6 @@
+#ifndef UV_UV
+#define UV_UV
+
+#include "uv++/uv.hpp"
+
+#endif
