@@ -32,7 +32,7 @@ namespace uv
 	GetAddrInfo::GetAddrInfo(uv::Loop &loop)
 		: m_loop(loop)
 	{
-		m_callbackHandler = [](uv::GetAddrInfo &, int status, struct addrinfo *res) {};
+		m_callbackHandler = [](int status, struct addrinfo *res) {};
 		m_handle.data = this;
 	}
 
@@ -40,7 +40,7 @@ namespace uv
 		std::function<void(int status, struct addrinfo *res)> handler)
 	{
 		m_callbackHandler = handler;
-		return uv_getaddrinfo(&m_loop.m_loop, &m_handle, [](uv_getaddrinfo_t* req, int status, struct addrinfo *res) {
+		return uv_getaddrinfo(m_loop.m_loop_ptr, &m_handle, [](uv_getaddrinfo_t* req, int status, struct addrinfo *res) {
 			auto &addr = *reinterpret_cast<uv::GetAddrInfo *>(req->data);
 			addr.m_callbackHandler(status, res);
 		}, node.c_str(), service.c_str(), &hints);

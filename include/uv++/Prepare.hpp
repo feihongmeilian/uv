@@ -32,7 +32,7 @@ namespace uv
 	Prepare::Prepare(uv::Loop &loop)
 	{
 		m_handle.data = this;
-		uv_prepare_init(&loop.m_loop, &m_handle);
+		uv_prepare_init(loop.m_loop_ptr, &m_handle);
 	}
 
 	int Prepare::start(std::function<void()> cb)

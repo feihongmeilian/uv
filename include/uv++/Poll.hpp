@@ -36,13 +36,13 @@ namespace uv
 	Poll::Poll(uv::Loop &loop, int fd)
 	{
 		m_handle.data = this;
-		uv_poll_init(&loop.m_loop, &m_handle, fd);
+		uv_poll_init(loop.m_loop_ptr, &m_handle, fd);
 	}
 
 	Poll::Poll(uv::Loop &loop, uv_os_sock_t socket)
 	{
 		m_handle.data = this;
-		uv_poll_init_socket(&loop.m_loop, &m_handle, socket);
+		uv_poll_init_socket(loop.m_loop_ptr, &m_handle, socket);
 	}
 
 	int Poll::start(int events, std::function<void(uv::Poll &)> cb)

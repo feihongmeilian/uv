@@ -25,7 +25,7 @@ namespace uv
 	Tty::Tty(uv::Loop &loop, uv_file fd, int readable)
 	{
 		m_handle.data = this;
-		uv_tty_init(&loop.m_loop, &m_handle, fd, readable);
+		uv_tty_init(loop.m_loop_ptr, &m_handle, fd, readable);
 	}
 
 	int	Tty::setMode(uv_tty_mode_t mode)

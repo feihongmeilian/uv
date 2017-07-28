@@ -32,7 +32,7 @@ namespace uv
 	Check::Check(uv::Loop &loop)
 	{
 		m_handle.data = this;
-		uv_check_init(&loop.m_loop, &m_handle);
+		uv_check_init(loop.m_loop_ptr, &m_handle);
 	}
 
 	int Check::start(std::function<void()> cb)

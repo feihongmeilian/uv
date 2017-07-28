@@ -33,7 +33,7 @@ namespace uv
 
 	Timer::Timer(uv::Loop &loop)
 	{
-		uv_timer_init(&loop.m_loop, &m_handle);
+		uv_timer_init(loop.m_loop_ptr, &m_handle);
 		m_handle.data = this;
 	}
 

@@ -28,12 +28,12 @@ namespace uv
     class Loop : public Noncopyable
     {
     public:
-		inline explicit Loop(bool is_default = false);
-		inline          ~Loop();
+		inline explicit	Loop(bool is_default = false);
+		inline			~Loop();
 
 		inline void		run();
-        inline void     runOnce();
-        inline void     runNowait();
+        inline void		runOnce();
+        inline void		runNowait();
 		inline void		stop();
 		inline uint64_t	now() const;
 		inline void		updateTime();
@@ -63,8 +63,8 @@ namespace uv
 		friend class GetAddrInfo;
 
     private:
-        uv_loop_t		m_loop;
-        uv_loop_t       *m_loop_ptr;
+        uv_loop_t		m_loop;	//not use
+        uv_loop_t		*m_loop_ptr;
     };
 
 

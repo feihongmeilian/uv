@@ -34,8 +34,8 @@ namespace uv
 	FileStreamEvent::FileStreamEvent(uv::Loop &loop)
 	{
 		m_handle.data = this;
-		uv_fs_event_init(&loop.m_loop, &m_handle);
-		m_callbackHandler = [](uv::FileStreamEvent &, const std::string &filename, int events, int status) {};
+		uv_fs_event_init(loop.m_loop_ptr, &m_handle);
+		m_callbackHandler = []( const std::string &filename, int events, int status) {};
 	}
 
 	int FileStreamEvent::start(const std::string &path, unsigned int flags,

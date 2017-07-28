@@ -32,7 +32,7 @@ namespace uv
 
 	Signal::Signal(uv::Loop &loop)
 	{
-		uv_signal_init(&loop.m_loop, &m_handle);
+		uv_signal_init(loop.m_loop_ptr, &m_handle);
 		m_handle.data = this;
 	}
 

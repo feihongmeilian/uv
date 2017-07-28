@@ -43,13 +43,13 @@ namespace uv
 	Udp::Udp(uv::Loop &loop)
 	{
 		m_handle.data = this;
-		uv_udp_init(&loop.m_loop, &m_handle);
+		uv_udp_init(loop.m_loop_ptr, &m_handle);
 	}
 
 	Udp::Udp(uv::Loop &loop, unsigned int flags)
 	{
 		m_handle.data = this;
-		uv_udp_init_ex(&loop.m_loop, &m_handle, flags);
+		uv_udp_init_ex(loop.m_loop_ptr, &m_handle, flags);
 	}
 
 	int Udp::open(uv_os_sock_t sock)

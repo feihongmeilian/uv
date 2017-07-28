@@ -38,13 +38,13 @@ namespace uv
 	Tcp::Tcp(uv::Loop &loop)
 	{
 		m_handle.data = this;
-		uv_tcp_init(&loop.m_loop, &m_handle);
+		uv_tcp_init(loop.m_loop_ptr, &m_handle);
 	}
 
 	Tcp::Tcp(uv::Loop &loop, unsigned int flags)
 	{
 		m_handle.data = this;
-		uv_tcp_init_ex(&loop.m_loop, &m_handle, flags);
+		uv_tcp_init_ex(loop.m_loop_ptr, &m_handle, flags);
 	}
 
 	int Tcp::open(uv_os_sock_t sock)

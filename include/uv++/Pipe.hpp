@@ -38,7 +38,7 @@ namespace uv
 	Pipe::Pipe(uv::Loop &loop, int ipc)
 	{
 		m_handle.data = this;
-		uv_pipe_init(&loop.m_loop, &m_handle, ipc);
+		uv_pipe_init(loop.m_loop_ptr, &m_handle, ipc);
 	}
 
 	int Pipe::open(uv_file file)

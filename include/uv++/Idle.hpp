@@ -32,7 +32,7 @@ namespace uv
 	Idle::Idle(uv::Loop &loop)
 	{
 		m_handle.data = this;
-		uv_idle_init(&loop.m_loop, &m_handle);
+		uv_idle_init(loop.m_loop_ptr, &m_handle);
 	}
 
 	int Idle::start(std::function<void()> cb)

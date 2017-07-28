@@ -34,7 +34,7 @@ namespace uv
 
 	int Work::queue(uv::Loop &loop)
 	{
-		return uv_queue_work(&loop.m_loop, &m_handle,
+		return uv_queue_work(loop.m_loop_ptr, &m_handle,
 			[](uv_work_t *r) {
 				auto &req = *reinterpret_cast<uv::Work *>(r->data);
 				req.m_workHandler();
