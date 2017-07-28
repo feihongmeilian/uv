@@ -28,10 +28,12 @@ namespace uv
     class Loop : public Noncopyable
     {
     public:
-		inline Loop();
-		inline ~Loop();
+		inline explicit Loop(bool is_default = false);
+		inline          ~Loop();
 
-		inline void		run(uv_run_mode mode = UV_RUN_DEFAULT);
+		inline void		run();
+        inline void     runOnce();
+        inline void     runNowait();
 		inline void		stop();
 		inline uint64_t	now() const;
 		inline void		updateTime();
@@ -62,71 +64,88 @@ namespace uv
 
     private:
         uv_loop_t		m_loop;
+        uv_loop_t       *m_loop_ptr;
     };
 
 
 
 
 
-	Loop::Loop()
+	Loop::Loop(bool is_default)
 	{
-		uv_loop_init(&m_loop);
-		m_loop.data = this;
-	}
+        if (is_default) {
+		    uv_loop_init(&m_loop);
+            m_loop_ptr = &m_loop;
+        }
+        else {
+            m_loop_ptr = uv_default_loop();
+        }
+        m_loop_ptr->data = this;
+    }
 
 	Loop::~Loop()
 	{
-		uv_loop_close(&m_loop);
+		uv_loop_close(m_loop_ptr);
 	}
 
-	void Loop::run(uv_run_mode mode)
+	void Loop::run()
 	{
-		uv_run(&m_loop, mode);
+		uv_run(m_loop_ptr, UV_RUN_DEFAULT);
 	}
+
+    void Loop::runOnce()
+    {
+        uv_run(m_loop_ptr, UV_RUN_ONCE);
+    }
+
+    void Loop::runNowait()
+    {
+        uv_run(m_loop_ptr, UV_RUN_NOWAIT);
+    }
 
 	void Loop::stop()
 	{
-		uv_stop(&m_loop);
+		uv_stop(m_loop_ptr);
 	}
 
 	uint64_t Loop::now() const
 	{
-		return uv_now(&m_loop);
+		return uv_now(m_loop_ptr);
 	}
 
 	void Loop::updateTime()
 	{
-		uv_update_time(&m_loop);
+		uv_update_time(m_loop_ptr);
 	}
 
 	int Loop::alive() const
 	{
-		return uv_loop_alive(&m_loop);
+		return uv_loop_alive(m_loop_ptr);
 	}
 
 	int Loop::backendFd() const
 	{
-		return uv_backend_fd(&m_loop);
+		return uv_backend_fd(m_loop_ptr);
 	}
 
 	int Loop::backendTimeout() const
 	{
-		return uv_backend_timeout(&m_loop);
+		return uv_backend_timeout(m_loop_ptr);
 	}
 
 	void Loop::printAllHandles(FILE *stream)
 	{
-		uv_print_all_handles(&m_loop, stream);
+		uv_print_all_handles(m_loop_ptr, stream);
 	}
 
 	void Loop::printActiveHandles(FILE *stream)
 	{
-		uv_print_active_handles(&m_loop, stream);
+		uv_print_active_handles(m_loop_ptr, stream);
 	}
 
 	uv_loop_t &Loop::operator()()
 	{
-		return m_loop;
+		return *m_loop_ptr;
 	}
 }
 
