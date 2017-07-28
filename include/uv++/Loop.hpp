@@ -74,11 +74,11 @@ namespace uv
 	Loop::Loop(bool is_default)
 	{
         if (is_default) {
-            m_loop_ptr = &m_loop;
-		    uv_loop_init(m_loop_ptr);
+			m_loop_ptr = uv_default_loop();
         }
         else {
-            m_loop_ptr = uv_default_loop();
+            m_loop_ptr = &m_loop;
+		    uv_loop_init(m_loop_ptr);
         }
         m_loop_ptr->data = this;
     }
