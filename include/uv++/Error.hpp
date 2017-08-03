@@ -12,8 +12,8 @@ namespace uv
 		inline explicit	Error(int status);
 
 		inline operator	bool() const;
-		inline const char	*toString();
-		inline const char	*name();
+		inline const char	*toString() const;
+		inline const char	*name() const;
 
 	private:
 		int				m_error;
@@ -33,12 +33,12 @@ namespace uv
 		return m_error != 0;
 	}
 
-	const char *Error::toString()
+	const char *Error::toString() const
 	{
 		return uv_strerror(m_error);
 	}
 	
-	const char *Error::name()
+	const char *Error::name() const
 	{
 		return uv_err_name(m_error);
 	}
