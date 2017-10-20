@@ -10,6 +10,8 @@ namespace uv
 	{
 	public:
 		inline explicit	Error(int status);
+		inline explicit	Error(const Error &error);
+		inline Error	&operator=(const Error &error);
 
 		inline operator	bool() const;
 		inline const char	*toString() const;
@@ -26,6 +28,20 @@ namespace uv
 	Error::Error(int status)
 	{
 		m_error = status;
+	}
+
+	Error::Error(const Error &error)
+	{
+		m_error = error.m_error;
+	}
+
+	Error &Error::operator=(const Error &error)
+	{
+		if (this == &error) return *this;
+
+		m_error = error.m_error;
+
+		return *this;
 	}
 	
 	Error::operator bool() const
