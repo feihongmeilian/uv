@@ -42,7 +42,7 @@ namespace uv
 	private:
 		std::function<void(const Error &error)>	m_listenHandler	= [](const Error &error) {};
 		std::function<void(const Error &error)>	m_shutdownHandler	= [](const Error &error) {};
-		std::function<void(const Error &error)>	m_writeHandler	= [](const Error &errors) {};
+		std::function<void(const Error &error)>	m_writeHandler	= [](const Error &error) {};
 		std::function<void(char *data, ssize_t len)>m_readHandler	= [](char *data, ssize_t len) {};
 		
 	};

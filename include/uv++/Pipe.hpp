@@ -35,7 +35,7 @@ namespace uv
 		uv_handle_type	pendingType();
 
 	private:
-		std::function<void(const Error &error)>		m_connectHandler = [](const Error &error) {};
+		std::function<void(const Error &error)>	m_connectHandler = [](const Error &error) {};
 	};
 
 

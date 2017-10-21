@@ -45,7 +45,6 @@ namespace uv
 	{
 		m_handle.data = this;
 		uv_fs_poll_init(loop.m_loop_ptr, &m_handle);
-		m_callbackHandler = [](int status) {};
 	}
 
 	inline void FileStreamPoll::start(const std::string &path, unsigned int interval,

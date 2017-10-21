@@ -31,7 +31,8 @@ namespace uv
 
 	private:
 		uv_poll_t		m_handle;
-		std::function<void(const Error &error, int events)>	m_startHandler = [](const Error &error, int events) {};
+		std::function<void(const Error &error, int events)>	m_startHandler
+			= [](const Error &error, int events) {};
 	};
 
 

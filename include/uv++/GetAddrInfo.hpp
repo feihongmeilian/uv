@@ -25,7 +25,8 @@ namespace uv
 		static void	freeaddrinfo(struct addrinfo *ai);
 	private:
 		uv::Loop		&m_loop;
-		std::function<void(const Error &error, struct addrinfo *res)> m_callbackHandler;
+		std::function<void(const Error &error, struct addrinfo *res)> m_callbackHandler
+			= [] (const Error &, struct addrinfo *) {};
 	};
 
 
