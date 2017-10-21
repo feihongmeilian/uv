@@ -54,7 +54,7 @@ namespace uv
 	{
 		uv::Error er;
 
-		start(handler, er);
+		start(handler, sigNum, er);
 		if (er) {
 			throw uv::Exception(er);
 		}
