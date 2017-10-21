@@ -1,22 +1,20 @@
-/*************************************************************************
-	> File Name: timer.cpp
-	> Author: 
-	> Mail: 
-	> Created Time: 2017年07月19日 星期三 11时36分34秒
- ************************************************************************/
-
-#include<iostream>
-#include<uv>
-using namespace std;
+#include <iostream>
+#include <uv>
 
 int main()
 {
-    uv::Loop loop;
+	uv::Loop loop;
+	uv::Timer timer(loop);
 
-    uv::Timer timer(loop);
-    timer.start([](){
-        std::cout << "Hello, World" << std::endl;
-    }, 1000, 1000);
+	try {
+		timer.start([]() {
+			std::cout << "Hello,World" << std::endl;
+		}, 1000, 1000);
 
-    loop.run();
+		loop.run();
+	}
+	catch (const uv::Exception &ex) {
+		std::cout << ex.what() << std::endl;
+	}
 }
+
