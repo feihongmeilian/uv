@@ -103,10 +103,9 @@ namespace uv
 	inline void Loop::run()
 	{
 		uv::Error er;
-		run(er);
 
-		if (er)
-		{
+		run(er);
+		if (er) {
 			throw uv::Exception(er);
 		}
 	}
@@ -119,10 +118,9 @@ namespace uv
 	inline void Loop::runOnce()
 	{
 		uv::Error er;
-		runOnce(er);
 
-		if (er)
-		{
+		runOnce(er);
+		if (er) {
 			throw uv::Exception(er);
 		}
 	}
@@ -135,10 +133,9 @@ namespace uv
 	inline void Loop::runNowait()
 	{
 		uv::Error er;
-		runNowait(er);
 
-		if (er)
-		{
+		runNowait(er);
+		if (er) {
 			throw uv::Exception(er);
 		}
 	}
@@ -156,10 +153,9 @@ namespace uv
 	inline void Loop::fork()
 	{
 		uv::Error er;
-		fork(er);
 
-		if (er)
-		{
+		fork(er);
+		if (er) {
 			throw uv::Exception(er);
 		}
 	}

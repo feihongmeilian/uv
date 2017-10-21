@@ -51,10 +51,9 @@ namespace uv
 	inline void Work::queue(uv::Loop &loop)
 	{
 		uv::Error er;
-		queue(loop, er);
 
-		if (er)
-		{
+		queue(loop, er);
+		if (er) {
 			throw uv::Exception(er);
 		}
 	}

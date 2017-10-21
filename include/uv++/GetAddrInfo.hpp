@@ -53,10 +53,9 @@ namespace uv
 		std::function<void(const Error&error, struct addrinfo*res)> handler)
 	{
 		uv::Error er;
-		get(node, service, hints, handler, er);
 
-		if (er)
-		{
+		get(node, service, hints, handler, er);
+		if (er) {
 			throw uv::Exception(er);
 		}
 	}

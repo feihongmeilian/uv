@@ -41,10 +41,9 @@ namespace uv
 	inline void Tty::setMode(uv_tty_mode_t mode)
 	{
 		uv::Error er;
-		setMode(mode, er);
 
-		if (er)
-		{
+		setMode(mode, er);
+		if (er) {
 			throw uv::Exception(er);
 		}
 	}
@@ -57,10 +56,9 @@ namespace uv
 	inline void Tty::resetMode()
 	{
 		uv::Error er;
-		resetMode(er);
 
-		if (er)
-		{
+		resetMode(er);
+		if (er) {
 			throw uv::Exception(er);
 		}
 	}
@@ -73,10 +71,9 @@ namespace uv
 	inline void Tty::getWinsize(int & width, int & height)
 	{
 		uv::Error er;
-		getWinsize(width, height, er);
 
-		if (er)
-		{
+		getWinsize(width, height, er);
+		if (er) {
 			throw uv::Exception(er);
 		}
 	}

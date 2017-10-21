@@ -23,7 +23,8 @@ namespace uv
 	class FileStreamEvent;
 	class GetAddrInfo;
 
-
+	template<typename T> class Stream;
+	template<typename T> class Handle;
 	class Error
 	{
 	public:
@@ -55,6 +56,8 @@ namespace uv
 		friend class GetAddrInfo;
 		friend class Loop;
 
+		template<typename T> friend class Stream;
+		template<typename T> friend class Handle;
 	private:
 		int				m_error = 0;
 	};

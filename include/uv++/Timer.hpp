@@ -55,10 +55,9 @@ namespace uv
 	inline void Timer::start(std::function<void()> handler, uint64_t timeout, uint64_t repeat)
 	{
 		uv::Error er;
-		start(handler, timeout, repeat, er);
 
-		if (er)
-		{
+		start(handler, timeout, repeat, er);
+		if (er) {
 			throw uv::Exception(er);
 		}
 	}
@@ -71,10 +70,9 @@ namespace uv
 	inline void Timer::stop()
 	{
 		uv::Error er;
-		stop(er);
 
-		if (er)
-		{
+		stop(er);
+		if (er) {
 			throw uv::Exception(er);
 		}
 	}
@@ -87,10 +85,9 @@ namespace uv
 	inline void Timer::again()
 	{
 		uv::Error er;
-		again(er);
 
-		if (er)
-		{
+		again(er);
+		if (er) {
 			throw uv::Exception(er);
 		}
 	}

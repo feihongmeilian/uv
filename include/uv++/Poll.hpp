@@ -65,10 +65,9 @@ namespace uv
 	inline void Poll::start(int events, std::function<void(const Error&error, int events)> cb)
 	{
 		uv::Error er;
-		start(events, cb, er);
 
-		if (er)
-		{
+		start(events, cb, er);
+		if (er) {
 			throw uv::Exception(er);
 		}
 	}
@@ -81,10 +80,9 @@ namespace uv
 	inline void Poll::stop()
 	{
 		uv::Error er;
-		stop(er);
 
-		if (er)
-		{
+		stop(er);
+		if (er) {
 			throw uv::Exception(er);
 		}
 	}

@@ -51,10 +51,9 @@ namespace uv
 	inline void Idle::start(std::function<void()> cb)
 	{
 		uv::Error er;
-		start(cb, er);
 
-		if (er)
-		{
+		start(cb, er);
+		if (er) {
 			throw uv::Exception(er);
 		}
 	}
@@ -67,10 +66,9 @@ namespace uv
 	inline void Idle::stop()
 	{
 		uv::Error er;
-		stop(er);
 
-		if (er)
-		{
+		stop(er);
+		if (er) {
 			throw uv::Exception(er);
 		}
 	}

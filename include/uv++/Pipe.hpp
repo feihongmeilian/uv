@@ -56,10 +56,9 @@ namespace uv
 	inline void Pipe::open(uv_file file)
 	{
 		uv::Error er;
-		open(er);
 
-		if (er)
-		{
+		open(er);
+		if (er) {
 			throw uv::Exception(er);
 		}
 	}
@@ -72,10 +71,9 @@ namespace uv
 	inline void Pipe::bind(const std::string &name)
 	{
 		uv::Error er;
-		bind(name, er);
 
-		if (er)
-		{
+		bind(name, er);
+		if (er) {
 			throw uv::Exception(er);
 		}
 	}
@@ -83,8 +81,7 @@ namespace uv
 	inline void Pipe::connect(const std::string &name, std::function<void(const Error &error)> handler, uv::Error &er)
 	{
 		auto connect = new (std::nothrow) Connect;
-		if (connect == nullptr)
-		{
+		if (connect == nullptr) {
 			er.m_error = ENOMEM;
 			return;
 		}
@@ -103,10 +100,9 @@ namespace uv
 	inline void Pipe::connect(const std::string &name, std::function<void(const Error&error)> handler)
 	{
 		uv::Error er;
-		connect(name, handler, er);
 
-		if (er)
-		{
+		connect(name, handler, er);
+		if (er) {
 			throw uv::Exception(er);
 		}
 	}
@@ -119,10 +115,9 @@ namespace uv
 	inline void Pipe::getsockname(char *buffer, size_t &size) const
 	{
 		uv::Error er;
-		getsockname(buffer, size, er);
 
-		if (er)
-		{
+		getsockname(buffer, size, er);
+		if (er) {
 			throw uv::Exception(er);
 		}
 	}
@@ -135,10 +130,9 @@ namespace uv
 	inline void Pipe::getpeername(char *buffer, size_t &size) const
 	{
 		uv::Error er;
-		getpeername(buffer, size, er);
 
-		if (er)
-		{
+		getpeername(buffer, size, er);
+		if (er) {
 			throw uv::Exception(er);
 		}
 	}

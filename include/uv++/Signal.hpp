@@ -53,10 +53,9 @@ namespace uv
 	inline void Signal::start(std::function<void(int signum)> handler, int sigNum)
 	{
 		uv::Error er;
-		start(handler, er);
 
-		if (er)
-		{
+		start(handler, er);
+		if (er) {
 			throw uv::Exception(er);
 		}
 	}
@@ -69,10 +68,9 @@ namespace uv
 	inline void Signal::stop()
 	{
 		uv::Error er;
-		stop(er);
 
-		if (er)
-		{
+		stop(er);
+		if (er) {
 			throw uv::Exception(er);
 		}
 	}

@@ -65,10 +65,9 @@ namespace uv
 		std::function<void(const Error&error)> handler)
 	{
 		uv::Error er;
-		start(path, interval, handler, er);
 
-		if (er)
-		{
+		start(path, interval, handler, er);
+		if (er) {
 			throw uv::Exception(er);
 		}
 	}
@@ -81,10 +80,9 @@ namespace uv
 	inline void FileStreamPoll::stop()
 	{
 		uv::Error er;
-		stop(er);
 
-		if (er)
-		{
+		stop(er);
+		if (er) {
 			throw uv::Exception(er);
 		}
 	}
@@ -97,10 +95,9 @@ namespace uv
 	inline void FileStreamPoll::getpath(char *buffer, size_t &size)
 	{
 		uv::Error er;
-		getpath(buffer, size, er);
 
-		if (er)
-		{
+		getpath(buffer, size, er);
+		if (er) {
 			throw uv::Exception(er);
 		}
 	}

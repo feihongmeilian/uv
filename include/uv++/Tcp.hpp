@@ -67,10 +67,9 @@ namespace uv
 	inline void Tcp::open(uv_os_sock_t sock)
 	{
 		uv::Error er;
-		open(sock, er);
 
-		if (er)
-		{
+		open(sock, er);
+		if (er) {
 			throw uv::Exception(er);
 		}
 	}
@@ -83,10 +82,9 @@ namespace uv
 	inline void Tcp::nodelay(int enable)
 	{
 		uv::Error er;
-		nodelay(enable, er);
 
-		if (er)
-		{
+		nodelay(enable, er);
+		if (er) {
 			throw uv::Exception(er);
 		}
 	}
@@ -99,10 +97,9 @@ namespace uv
 	inline void Tcp::keepalive(int enable, unsigned int delay)
 	{
 		uv::Error er;
-		keepalive(enable, delay, er);
 
-		if (er)
-		{
+		keepalive(enable, delay, er);
+		if (er) {
 			throw uv::Exception(er);
 		}
 	}
@@ -115,10 +112,9 @@ namespace uv
 	inline void Tcp::simultaneousAccepts(int enable)
 	{
 		uv::Error er;
-		simultaneousAccepts(enable, er);
 
-		if (er)
-		{
+		simultaneousAccepts(enable, er);
+		if (er) {
 			throw uv::Exception(er);
 		}
 	}
@@ -126,6 +122,7 @@ namespace uv
 	inline void Tcp::bind(const std::string &ip, int port, unsigned int flags, uv::Error &er)
 	{
 		struct sockaddr_in addr;
+
 		er.m_error = uv_ip4_addr(ip.c_str(), port, &addr);
 		if (er) return;
 
@@ -135,10 +132,9 @@ namespace uv
 	inline void Tcp::bind(const std::string &ip, int port, unsigned int flags)
 	{
 		uv::Error er;
-		bind(ip, port, flags, er);
 
-		if (er)
-		{
+		bind(ip, port, flags, er);
+		if (er) {
 			throw uv::Exception(er);
 		}
 	}
@@ -151,10 +147,9 @@ namespace uv
 	inline void Tcp::getsockname(sockaddr &name, int &namelen) const
 	{
 		uv::Error er;
-		getsockname(name, namelen, er);
 
-		if (er)
-		{
+		getsockname(name, namelen, er);
+		if (er) {
 			throw uv::Exception(er);
 		}
 	}
@@ -167,10 +162,9 @@ namespace uv
 	inline void Tcp::getpeername(sockaddr &name, int &namelen) const
 	{
 		uv::Error er;
-		getpeername(name, namelen, er);
 
-		if (er)
-		{
+		getpeername(name, namelen, er);
+		if (er) {
 			throw uv::Exception(er);
 		}
 	}
@@ -180,8 +174,7 @@ namespace uv
 		m_connectHandler = handler;
 
 		auto connect = new (std::nothrow) Connect;
-		if (connect == nullptr)
-		{
+		if (connect == nullptr) {
 			er.m_error = ENOMEM;
 			return;
 		}
@@ -203,10 +196,9 @@ namespace uv
 	inline void Tcp::connect(const std::string &ip, int port, std::function<void(const Error&error)> handler)
 	{
 		uv::Error er;
-		connect(ip, port, handler, er);
 
-		if (er)
-		{
+		connect(ip, port, handler, er);
+		if (er) {
 			throw uv::Exception(er);
 		}
 	}

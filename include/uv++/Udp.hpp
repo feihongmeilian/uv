@@ -72,10 +72,9 @@ namespace uv
 	inline void Udp::open(uv_os_sock_t sock)
 	{
 		uv::Error er;
-		open(sock, er);
 
-		if (er)
-		{
+		open(sock, er);
+		if (er) {
 			throw uv::Exception(er);
 		}
 	}
@@ -88,10 +87,9 @@ namespace uv
 	inline void Udp::bind(const sockaddr &addr, unsigned int flags)
 	{
 		uv::Error er;
-		bind(addr, flags, er);
 
-		if (er)
-		{
+		bind(addr, flags, er);
+		if (er) {
 			throw uv::Exception(er);
 		}
 	}
@@ -104,10 +102,9 @@ namespace uv
 	inline void Udp::getsockname(sockaddr &name, int &namelen) const
 	{
 		uv::Error er;
-		getsockname(name, namelen, er);
 
-		if (er)
-		{
+		getsockname(name, namelen, er);
+		if (er) {
 			throw uv::Exception(er);
 		}
 	}
@@ -122,10 +119,9 @@ namespace uv
 	inline void Udp::setMembership(const std::string &multicast_addr, const std::string &interface_addr, uv_membership membership)
 	{
 		uv::Error er;
-		setMembership(multicast_addr, interface_addr, membership, er);
 
-		if (er)
-		{
+		setMembership(multicast_addr, interface_addr, membership, er);
+		if (er) {
 			throw uv::Exception(er);
 		}
 	}
@@ -138,10 +134,9 @@ namespace uv
 	inline void Udp::setMulticastLoop(int on)
 	{
 		uv::Error er;
-		setMulticastLoop(on, er);
 
-		if (er)
-		{
+		setMulticastLoop(on, er);
+		if (er) {
 			throw uv::Exception(er);
 		}
 	}
@@ -154,10 +149,9 @@ namespace uv
 	inline void Udp::setMulticastTtl(int ttl)
 	{
 		uv::Error er;
-		setMulticastTtl(ttl, er);
 
-		if (er)
-		{
+		setMulticastTtl(ttl, er);
+		if (er) {
 			throw uv::Exception(er);
 		}
 	}
@@ -170,10 +164,9 @@ namespace uv
 	inline void Udp::setMulticastInterface(const std::string &interface_addr)
 	{
 		uv::Error er;
-		setMulticastInterface(interface_addr, er);
 
-		if (er)
-		{
+		setMulticastInterface(interface_addr, er);
+		if (er) {
 			throw uv::Exception(er);
 		}
 	}
@@ -186,10 +179,9 @@ namespace uv
 	inline void Udp::setBroadcast(int on)
 	{
 		uv::Error er;
-		setBroadcast(on, er);
 
-		if (er)
-		{
+		setBroadcast(on, er);
+		if (er) {
 			throw uv::Exception(er);
 		}
 	}
@@ -202,10 +194,9 @@ namespace uv
 	inline void Udp::setTtl(int ttl)
 	{
 		uv::Error er;
-		setTtl(ttl, er);
 
-		if (er)
-		{
+		setTtl(ttl, er);
+		if (er) {
 			throw uv::Exception(er);
 		}
 	}
@@ -218,10 +209,9 @@ namespace uv
 	inline void Udp::recvStop()
 	{
 		uv::Error er;
-		recvStop(er);
 
-		if (er)
-		{
+		recvStop(er);
+		if (er) {
 			throw uv::Exception(er);
 		}
 	}

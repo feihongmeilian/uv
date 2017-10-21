@@ -59,10 +59,9 @@ namespace uv
 		std::function<void(const std::string&filename, int events, const Error&error)> handler)
 	{
 		uv::Error er;
-		start(path, flags, handler, er);
 
-		if (er)
-		{
+		start(path, flags, handler, er);
+		if (er) {
 			throw uv::Exception(er);
 		}
 	}
@@ -75,10 +74,9 @@ namespace uv
 	inline void FileStreamEvent::stop()
 	{
 		uv::Error er;
-		stop(er);
 
-		if (er)
-		{
+		stop(er);
+		if (er) {
 			throw uv::Exception(er);
 		}
 	}
@@ -91,10 +89,9 @@ namespace uv
 	inline void FileStreamEvent::getpath(char *buffer, size_t &size)
 	{
 		uv::Error er;
-		getpath(buffer, size, er);
 
-		if (er)
-		{
+		getpath(buffer, size, er);
+		if (er) {
 			throw uv::Exception(er);
 		}
 	}

@@ -65,10 +65,9 @@ namespace uv
 	inline void Stream<T>::listen(std::function<void(const Error&error)> handler, int backlog)
 	{
 		uv::Error er;
-		listen(handler, backlog, er);
 
-		if (er)
-		{
+		listen(handler, backlog, er);
+		if (er) {
 			throw uv::Exception(er);
 		}
 	}
@@ -84,10 +83,9 @@ namespace uv
 	inline void Stream<T>::accept(uv::Stream<T> &client)
 	{
 		uv::Error er;
-		accept(client, er);
 
-		if (er)
-		{
+		accept(client, er);
+		if (er) {
 			throw uv::Exception(er);
 		}
 	}
@@ -120,10 +118,9 @@ namespace uv
 	inline void Stream<T>::readStart(std::function<void(char *data, ssize_t len)> handler)
 	{
 		uv::Error er;
-		readStart(handler, er);
 
-		if (er)
-		{
+		readStart(handler, er);
+		if (er) {
 			throw uv::Exception(er);
 		}
 	}
@@ -138,10 +135,9 @@ namespace uv
 	inline void Stream<T>::readStop()
 	{
 		uv::Error er;
-		readStop(er);
 
-		if (er)
-		{
+		readStop(er);
+		if (er) {
 			throw uv::Exception(er);
 		}
 	}
@@ -168,10 +164,9 @@ namespace uv
 	inline void Stream<T>::write(const char *p, ssize_t len)
 	{
 		uv::Error er;
-		write(p, len, er);
 
-		if (er)
-		{
+		write(p, len, er);
+		if (er) {
 			throw uv::Exception(er);
 		}
 	}
@@ -204,10 +199,9 @@ namespace uv
 	inline void Stream<T>::shutdown(std::function<void(const Error&error)> handler)
 	{
 		uv::Error er;
-		shutdown(handler, er);
 
-		if (er)
-		{
+		shutdown(handler, er);
+		if (er) {
 			throw uv::Exception(er);
 		}
 	}
@@ -233,10 +227,9 @@ namespace uv
 	inline void Stream<T>::setBlocking(bool blocking)
 	{
 		uv::Error er;
-		setBlocking(blocking, er);
 
-		if (er)
-		{
+		setBlocking(blocking, er);
+		if (er) {
 			throw uv::Exception(er);
 		}
 	}

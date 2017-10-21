@@ -33,10 +33,9 @@ namespace uv
 	inline void Req<T>::cancel()
 	{
 		uv::Error er;
-		cancel(er);
 
-		if (er)
-		{
+		cancel(er);
+		if (er) {
 			throw uv::Exception(er);
 		}
 	}

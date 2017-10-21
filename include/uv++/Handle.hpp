@@ -75,10 +75,9 @@ namespace uv
 	inline void Handle<T>::sendBufferSize(int &value)
 	{
 		uv::Error er;
-		sendBufferSize(value, er);
 
-		if (er)
-		{
+		sendBufferSize(value, er);
+		if (er) {
 			throw uv::Exception(er);
 		}
 	}
@@ -93,10 +92,9 @@ namespace uv
 	inline void Handle<T>::recvBufferSize(int &value)
 	{
 		uv::Error er;
-		recvBufferSize(value, er);
 
-		if (er)
-		{
+		recvBufferSize(value, er);
+		if (er) {
 			throw uv::Exception(er);
 		}
 	}
@@ -111,10 +109,9 @@ namespace uv
 	inline void Handle<T>::fileno(uv_os_fd_t &fd)
 	{
 		uv::Error er;
-		fileno(fd, er);
 
-		if (er)
-		{
+		fileno(fd, er);
+		if (er) {
 			throw uv::Exception(er);
 		}
 	}

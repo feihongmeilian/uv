@@ -46,10 +46,9 @@ namespace uv
 	inline void Async::send()
 	{
 		uv::Error er;
-		send(er);
 
-		if (er)
-		{
+		send(er);
+		if (er) {
 			throw uv::Exception(er);
 		}
 	}
