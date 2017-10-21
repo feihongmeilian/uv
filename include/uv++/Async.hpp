@@ -5,6 +5,8 @@
 
 #include <uv.h>
 
+#include "Error.hpp"
+#include "Exception.hpp"
 #include "Loop.hpp"
 #include "Noncopyable.hpp"
 
@@ -13,11 +15,12 @@ namespace uv
 	class Async : public Noncopyable
 	{
 	public:
-		inline Async(uv::Loop &loop, std::function<void()> handler);
-		inline int		send();
+		Async(uv::Loop &loop, std::function<void()> handler);
+		void			send(uv::Error &er);
+		void			send();
 
 	private:
-		uv_async_t		m_handle;
+		uv_async_t	m_handle;
 		std::function<void()> m_callbackHandler = []() {};
 	};
 
@@ -25,7 +28,7 @@ namespace uv
 
 
 
-	Async::Async(uv::Loop &loop, std::function<void()> handler)
+	inline Async::Async(uv::Loop &loop, std::function<void()> handler)
 	{
 		m_handle.data = this;
         m_callbackHandler = handler;
@@ -35,9 +38,20 @@ namespace uv
 		});
 	}
 
-	int Async::send()
+	inline void Async::send(uv::Error &er)
 	{
-		return uv_async_send(&m_handle);
+		er.m_error = uv_async_send(&m_handle);
+	}
+
+	inline void Async::send()
+	{
+		uv::Error er;
+		send(er);
+
+		if (er)
+		{
+			throw uv::Exception(er);
+		}
 	}
 }
 

@@ -7,6 +7,7 @@
 #include <uv.h>
 
 #include "Error.hpp"
+#include "Exception.hpp"
 #include "Loop.hpp"
 #include "Noncopyable.hpp"
 
@@ -15,16 +16,20 @@ namespace uv
 	class FileStreamPoll : public Noncopyable
 	{
 	public:
-		inline explicit	FileStreamPoll(uv::Loop &loop);
+		explicit		FileStreamPoll(uv::Loop &loop);
 
-		inline int		start(const std::string &path, unsigned int interval, 
-							std::function<void(const Error &error)> handler);
-		inline int		stop();
-		inline int		getpath(char *buffer, size_t &size);
+		void			start(const std::string &path, unsigned int interval, 
+						std::function<void(const Error &error)> handler, uv::Error &er);
+		void			start(const std::string &path, unsigned int interval,
+						std::function<void(const Error &error)> handler);
+		void			stop(uv::Error &er);
+		void			stop();
+		void			getpath(char *buffer, size_t &size, uv::Error &er);
+		void			getpath(char *buffer, size_t &size);
 
 		//just use in callback function
-		inline const uv_stat_t		*getPrevStat() const;
-		inline const uv_stat_t		*getCurrStat() const;
+		const uv_stat_t	*getPrevStat() const;
+		const uv_stat_t	*getCurrStat() const;
 	private:
 		uv_fs_poll_t		m_handle;
 		const uv_stat_t	*m_prevStat;
@@ -36,18 +41,18 @@ namespace uv
 
 
 
-	FileStreamPoll::FileStreamPoll(uv::Loop &loop)
+	inline FileStreamPoll::FileStreamPoll(uv::Loop &loop)
 	{
 		m_handle.data = this;
 		uv_fs_poll_init(loop.m_loop_ptr, &m_handle);
 		m_callbackHandler = [](int status) {};
 	}
 
-	int FileStreamPoll::start(const std::string &path, unsigned int interval,
-		std::function<void(const Error &error)> handler)
+	inline void FileStreamPoll::start(const std::string &path, unsigned int interval,
+		std::function<void(const Error &error)> handler, uv::Error &er)
 	{
 		m_callbackHandler = handler;
-		return uv_fs_poll_start(&m_handle,
+		er.m_error = uv_fs_poll_start(&m_handle,
 			[](uv_fs_poll_t* handle, int status, const uv_stat_t *prev, const uv_stat_t *curr) {
 			auto &fp = *reinterpret_cast<uv::FileStreamPoll *>(handle->data);
 			fp.m_prevStat = prev;
@@ -56,22 +61,56 @@ namespace uv
 		}, path.c_str(), interval);
 	}
 
-	int FileStreamPoll::stop()
+	inline void FileStreamPoll::start(const std::string &path, unsigned int interval,
+		std::function<void(const Error&error)> handler)
 	{
-		return uv_fs_poll_stop(&m_handle);
+		uv::Error er;
+		start(path, interval, handler, er);
+
+		if (er)
+		{
+			throw uv::Exception(er);
+		}
 	}
 
-	int FileStreamPoll::getpath(char *buffer, size_t &size)
+	inline void FileStreamPoll::stop(uv::Error &er)
 	{
-		return uv_fs_poll_getpath(&m_handle, buffer, &size);
+		er.m_error = uv_fs_poll_stop(&m_handle);
 	}
 
-	const uv_stat_t *FileStreamPoll::getPrevStat() const
+	inline void FileStreamPoll::stop()
+	{
+		uv::Error er;
+		stop(er);
+
+		if (er)
+		{
+			throw uv::Exception(er);
+		}
+	}
+
+	inline void FileStreamPoll::getpath(char *buffer, size_t &size, uv::Error &er)
+	{
+		er.m_error = uv_fs_poll_getpath(&m_handle, buffer, &size);
+	}
+
+	inline void FileStreamPoll::getpath(char *buffer, size_t &size)
+	{
+		uv::Error er;
+		getpath(buffer, size, er);
+
+		if (er)
+		{
+			throw uv::Exception(er);
+		}
+	}
+
+	inline const uv_stat_t *FileStreamPoll::getPrevStat() const
 	{
 		return m_prevStat;
 	}
 
-	const uv_stat_t *FileStreamPoll::getCurrStat() const
+	inline const uv_stat_t *FileStreamPoll::getCurrStat() const
 	{
 		return m_currStat;
 	}

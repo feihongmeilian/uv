@@ -15,7 +15,7 @@ namespace uv
 	class UdpSend : public Req<uv_udp_send_t>
 	{
 	public:
-		inline UdpSend();
+		UdpSend();
 
 	private:
 		friend class Udp;
@@ -25,7 +25,7 @@ namespace uv
 
 
 
-	UdpSend::UdpSend()
+	inline UdpSend::UdpSend()
 	{
 		m_handle.data = this;
 	}

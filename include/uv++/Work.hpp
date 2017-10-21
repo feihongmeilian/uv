@@ -6,6 +6,7 @@
 #include <uv.h>
 
 #include "Error.hpp"
+#include "Exception.hpp"
 #include "Req.hpp"
 #include "Loop.hpp"
 
@@ -14,11 +15,12 @@ namespace uv
 	class Work : public Req<uv_work_t>
 	{
 	public:
-		inline Work(std::function<void()> wh, std::function<void(const Error &error)> ah);
-		inline int		queue(uv::Loop &loop);
+		Work(std::function<void()> wh, std::function<void(const Error &error)> ah);
+		void			queue(uv::Loop &loop, uv::Error &er);
+		void			queue(uv::Loop &loop);
 
 	private:
-		std::function<void()>					m_workHandler		= []() {};
+		std::function<void()>		m_workHandler	= []() {};
 		std::function<void(const Error &error)>	m_afterWorkHandler = [](const Error &error) {};
 	};
 
@@ -26,16 +28,16 @@ namespace uv
 
 
 
-	Work::Work(std::function<void()> wh, std::function<void(const Error &error)> ah)
+	inline Work::Work(std::function<void()> wh, std::function<void(const Error &error)> ah)
 	{
 		m_handle.data = this;
 		m_workHandler = wh;
 		m_afterWorkHandler = ah;
 	}
 
-	int Work::queue(uv::Loop &loop)
+	inline void Work::queue(uv::Loop &loop, uv::Error &er)
 	{
-		return uv_queue_work(loop.m_loop_ptr, &m_handle,
+		er.m_error = uv_queue_work(loop.m_loop_ptr, &m_handle,
 			[](uv_work_t *r) {
 				auto &req = *reinterpret_cast<uv::Work *>(r->data);
 				req.m_workHandler();
@@ -44,6 +46,17 @@ namespace uv
 				auto &req = *reinterpret_cast<uv::Work *>(r->data);
 				req.m_afterWorkHandler(Error(status));
 		});
+	}
+
+	inline void Work::queue(uv::Loop &loop)
+	{
+		uv::Error er;
+		queue(loop, er);
+
+		if (er)
+		{
+			throw uv::Exception(er);
+		}
 	}
 }
 

@@ -3,7 +3,7 @@
 
 #include <uv.h>
 
-#include "uv/Noncopyable.hpp"
+#include "../Noncopyable.hpp"
 
 namespace uv
 {
@@ -13,12 +13,12 @@ namespace uv
 	class Mutex : public Noncopyable
 	{
 	public:
-		inline Mutex();
-		inline ~Mutex();
+		Mutex();
+		~Mutex();
 
-		inline void		lock();
-		inline int		trylock();
-		inline void		unlock();
+		void			lock();
+		int			trylock();
+		void			unlock();
 
 	private:
 		friend class Cond;
@@ -30,27 +30,27 @@ namespace uv
 
 
 
-	Mutex::Mutex()
+	inline Mutex::Mutex()
 	{
 		uv_mutex_init( &m_handle);
 	}
 
-	Mutex::~Mutex()
+	inline Mutex::~Mutex()
 	{
 		uv_mutex_destroy(&m_handle);
 	}
 
-	void Mutex::lock()
+	inline void Mutex::lock()
 	{
 		uv_mutex_lock(&m_handle);
 	}
 
-	int Mutex::trylock()
+	inline int Mutex::trylock()
 	{
 		return uv_mutex_trylock(&m_handle);
 	}
 
-	void Mutex::unlock()
+	inline void Mutex::unlock()
 	{
 		uv_mutex_unlock(&m_handle);
 	}

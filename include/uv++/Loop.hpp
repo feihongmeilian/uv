@@ -3,6 +3,8 @@
 
 #include <uv.h>
 
+#include "Error.hpp"
+#include "Exception.hpp"
 #include "Noncopyable.hpp"
 
 namespace uv
@@ -28,21 +30,26 @@ namespace uv
     class Loop : public Noncopyable
     {
     public:
-		inline explicit	Loop(bool is_default = false);
-		inline			~Loop();
+		explicit		Loop(bool is_default = false);
+					~Loop();
 
-		inline void		run();
-        inline void		runOnce();
-        inline void		runNowait();
-		inline void		stop();
-		inline uint64_t	now() const;
-		inline void		updateTime();
-		inline int		alive() const;
-		inline int		backendFd() const;
-		inline int		backendTimeout() const;
-		inline void		printAllHandles(FILE *stream);
-		inline void		printActiveHandles(FILE *stream);
-		inline uv_loop_t	&operator()();
+		void			run(uv::Error &er);
+		void			run();
+        void			runOnce(uv::Error &er);
+		void			runOnce();
+        void			runNowait(uv::Error &er);
+		void			runNowait();
+		void			stop();
+		void			fork(uv::Error &er);
+		void			fork();
+		uint64_t		now() const;
+		void			updateTime();
+		bool			alive() const;
+		int			backendFd() const;
+		int			backendTimeout() const;
+		void			printAllHandles(FILE *stream);
+		void			printActiveHandles(FILE *stream);
+		uv_loop_t	&operator()();
 
 	private:
 		friend class Pipe;
@@ -63,15 +70,15 @@ namespace uv
 		friend class GetAddrInfo;
 
     private:
-        uv_loop_t		m_loop;	//not use
-        uv_loop_t		*m_loop_ptr;
+        uv_loop_t	m_loop;	//not use
+        uv_loop_t	*m_loop_ptr;
     };
 
 
 
 
 
-	Loop::Loop(bool is_default)
+	inline Loop::Loop(bool is_default)
 	{
         if (is_default) {
 			m_loop_ptr = uv_default_loop();
@@ -83,67 +90,116 @@ namespace uv
         m_loop_ptr->data = this;
     }
 
-	Loop::~Loop()
+	inline Loop::~Loop()
 	{
 		uv_loop_close(m_loop_ptr);
 	}
 
-	void Loop::run()
+	inline void Loop::run(uv::Error &er)
 	{
-		uv_run(m_loop_ptr, UV_RUN_DEFAULT);
+		er.m_error = uv_run(m_loop_ptr, UV_RUN_DEFAULT);
 	}
 
-    void Loop::runOnce()
+	inline void Loop::run()
+	{
+		uv::Error er;
+		run(er);
+
+		if (er)
+		{
+			throw uv::Exception(er);
+		}
+	}
+
+	inline void Loop::runOnce(uv::Error &er)
     {
-        uv_run(m_loop_ptr, UV_RUN_ONCE);
+        er.m_error = uv_run(m_loop_ptr, UV_RUN_ONCE);
     }
 
-    void Loop::runNowait()
+	inline void Loop::runOnce()
+	{
+		uv::Error er;
+		runOnce(er);
+
+		if (er)
+		{
+			throw uv::Exception(er);
+		}
+	}
+
+	inline void Loop::runNowait(uv::Error &er)
     {
-        uv_run(m_loop_ptr, UV_RUN_NOWAIT);
+        er.m_error = uv_run(m_loop_ptr, UV_RUN_NOWAIT);
     }
 
-	void Loop::stop()
+	inline void Loop::runNowait()
+	{
+		uv::Error er;
+		runNowait(er);
+
+		if (er)
+		{
+			throw uv::Exception(er);
+		}
+	}
+
+	inline void Loop::stop()
 	{
 		uv_stop(m_loop_ptr);
 	}
 
-	uint64_t Loop::now() const
+	inline void Loop::fork(uv::Error & er)
+	{
+		er.m_error = uv_loop_fork(m_loop_ptr);
+	}
+
+	inline void Loop::fork()
+	{
+		uv::Error er;
+		fork(er);
+
+		if (er)
+		{
+			throw uv::Exception(er);
+		}
+	}
+
+	inline uint64_t Loop::now() const
 	{
 		return uv_now(m_loop_ptr);
 	}
 
-	void Loop::updateTime()
+	inline void Loop::updateTime()
 	{
 		uv_update_time(m_loop_ptr);
 	}
 
-	int Loop::alive() const
+	inline bool Loop::alive() const
 	{
 		return uv_loop_alive(m_loop_ptr);
 	}
 
-	int Loop::backendFd() const
+	inline int Loop::backendFd() const
 	{
 		return uv_backend_fd(m_loop_ptr);
 	}
 
-	int Loop::backendTimeout() const
+	inline int Loop::backendTimeout() const
 	{
 		return uv_backend_timeout(m_loop_ptr);
 	}
 
-	void Loop::printAllHandles(FILE *stream)
+	inline void Loop::printAllHandles(FILE *stream)
 	{
 		uv_print_all_handles(m_loop_ptr, stream);
 	}
 
-	void Loop::printActiveHandles(FILE *stream)
+	inline void Loop::printActiveHandles(FILE *stream)
 	{
 		uv_print_active_handles(m_loop_ptr, stream);
 	}
 
-	uv_loop_t &Loop::operator()()
+	inline uv_loop_t &Loop::operator()()
 	{
 		return *m_loop_ptr;
 	}

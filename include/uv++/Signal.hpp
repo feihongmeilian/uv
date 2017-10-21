@@ -5,6 +5,8 @@
 
 #include <uv.h>
 
+#include "Error.hpp"
+#include "Exception.hpp"
 #include "Loop.hpp"
 #include "Noncopyable.hpp"
 
@@ -13,14 +15,16 @@ namespace uv
     class Signal : public Noncopyable
     {
     public:
-		inline explicit	Signal(uv::Loop &);
+		explicit		Signal(uv::Loop &);
 
     public:
-		inline int		start(std::function<void(int signum)> handler, int sigNum);
-		inline int		stop();
+		void			start(std::function<void(int signum)> handler, int sigNum, uv::Error &er);
+		void			start(std::function<void(int signum)> handler, int sigNum);
+		void			stop(uv::Error &er);
+		void			stop();
 
     private:
-        uv_signal_t		m_handle;
+        uv_signal_t	m_handle;
 
 	private:
         std::function<void(int signum)>	m_startHandler = [](int signum) {};
@@ -30,25 +34,47 @@ namespace uv
 
 
 
-	Signal::Signal(uv::Loop &loop)
+	inline Signal::Signal(uv::Loop &loop)
 	{
 		uv_signal_init(loop.m_loop_ptr, &m_handle);
 		m_handle.data = this;
 	}
 
-	int Signal::start(std::function<void(int signum)> handler, int sigNum)
+	inline void Signal::start(std::function<void(int signum)> handler, int sigNum, uv::Error &er)
 	{
 		m_startHandler = handler;
-		return uv_signal_start(&m_handle, [](uv_signal_t *handle, int num)
+		er.m_error = uv_signal_start(&m_handle, [](uv_signal_t *handle, int num)
 		{
 			auto &signal = *reinterpret_cast<uv::Signal *>(handle->data);
 			signal.m_startHandler(num);
 		}, sigNum);
 	}
 
-	int Signal::stop()
+	inline void Signal::start(std::function<void(int signum)> handler, int sigNum)
 	{
-		return uv_signal_stop(&m_handle);
+		uv::Error er;
+		start(handler, er);
+
+		if (er)
+		{
+			throw uv::Exception(er);
+		}
+	}
+
+	inline void Signal::stop(uv::Error &er)
+	{
+		er.m_error = uv_signal_stop(&m_handle);
+	}
+
+	inline void Signal::stop()
+	{
+		uv::Error er;
+		stop(er);
+
+		if (er)
+		{
+			throw uv::Exception(er);
+		}
 	}
 }
 

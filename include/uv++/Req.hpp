@@ -3,6 +3,8 @@
 
 #include <uv.h>
 
+#include "Error.hpp"
+#include "Exception.hpp"
 #include "Noncopyable.hpp"
 
 namespace uv
@@ -11,19 +13,32 @@ namespace uv
 	class Req : public Noncopyable
 	{
 	public:
-		inline int		cancel();
+		void			cancel(uv::Error &er);
+		void			cancel();
 
 	protected:
-		T				m_handle;
+		T			m_handle;
 	};
 
 
 
 
 	template<typename T>
-	int Req<T>::cancel()
+	inline void Req<T>::cancel(uv::Error &er)
 	{
-		return uv_cancel(reinterpret_cast<uv_req_t *>(&m_handle));
+		er.m_error = uv_cancel(reinterpret_cast<uv_req_t *>(&m_handle));
+	}
+
+	template<typename T>
+	inline void Req<T>::cancel()
+	{
+		uv::Error er;
+		cancel(er);
+
+		if (er)
+		{
+			throw uv::Exception(er);
+		}
 	}
 }
 

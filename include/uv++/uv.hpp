@@ -5,6 +5,7 @@
 #include "Check.hpp"
 #include "Connect.hpp"
 #include "Error.hpp"
+#include "Exception.hpp"
 #include "FileStream.hpp"
 #include "FileStreamEvent.hpp"
 #include "FileStreamPoll.hpp"

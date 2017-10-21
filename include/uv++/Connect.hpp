@@ -13,7 +13,7 @@ namespace uv
 	class Connect : public Req<uv_connect_t>
 	{
 	public:
-		inline Connect();
+		Connect();
 
 	private:
 		friend class Tcp;
@@ -24,7 +24,7 @@ namespace uv
 
 
 
-	Connect::Connect()
+	inline Connect::Connect()
 	{
 		m_handle.data = this;
 	}

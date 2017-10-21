@@ -12,7 +12,7 @@ namespace uv
 	class Shutdown : public Req<uv_shutdown_t>
 	{
 	public:
-		inline Shutdown();
+		Shutdown();
 
 	private:
 		template<typename T> friend class Stream;
@@ -22,7 +22,7 @@ namespace uv
 
 
 
-	Shutdown::Shutdown()
+	inline Shutdown::Shutdown()
 	{
 		m_handle.data = this;
 	}

@@ -7,6 +7,7 @@
 #include <uv.h>
 
 #include "Error.hpp"
+#include "Exception.hpp"
 #include "Loop.hpp"
 #include "Noncopyable.hpp"
 
@@ -15,15 +16,19 @@ namespace uv
 	class FileStreamEvent : public Noncopyable
 	{
 	public:
-		inline explicit	FileStreamEvent(uv::Loop &loop);
+		explicit		FileStreamEvent(uv::Loop &loop);
 
-		inline int		start(const std::string &path, unsigned int flags,
-							std::function<void(const std::string &filename, int events, const Error &error)> handler);
-		inline int		stop();
-		inline int		getpath(char *buffer, size_t &size);
+		void			start(const std::string &path, unsigned int flags,
+						std::function<void(const std::string &filename, int events, const Error &error)> handler, uv::Error &er);
+		void			start(const std::string &path, unsigned int flags,
+						std::function<void(const std::string &filename, int events, const Error &error)> handler);
+		void			stop(uv::Error &er);
+		void			stop();
+		void			getpath(char *buffer, size_t &size, uv::Error &er);
+		void			getpath(char *buffer, size_t &size);
 
 	private:
-		uv_fs_event_t		m_handle;
+		uv_fs_event_t	m_handle;
 		std::function<void(const std::string &filename, int events, const Error &error)>	m_callbackHandler
 			= [](const std::string &filename, int events, const Error &error) {};
 	};
@@ -32,32 +37,66 @@ namespace uv
 
 
 
-	FileStreamEvent::FileStreamEvent(uv::Loop &loop)
+	inline FileStreamEvent::FileStreamEvent(uv::Loop &loop)
 	{
 		m_handle.data = this;
 		uv_fs_event_init(loop.m_loop_ptr, &m_handle);
 		m_callbackHandler = []( const std::string &filename, int events, int status) {};
 	}
 
-	int FileStreamEvent::start(const std::string &path, unsigned int flags,
-		std::function<void(const std::string &filename, int events, const Error &error)> handler)
+	inline void FileStreamEvent::start(const std::string &path, unsigned int flags,
+		std::function<void(const std::string &filename, int events, const Error &error)> handler, uv::Error &er)
 	{
 		m_callbackHandler = handler;
-		return uv_fs_event_start(&m_handle,
+		er.m_error = uv_fs_event_start(&m_handle,
 			[](uv_fs_event_t* handle, const char *filename, int events, int status) {
 			auto &fe = *reinterpret_cast<uv::FileStreamEvent *>(handle->data);
 			fe.m_callbackHandler(filename, events, Error(status));
 		}, path.c_str(), flags);
 	}
 
-	int FileStreamEvent::stop()
+	inline void FileStreamEvent::start(const std::string &path, unsigned int flags,
+		std::function<void(const std::string&filename, int events, const Error&error)> handler)
 	{
-		return uv_fs_event_stop(&m_handle);
+		uv::Error er;
+		start(path, flags, handler, er);
+
+		if (er)
+		{
+			throw uv::Exception(er);
+		}
 	}
 
-	int FileStreamEvent::getpath(char *buffer, size_t &size)
+	inline void FileStreamEvent::stop(uv::Error &er)
 	{
-		return uv_fs_event_getpath(&m_handle, buffer, &size);
+		er.m_error = uv_fs_event_stop(&m_handle);
+	}
+
+	inline void FileStreamEvent::stop()
+	{
+		uv::Error er;
+		stop(er);
+
+		if (er)
+		{
+			throw uv::Exception(er);
+		}
+	}
+
+	inline void FileStreamEvent::getpath(char *buffer, size_t &size, uv::Error &er)
+	{
+		er.m_error = uv_fs_event_getpath(&m_handle, buffer, &size);
+	}
+
+	inline void FileStreamEvent::getpath(char *buffer, size_t &size)
+	{
+		uv::Error er;
+		getpath(buffer, size, er);
+
+		if (er)
+		{
+			throw uv::Exception(er);
+		}
 	}
 }
 
