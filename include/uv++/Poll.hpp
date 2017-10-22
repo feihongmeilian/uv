@@ -19,20 +19,22 @@ namespace uv
 #ifdef _MSC_VER
 		Poll(uv::Loop &loop, uv_os_sock_t socket);
 #endif
-		void			start(int events, std::function<void(const Error &error, int events)> cb, uv::Error &er);
-		void			start(int events, std::function<void(const Error &error, int events)> cb);
+		void			onReadable(std::function<void(const Error &error)> cb);
+		void			onWritable(std::function<void(const Error &error)> cb);
+		void			onDisconnect(std::function<void(const Error &error)> cb);
+		void			onPrioritized(std::function<void(const Error &error)> cb);
+		void			start(uv::Error &er);
+		void			start();
 		void			stop(uv::Error &er);
 		void			stop();
 
-	public:
-		static const int READABLE		= UV_READABLE;
-		static const int WRITABLE		= UV_WRITABLE;
-		static const int DISCONNECT	= UV_DISCONNECT;
-
 	private:
 		uv_poll_t		m_handle;
-		std::function<void(const Error &error, int events)>	m_startHandler
-			= [](const Error &error, int events) {};
+		int				m_events = 0;
+		std::function<void(const Error &error)>	m_readableHandler = [](const Error &error) {};
+		std::function<void(const Error &error)>	m_writableHandler = [](const Error &error) {};
+		std::function<void(const Error &error)>	m_disconnectHandler = [](const Error &error) {};
+		std::function<void(const Error &error)>	m_prioritizedHandler = [](const Error &error) {};
 	};
 
 
@@ -53,21 +55,54 @@ namespace uv
 	}
 #endif
 
-	inline void Poll::start(int events, std::function<void(const Error &error, int events)> cb, uv::Error &er)
+	inline void Poll::onReadable(std::function<void(const Error&error)> cb)
 	{
-		m_startHandler = cb;
-		er.m_error = uv_poll_start(&m_handle, events, [](uv_poll_t* handle, int status, int events) {
+		m_events += UV_READABLE;
+		m_readableHandler = cb;
+	}
 
+	inline void Poll::onWritable(std::function<void(const Error&error)> cb)
+	{
+		m_events += UV_WRITABLE;
+		m_writableHandler = cb;
+	}
+
+	inline void Poll::onDisconnect(std::function<void(const Error&error)> cb)
+	{
+		m_events += UV_DISCONNECT;
+		m_disconnectHandler = cb;
+	}
+
+	inline void Poll::onPrioritized(std::function<void(const Error&error)> cb)
+	{
+		m_events += UV_PRIORITIZED;
+		m_prioritizedHandler = cb;
+	}
+
+	inline void Poll::start(uv::Error &er)
+	{
+		er.m_error = uv_poll_start(&m_handle, m_events, [](uv_poll_t* handle, int status, int events) {
 			auto &poll = *reinterpret_cast<uv::Poll *>(handle->data);
-			poll.m_startHandler(Error(status), events);
+			if (events & UV_READABLE) {
+				poll.m_readableHandler(Error(status));
+			}
+			if (events & UV_WRITABLE) {
+				poll.m_writableHandler(Error(status));
+			}
+			if (events & UV_DISCONNECT) {
+				poll.m_disconnectHandler(Error(status));
+			}
+			if (events & UV_PRIORITIZED) {
+				poll.m_prioritizedHandler(Error(status));
+			}
 		});
 	}
 
-	inline void Poll::start(int events, std::function<void(const Error&error, int events)> cb)
+	inline void Poll::start()
 	{
 		uv::Error er;
 
-		start(events, cb, er);
+		start(er);
 		if (er) {
 			throw uv::Exception(er);
 		}
