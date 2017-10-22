@@ -45,8 +45,7 @@ namespace uv
 	inline void Timer::start(std::function<void()> handler, uint64_t timeout, uint64_t repeat, uv::Error &er)
 	{
 		m_startHandler = handler;
-		er.m_error = uv_timer_start(&m_handle, [](uv_timer_t *handle)
-		{
+		er.m_error = uv_timer_start(&m_handle, [](uv_timer_t *handle) {
 			auto &timer = *reinterpret_cast<uv::Timer *>(handle->data);
 			timer.m_startHandler();
 		}, timeout, repeat);

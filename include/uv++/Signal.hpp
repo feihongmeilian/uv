@@ -43,8 +43,7 @@ namespace uv
 	inline void Signal::start(std::function<void(int signum)> handler, int sigNum, uv::Error &er)
 	{
 		m_startHandler = handler;
-		er.m_error = uv_signal_start(&m_handle, [](uv_signal_t *handle, int num)
-		{
+		er.m_error = uv_signal_start(&m_handle, [](uv_signal_t *handle, int num) {
 			auto &signal = *reinterpret_cast<uv::Signal *>(handle->data);
 			signal.m_startHandler(num);
 		}, sigNum);

@@ -122,8 +122,7 @@ namespace uv
 		m_closeHandler = handler;
 		uv_close(reinterpret_cast<uv_handle_t *>(&m_handle), [](uv_handle_t *h) {
 			auto &handle = *reinterpret_cast<uv::Handle<T> *>(h->data);
-			if(handle.m_closeHandler != nullptr)
-				handle.m_closeHandler();
+			handle.m_closeHandler();
 		});
 	}
 }

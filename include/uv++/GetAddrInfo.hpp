@@ -36,7 +36,6 @@ namespace uv
 	inline GetAddrInfo::GetAddrInfo(uv::Loop &loop)
 		: m_loop(loop)
 	{
-		m_callbackHandler = [](const Error &error, struct addrinfo *res) {};
 		m_handle.data = this;
 	}
 

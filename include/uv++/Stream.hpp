@@ -151,7 +151,6 @@ namespace uv
 
 		er.m_error = uv_write(&writeHandler->m_handle, reinterpret_cast<uv_stream_t *>(&m_handle),
 			&writeHandler->m_buf, 1, [](uv_write_t *req, int status) {
-
 			std::shared_ptr<uv::Write> writeHandler(reinterpret_cast<uv::Write *>(req->data));
 			std::shared_ptr<char> bytes(writeHandler->m_buf.base, std::default_delete<char[]>());
 
@@ -187,7 +186,6 @@ namespace uv
 
 		er.m_error = uv_shutdown(&req->m_handle, reinterpret_cast<uv_stream_t *>(&m_handle),
 			[](uv_shutdown_t *req, int status) {
-
 			std::shared_ptr<uv::Shutdown> shutdown(reinterpret_cast<Shutdown *>(req->data));
 			
 			auto &stream = *reinterpret_cast<uv::Stream<T> *>(req->handle->data);

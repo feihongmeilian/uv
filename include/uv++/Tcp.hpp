@@ -185,7 +185,6 @@ namespace uv
 
 		er.m_error = uv_tcp_connect(&connect->m_handle, &m_handle, reinterpret_cast<sockaddr *>(&addr),
 			[](uv_connect_t *req, int status) {
-
             std::shared_ptr<Connect> connect(reinterpret_cast<Connect *>(req->data));
 			
             auto &tcp = *reinterpret_cast<uv::Tcp *>(req->handle->data);
