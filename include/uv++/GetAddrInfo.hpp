@@ -18,7 +18,7 @@ namespace uv
 	public:
 		explicit		GetAddrInfo(uv::Loop &loop);
 		void			get(const std::string &node, const std::string &service, const struct addrinfo &hints,
-						std::function<void(const Error &error, struct addrinfo *res)> handler, uv::Error &er);
+						std::function<void(const Error &error, struct addrinfo *res)> handler, uv::Error &err);
 		void			get(const std::string &node, const std::string &service, const struct addrinfo &hints,
 						std::function<void(const Error &error, struct addrinfo *res)> handler);
 		
@@ -40,10 +40,10 @@ namespace uv
 	}
 
 	inline void GetAddrInfo::get(const std::string &node, const std::string &service, const struct addrinfo &hints,
-		std::function<void(const Error &error, struct addrinfo *res)> handler, uv::Error &er)
+		std::function<void(const Error &error, struct addrinfo *res)> handler, uv::Error &err)
 	{
 		m_callbackHandler = handler;
-		er.m_error = uv_getaddrinfo(m_loop.m_loop_ptr, &m_handle, [](uv_getaddrinfo_t* req, int status, struct addrinfo *res) {
+		err.m_error = uv_getaddrinfo(m_loop.m_loop_ptr, &m_handle, [](uv_getaddrinfo_t* req, int status, struct addrinfo *res) {
 			auto &addr = *reinterpret_cast<uv::GetAddrInfo *>(req->data);
 			addr.m_callbackHandler(Error(status), res);
 		}, node.c_str(), service.c_str(), &hints);
@@ -52,11 +52,11 @@ namespace uv
 	inline void GetAddrInfo::get(const std::string &node, const std::string &service, const addrinfo &hints,
 		std::function<void(const Error&error, struct addrinfo*res)> handler)
 	{
-		uv::Error er;
+		uv::Error err;
 
-		get(node, service, hints, handler, er);
-		if (er) {
-			throw uv::Exception(er);
+		get(node, service, hints, handler, err);
+		if (err) {
+			throw uv::Exception(err);
 		}
 	}
 

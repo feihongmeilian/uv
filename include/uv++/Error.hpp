@@ -29,11 +29,11 @@ namespace uv
 	{
 	public:
 		Error() = default;
-		explicit			Error(int error);
-		Error			(const Error &error);
+		explicit		Error(int error);
+						Error(const Error &error);
 		Error			&operator=(const Error &error);
 
-		operator			bool() const;
+		operator		bool() const;
 		const char		*toString() const;
 		const char		*name() const;
 

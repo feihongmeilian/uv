@@ -15,15 +15,15 @@ namespace uv
 	class Check : public Noncopyable
 	{
 	public:
-		explicit	Check(uv::Loop &loop);
+		explicit		Check(uv::Loop &loop);
 
-		void			start(std::function<void()> cb, uv::Error &er);
+		void			start(std::function<void()> cb, uv::Error &err);
 		void			start(std::function<void()> cb);
-		void			stop(uv::Error &er);
+		void			stop(uv::Error &err);
 		void			stop();
 
 	private:
-		uv_check_t	m_handle;
+		uv_check_t		m_handle;
 
 	private:
 		std::function<void()>	m_startHandler = []() {};
@@ -39,10 +39,10 @@ namespace uv
 		uv_check_init(loop.m_loop_ptr, &m_handle);
 	}
 
-	inline void Check::start(std::function<void()> cb, uv::Error &er)
+	inline void Check::start(std::function<void()> cb, uv::Error &err)
 	{
 		m_startHandler = cb;
-		er.m_error = uv_check_start(&m_handle, [](uv_check_t *handle) {
+		err.m_error = uv_check_start(&m_handle, [](uv_check_t *handle) {
 			auto &check = *reinterpret_cast<uv::Check *>(handle->data);
 			check.m_startHandler();
 		});
@@ -50,26 +50,26 @@ namespace uv
 
 	inline void Check::start(std::function<void()> cb)
 	{
-		uv::Error er;
+		uv::Error err;
 
-		start(cb, er);
-		if (er) {
-			throw uv::Exception(er);
+		start(cb, err);
+		if (err) {
+			throw uv::Exception(err);
 		}
 	}
 
-	inline void Check::stop(uv::Error &er)
+	inline void Check::stop(uv::Error &err)
 	{
-		er.m_error = uv_check_stop(&m_handle);
+		err.m_error = uv_check_stop(&m_handle);
 	}
 
 	inline void Check::stop()
 	{
-		uv::Error er;
+		uv::Error err;
 
-		stop(er);
-		if (er) {
-			throw uv::Exception(er);
+		stop(err);
+		if (err) {
+			throw uv::Exception(err);
 		}
 	}
 }

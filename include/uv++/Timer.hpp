@@ -16,17 +16,17 @@ namespace uv
 		explicit		Timer(uv::Loop &);
 
     public:
-		void			start(std::function<void ()> handler, uint64_t timeout, uint64_t repeat, uv::Error &er);
+		void			start(std::function<void ()> handler, uint64_t timeout, uint64_t repeat, uv::Error &err);
 		void			start(std::function<void()> handler, uint64_t timeout, uint64_t repeat);
-		void			stop(uv::Error &er);
+		void			stop(uv::Error &err);
 		void			stop();
-		void			again(uv::Error &er);
+		void			again(uv::Error &err);
 		void			again();
 		void			setRepeat(uint64_t repeat);
 		uint64_t		getRepeat() const;
 
     private:
-        uv_timer_t	m_handle;
+        uv_timer_t		m_handle;
 
 	private:
         std::function<void ()>	m_startHandler = []() {};
@@ -42,10 +42,10 @@ namespace uv
 		m_handle.data = this;
 	}
 
-	inline void Timer::start(std::function<void()> handler, uint64_t timeout, uint64_t repeat, uv::Error &er)
+	inline void Timer::start(std::function<void()> handler, uint64_t timeout, uint64_t repeat, uv::Error &err)
 	{
 		m_startHandler = handler;
-		er.m_error = uv_timer_start(&m_handle, [](uv_timer_t *handle) {
+		err.m_error = uv_timer_start(&m_handle, [](uv_timer_t *handle) {
 			auto &timer = *reinterpret_cast<uv::Timer *>(handle->data);
 			timer.m_startHandler();
 		}, timeout, repeat);
@@ -53,41 +53,41 @@ namespace uv
 
 	inline void Timer::start(std::function<void()> handler, uint64_t timeout, uint64_t repeat)
 	{
-		uv::Error er;
+		uv::Error err;
 
-		start(handler, timeout, repeat, er);
-		if (er) {
-			throw uv::Exception(er);
+		start(handler, timeout, repeat, err);
+		if (err) {
+			throw uv::Exception(err);
 		}
 	}
 
-	inline void Timer::stop(uv::Error &er)
+	inline void Timer::stop(uv::Error &err)
 	{
-		er.m_error = uv_timer_stop(&m_handle);
+		err.m_error = uv_timer_stop(&m_handle);
 	}
 
 	inline void Timer::stop()
 	{
-		uv::Error er;
+		uv::Error err;
 
-		stop(er);
-		if (er) {
-			throw uv::Exception(er);
+		stop(err);
+		if (err) {
+			throw uv::Exception(err);
 		}
 	}
 
-	inline void Timer::again(uv::Error &er)
+	inline void Timer::again(uv::Error &err)
 	{
-		er.m_error = uv_timer_again(&m_handle);
+		err.m_error = uv_timer_again(&m_handle);
 	}
 
 	inline void Timer::again()
 	{
-		uv::Error er;
+		uv::Error err;
 
-		again(er);
-		if (er) {
-			throw uv::Exception(er);
+		again(err);
+		if (err) {
+			throw uv::Exception(err);
 		}
 	}
 

@@ -16,7 +16,7 @@ namespace uv
 	{
 	public:
 		Work(std::function<void()> wh, std::function<void(const Error &error)> ah);
-		void			queue(uv::Loop &loop, uv::Error &er);
+		void			queue(uv::Loop &loop, uv::Error &err);
 		void			queue(uv::Loop &loop);
 
 	private:
@@ -35,9 +35,9 @@ namespace uv
 		m_afterWorkHandler = ah;
 	}
 
-	inline void Work::queue(uv::Loop &loop, uv::Error &er)
+	inline void Work::queue(uv::Loop &loop, uv::Error &err)
 	{
-		er.m_error = uv_queue_work(loop.m_loop_ptr, &m_handle,
+		err.m_error = uv_queue_work(loop.m_loop_ptr, &m_handle,
 			[](uv_work_t *r) {
 				auto &req = *reinterpret_cast<uv::Work *>(r->data);
 				req.m_workHandler();
@@ -50,11 +50,11 @@ namespace uv
 
 	inline void Work::queue(uv::Loop &loop)
 	{
-		uv::Error er;
+		uv::Error err;
 
-		queue(loop, er);
-		if (er) {
-			throw uv::Exception(er);
+		queue(loop, err);
+		if (err) {
+			throw uv::Exception(err);
 		}
 	}
 }

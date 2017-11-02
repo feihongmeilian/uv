@@ -23,9 +23,9 @@ namespace uv
 		void			onWritable(std::function<void(const Error &error)> cb);
 		void			onDisconnect(std::function<void(const Error &error)> cb);
 		void			onPrioritized(std::function<void(const Error &error)> cb);
-		void			start(uv::Error &er);
+		void			start(uv::Error &err);
 		void			start();
-		void			stop(uv::Error &er);
+		void			stop(uv::Error &err);
 		void			stop();
 
 	private:
@@ -79,9 +79,9 @@ namespace uv
 		m_prioritizedHandler = cb;
 	}
 
-	inline void Poll::start(uv::Error &er)
+	inline void Poll::start(uv::Error &err)
 	{
-		er.m_error = uv_poll_start(&m_handle, m_events, [](uv_poll_t* handle, int status, int events) {
+		err.m_error = uv_poll_start(&m_handle, m_events, [](uv_poll_t* handle, int status, int events) {
 			auto &poll = *reinterpret_cast<uv::Poll *>(handle->data);
 			if (events & UV_READABLE) {
 				poll.m_readableHandler(Error(status));
@@ -100,26 +100,26 @@ namespace uv
 
 	inline void Poll::start()
 	{
-		uv::Error er;
+		uv::Error err;
 
-		start(er);
-		if (er) {
-			throw uv::Exception(er);
+		start(err);
+		if (err) {
+			throw uv::Exception(err);
 		}
 	}
 
-	inline void Poll::stop(uv::Error &er)
+	inline void Poll::stop(uv::Error &err)
 	{
-		er.m_error = uv_poll_stop(&m_handle);
+		err.m_error = uv_poll_stop(&m_handle);
 	}
 
 	inline void Poll::stop()
 	{
-		uv::Error er;
+		uv::Error err;
 
-		stop(er);
-		if (er) {
-			throw uv::Exception(er);
+		stop(err);
+		if (err) {
+			throw uv::Exception(err);
 		}
 	}
 }

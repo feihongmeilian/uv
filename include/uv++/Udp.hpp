@@ -18,34 +18,34 @@ namespace uv
 	{
 	public:
 		explicit		Udp(uv::Loop &loop);
-					Udp(uv::Loop &loop, unsigned int flags);
+						Udp(uv::Loop &loop, unsigned int flags);
 
-		void			open(uv_os_sock_t sock, uv::Error &er);
+		void			open(uv_os_sock_t sock, uv::Error &err);
 		void			open(uv_os_sock_t sock);
-		void			bind(const struct sockaddr &addr, unsigned int flags, uv::Error &er);
+		void			bind(const struct sockaddr &addr, unsigned int flags, uv::Error &err);
 		void			bind(const struct sockaddr &addr, unsigned int flags);
-		void			getsockname(struct sockaddr &name, int &namelen, uv::Error &er) const;
+		void			getsockname(struct sockaddr &name, int &namelen, uv::Error &err) const;
 		void			getsockname(struct sockaddr &name, int &namelen) const;
 		void			setMembership(const std::string &multicast_addr, const std::string &interface_addr,
-						uv_membership membership, uv::Error &er);
+						uv_membership membership, uv::Error &err);
 		void			setMembership(const std::string &multicast_addr,
 						const std::string &interface_addr,	uv_membership membership);
-		void			setMulticastLoop(int on, uv::Error &er);
+		void			setMulticastLoop(int on, uv::Error &err);
 		void			setMulticastLoop(int on);
-		void			setMulticastTtl(int ttl, uv::Error &er);
+		void			setMulticastTtl(int ttl, uv::Error &err);
 		void			setMulticastTtl(int ttl);
-		void			setMulticastInterface(const std::string &interface_addr, uv::Error &er);
+		void			setMulticastInterface(const std::string &interface_addr, uv::Error &err);
 		void			setMulticastInterface(const std::string &interface_addr);
-		void			setBroadcast(int on, uv::Error &er);
+		void			setBroadcast(int on, uv::Error &err);
 		void			setBroadcast(int on);
-		void			setTtl(int ttl, uv::Error &er);
+		void			setTtl(int ttl, uv::Error &err);
 		void			setTtl(int ttl);
 
-		void			recvStop(uv::Error &er);
+		void			recvStop(uv::Error &err);
 		void			recvStop();
 
 	private:
-		uv::UdpSend	m_udpSend;
+		uv::UdpSend		m_udpSend;
 	};
 
 
@@ -64,155 +64,155 @@ namespace uv
 		uv_udp_init_ex(loop.m_loop_ptr, &m_handle, flags);
 	}
 
-	inline void Udp::open(uv_os_sock_t sock, uv::Error &er)
+	inline void Udp::open(uv_os_sock_t sock, uv::Error &err)
 	{
-		er.m_error = uv_udp_open(&m_handle, sock);
+		err.m_error = uv_udp_open(&m_handle, sock);
 	}
 
 	inline void Udp::open(uv_os_sock_t sock)
 	{
-		uv::Error er;
+		uv::Error err;
 
-		open(sock, er);
-		if (er) {
-			throw uv::Exception(er);
+		open(sock, err);
+		if (err) {
+			throw uv::Exception(err);
 		}
 	}
 
-	inline void Udp::bind(const struct sockaddr &addr, unsigned int flags, uv::Error &er)
+	inline void Udp::bind(const struct sockaddr &addr, unsigned int flags, uv::Error &err)
 	{
-		er.m_error = uv_udp_bind(&m_handle, &addr, flags);
+		err.m_error = uv_udp_bind(&m_handle, &addr, flags);
 	}
 
 	inline void Udp::bind(const sockaddr &addr, unsigned int flags)
 	{
-		uv::Error er;
+		uv::Error err;
 
-		bind(addr, flags, er);
-		if (er) {
-			throw uv::Exception(er);
+		bind(addr, flags, err);
+		if (err) {
+			throw uv::Exception(err);
 		}
 	}
 
-	inline void Udp::getsockname(struct sockaddr &name, int &namelen, uv::Error &er) const
+	inline void Udp::getsockname(struct sockaddr &name, int &namelen, uv::Error &err) const
 	{
-		er.m_error = uv_udp_getsockname(&m_handle, &name, &namelen);
+		err.m_error = uv_udp_getsockname(&m_handle, &name, &namelen);
 	}
 
 	inline void Udp::getsockname(sockaddr &name, int &namelen) const
 	{
-		uv::Error er;
+		uv::Error err;
 
-		getsockname(name, namelen, er);
-		if (er) {
-			throw uv::Exception(er);
+		getsockname(name, namelen, err);
+		if (err) {
+			throw uv::Exception(err);
 		}
 	}
 
 	inline void Udp::setMembership(const std::string &multicast_addr,
-		const std::string &interface_addr, uv_membership membership, uv::Error &er)
+		const std::string &interface_addr, uv_membership membership, uv::Error &err)
 	{
-		er.m_error = uv_udp_set_membership(&m_handle, multicast_addr.c_str(),
+		err.m_error = uv_udp_set_membership(&m_handle, multicast_addr.c_str(),
 				interface_addr.c_str(), membership);
 	}
 
 	inline void Udp::setMembership(const std::string &multicast_addr, const std::string &interface_addr, uv_membership membership)
 	{
-		uv::Error er;
+		uv::Error err;
 
-		setMembership(multicast_addr, interface_addr, membership, er);
-		if (er) {
-			throw uv::Exception(er);
+		setMembership(multicast_addr, interface_addr, membership, err);
+		if (err) {
+			throw uv::Exception(err);
 		}
 	}
 
-	inline void Udp::setMulticastLoop(int on, uv::Error &er)
+	inline void Udp::setMulticastLoop(int on, uv::Error &err)
 	{
-		er.m_error = uv_udp_set_multicast_loop(&m_handle, on);
+		err.m_error = uv_udp_set_multicast_loop(&m_handle, on);
 	}
 
 	inline void Udp::setMulticastLoop(int on)
 	{
-		uv::Error er;
+		uv::Error err;
 
-		setMulticastLoop(on, er);
-		if (er) {
-			throw uv::Exception(er);
+		setMulticastLoop(on, err);
+		if (err) {
+			throw uv::Exception(err);
 		}
 	}
 
-	inline void Udp::setMulticastTtl(int ttl, uv::Error &er)
+	inline void Udp::setMulticastTtl(int ttl, uv::Error &err)
 	{
-		er.m_error = uv_udp_set_multicast_ttl(&m_handle, ttl);
+		err.m_error = uv_udp_set_multicast_ttl(&m_handle, ttl);
 	}
 
 	inline void Udp::setMulticastTtl(int ttl)
 	{
-		uv::Error er;
+		uv::Error err;
 
-		setMulticastTtl(ttl, er);
-		if (er) {
-			throw uv::Exception(er);
+		setMulticastTtl(ttl, err);
+		if (err) {
+			throw uv::Exception(err);
 		}
 	}
 
-	inline void Udp::setMulticastInterface(const std::string &interface_addr, uv::Error &er)
+	inline void Udp::setMulticastInterface(const std::string &interface_addr, uv::Error &err)
 	{
-		er.m_error = uv_udp_set_multicast_interface(&m_handle, interface_addr.c_str());
+		err.m_error = uv_udp_set_multicast_interface(&m_handle, interface_addr.c_str());
 	}
 
 	inline void Udp::setMulticastInterface(const std::string &interface_addr)
 	{
-		uv::Error er;
+		uv::Error err;
 
-		setMulticastInterface(interface_addr, er);
-		if (er) {
-			throw uv::Exception(er);
+		setMulticastInterface(interface_addr, err);
+		if (err) {
+			throw uv::Exception(err);
 		}
 	}
 
-	inline void Udp::setBroadcast(int on, uv::Error &er)
+	inline void Udp::setBroadcast(int on, uv::Error &err)
 	{
-		er.m_error = uv_udp_set_broadcast(&m_handle, on);
+		err.m_error = uv_udp_set_broadcast(&m_handle, on);
 	}
 
 	inline void Udp::setBroadcast(int on)
 	{
-		uv::Error er;
+		uv::Error err;
 
-		setBroadcast(on, er);
-		if (er) {
-			throw uv::Exception(er);
+		setBroadcast(on, err);
+		if (err) {
+			throw uv::Exception(err);
 		}
 	}
 
-	inline void Udp::setTtl(int ttl, uv::Error &er)
+	inline void Udp::setTtl(int ttl, uv::Error &err)
 	{
-		er.m_error = uv_udp_set_ttl(&m_handle, ttl);
+		err.m_error = uv_udp_set_ttl(&m_handle, ttl);
 	}
 
 	inline void Udp::setTtl(int ttl)
 	{
-		uv::Error er;
+		uv::Error err;
 
-		setTtl(ttl, er);
-		if (er) {
-			throw uv::Exception(er);
+		setTtl(ttl, err);
+		if (err) {
+			throw uv::Exception(err);
 		}
 	}
 
-	inline void Udp::recvStop(uv::Error &er)
+	inline void Udp::recvStop(uv::Error &err)
 	{
-		er.m_error = uv_udp_recv_stop(&m_handle);
+		err.m_error = uv_udp_recv_stop(&m_handle);
 	}
 
 	inline void Udp::recvStop()
 	{
-		uv::Error er;
+		uv::Error err;
 
-		recvStop(er);
-		if (er) {
-			throw uv::Exception(er);
+		recvStop(err);
+		if (err) {
+			throw uv::Exception(err);
 		}
 	}
 }

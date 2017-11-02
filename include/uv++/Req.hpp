@@ -13,8 +13,8 @@ namespace uv
 	class Req : public Noncopyable
 	{
 	public:
-		void			cancel(uv::Error &er);
-		void			cancel();
+		void		cancel(uv::Error &err);
+		void		cancel();
 
 	protected:
 		T			m_handle;
@@ -24,19 +24,19 @@ namespace uv
 
 
 	template<typename T>
-	inline void Req<T>::cancel(uv::Error &er)
+	inline void Req<T>::cancel(uv::Error &err)
 	{
-		er.m_error = uv_cancel(reinterpret_cast<uv_req_t *>(&m_handle));
+		err.m_error = uv_cancel(reinterpret_cast<uv_req_t *>(&m_handle));
 	}
 
 	template<typename T>
 	inline void Req<T>::cancel()
 	{
-		uv::Error er;
+		uv::Error err;
 
-		cancel(er);
-		if (er) {
-			throw uv::Exception(er);
+		cancel(err);
+		if (err) {
+			throw uv::Exception(err);
 		}
 	}
 }

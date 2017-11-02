@@ -31,25 +31,25 @@ namespace uv
     {
     public:
 		explicit		Loop(bool is_default = false);
-					~Loop();
+						~Loop();
 
-		void			run(uv::Error &er);
+		void			run(uv::Error &err);
 		void			run();
-        void			runOnce(uv::Error &er);
+        void			runOnce(uv::Error &err);
 		void			runOnce();
-        void			runNowait(uv::Error &er);
+        void			runNowait(uv::Error &err);
 		void			runNowait();
 		void			stop();
-		void			fork(uv::Error &er);
+		void			fork(uv::Error &err);
 		void			fork();
 		uint64_t		now() const;
 		void			updateTime();
 		bool			alive() const;
-		int			backendFd() const;
-		int			backendTimeout() const;
+		int				backendFd() const;
+		int				backendTimeout() const;
 		void			printAllHandles(FILE *stream);
 		void			printActiveHandles(FILE *stream);
-		uv_loop_t	&operator()();
+		uv_loop_t		&operator()();
 
 	private:
 		friend class Pipe;
@@ -95,48 +95,48 @@ namespace uv
 		uv_loop_close(m_loop_ptr);
 	}
 
-	inline void Loop::run(uv::Error &er)
+	inline void Loop::run(uv::Error &err)
 	{
-		er.m_error = uv_run(m_loop_ptr, UV_RUN_DEFAULT);
+		err.m_error = uv_run(m_loop_ptr, UV_RUN_DEFAULT);
 	}
 
 	inline void Loop::run()
 	{
-		uv::Error er;
+		uv::Error err;
 
-		run(er);
-		if (er) {
-			throw uv::Exception(er);
+		run(err);
+		if (err) {
+			throw uv::Exception(err);
 		}
 	}
 
-	inline void Loop::runOnce(uv::Error &er)
+	inline void Loop::runOnce(uv::Error &err)
     {
-        er.m_error = uv_run(m_loop_ptr, UV_RUN_ONCE);
+		err.m_error = uv_run(m_loop_ptr, UV_RUN_ONCE);
     }
 
 	inline void Loop::runOnce()
 	{
-		uv::Error er;
+		uv::Error err;
 
-		runOnce(er);
-		if (er) {
-			throw uv::Exception(er);
+		runOnce(err);
+		if (err) {
+			throw uv::Exception(err);
 		}
 	}
 
-	inline void Loop::runNowait(uv::Error &er)
+	inline void Loop::runNowait(uv::Error &err)
     {
-        er.m_error = uv_run(m_loop_ptr, UV_RUN_NOWAIT);
+		err.m_error = uv_run(m_loop_ptr, UV_RUN_NOWAIT);
     }
 
 	inline void Loop::runNowait()
 	{
-		uv::Error er;
+		uv::Error err;
 
-		runNowait(er);
-		if (er) {
-			throw uv::Exception(er);
+		runNowait(err);
+		if (err) {
+			throw uv::Exception(err);
 		}
 	}
 
@@ -145,18 +145,18 @@ namespace uv
 		uv_stop(m_loop_ptr);
 	}
 
-	inline void Loop::fork(uv::Error & er)
+	inline void Loop::fork(uv::Error &err)
 	{
-		er.m_error = uv_loop_fork(m_loop_ptr);
+		err.m_error = uv_loop_fork(m_loop_ptr);
 	}
 
 	inline void Loop::fork()
 	{
-		uv::Error er;
+		uv::Error err;
 
-		fork(er);
-		if (er) {
-			throw uv::Exception(er);
+		fork(err);
+		if (err) {
+			throw uv::Exception(err);
 		}
 	}
 

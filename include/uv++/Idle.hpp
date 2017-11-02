@@ -17,13 +17,13 @@ namespace uv
 	public:
 		explicit		Idle(uv::Loop &loop);
 
-		void			start(std::function<void()> cb, uv::Error &er);
+		void			start(std::function<void()> cb, uv::Error &err);
 		void			start(std::function<void()> cb);
-		void			stop(uv::Error &er);
+		void			stop(uv::Error &err);
 		void			stop();
 
 	private:
-		uv_idle_t	m_handle;
+		uv_idle_t		m_handle;
 
 	private:
 		std::function<void()>	m_startHandler = []() {};
@@ -39,10 +39,10 @@ namespace uv
 		uv_idle_init(loop.m_loop_ptr, &m_handle);
 	}
 
-	inline void Idle::start(std::function<void()> cb, uv::Error &er)
+	inline void Idle::start(std::function<void()> cb, uv::Error &err)
 	{
 		m_startHandler = cb;
-		er.m_error = uv_idle_start(&m_handle, [](uv_idle_t *handle) {
+		err.m_error = uv_idle_start(&m_handle, [](uv_idle_t *handle) {
 			auto &idle = *reinterpret_cast<uv::Idle *>(handle->data);
 			idle.m_startHandler();
 		});
@@ -50,26 +50,26 @@ namespace uv
 
 	inline void Idle::start(std::function<void()> cb)
 	{
-		uv::Error er;
+		uv::Error err;
 
-		start(cb, er);
-		if (er) {
-			throw uv::Exception(er);
+		start(cb, err);
+		if (err) {
+			throw uv::Exception(err);
 		}
 	}
 
-	inline void Idle::stop(uv::Error &er)
+	inline void Idle::stop(uv::Error &err)
 	{
-		er.m_error = uv_idle_stop(&m_handle);
+		err.m_error = uv_idle_stop(&m_handle);
 	}
 
 	inline void Idle::stop()
 	{
-		uv::Error er;
+		uv::Error err;
 
-		stop(er);
-		if (er) {
-			throw uv::Exception(er);
+		stop(err);
+		if (err) {
+			throw uv::Exception(err);
 		}
 	}
 }

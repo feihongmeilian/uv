@@ -16,11 +16,11 @@ namespace uv
 	{
 	public:
 		Async(uv::Loop &loop, std::function<void()> handler);
-		void			send(uv::Error &er);
+		void			send(uv::Error &err);
 		void			send();
 
 	private:
-		uv_async_t	m_handle;
+		uv_async_t		m_handle;
 		std::function<void()> m_callbackHandler = []() {};
 	};
 
@@ -38,18 +38,18 @@ namespace uv
 		});
 	}
 
-	inline void Async::send(uv::Error &er)
+	inline void Async::send(uv::Error &err)
 	{
-		er.m_error = uv_async_send(&m_handle);
+		err.m_error = uv_async_send(&m_handle);
 	}
 
 	inline void Async::send()
 	{
-		uv::Error er;
+		uv::Error err;
 
-		send(er);
-		if (er) {
-			throw uv::Exception(er);
+		send(err);
+		if (err) {
+			throw uv::Exception(err);
 		}
 	}
 }

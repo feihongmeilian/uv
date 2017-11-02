@@ -17,9 +17,9 @@ namespace uv
 	public:
 		explicit		Prepare(uv::Loop &loop);
 
-		void			start(std::function<void()> cb, uv::Error &er);
+		void			start(std::function<void()> cb, uv::Error &err);
 		void			start(std::function<void()> cb);
-		void			stop(uv::Error &er);
+		void			stop(uv::Error &err);
 		void			stop();
 
 	private:
@@ -39,10 +39,10 @@ namespace uv
 		uv_prepare_init(loop.m_loop_ptr, &m_handle);
 	}
 
-	inline void Prepare::start(std::function<void()> cb, uv::Error &er)
+	inline void Prepare::start(std::function<void()> cb, uv::Error &err)
 	{
 		m_startHandler = cb;
-		er.m_error = uv_prepare_start(&m_handle, [](uv_prepare_t *handle) {
+		err.m_error = uv_prepare_start(&m_handle, [](uv_prepare_t *handle) {
 			auto &prepare = *reinterpret_cast<uv::Prepare *>(handle->data);
 			prepare.m_startHandler();
 		});
@@ -50,26 +50,26 @@ namespace uv
 
 	inline void Prepare::start(std::function<void()> cb)
 	{
-		uv::Error er;
+		uv::Error err;
 
-		start(cb, er);
-		if (er) {
-			throw uv::Exception(er);
+		start(cb, err);
+		if (err) {
+			throw uv::Exception(err);
 		}
 	}
 
-	inline void Prepare::stop(uv::Error &er)
+	inline void Prepare::stop(uv::Error &err)
 	{
-		er.m_error = uv_prepare_stop(&m_handle);
+		err.m_error = uv_prepare_stop(&m_handle);
 	}
 
 	inline void Prepare::stop()
 	{
-		uv::Error er;
+		uv::Error err;
 
-		stop(er);
-		if (er) {
-			throw uv::Exception(er);
+		stop(err);
+		if (err) {
+			throw uv::Exception(err);
 		}
 	}
 }

@@ -47,7 +47,7 @@ namespace uv
 		int			chown(const std::string &path, uv_uid_t uid, uv_gid_t gid, std::function<void()> handler);
 		int			fchown(uv_file file, uv_uid_t uid, uv_gid_t gid, std::function<void()> handler);
 	private:
-		uv::Loop		&m_loop;
+		uv::Loop	&m_loop;
 		std::function<void()>	m_callbackHandler = []() {};
 	};
 

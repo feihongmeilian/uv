@@ -17,20 +17,20 @@ namespace uv
 	class Pipe : public Stream<uv_pipe_t>
 	{
 	public:
-					Pipe(uv::Loop &loop, int ipc);
+						Pipe(uv::Loop &loop, int ipc);
 
-		void			open(uv_file file, uv::Error &er);
+		void			open(uv_file file, uv::Error &err);
 		void			open(uv_file file);
-		void			bind(const std::string &name, uv::Error &er);
+		void			bind(const std::string &name, uv::Error &err);
 		void			bind(const std::string &name);
-		void			connect(const std::string &name, std::function<void(const Error &error)> handler, uv::Error &er);
+		void			connect(const std::string &name, std::function<void(const Error &error)> handler, uv::Error &err);
 		void			connect(const std::string &name, std::function<void(const Error &error)> handler);
-		void			getsockname(char *buffer, size_t &size, uv::Error &er) const;
+		void			getsockname(char *buffer, size_t &size, uv::Error &err) const;
 		void			getsockname(char *buffer, size_t &size) const;
-		void			getpeername(char *buffer, size_t &size, uv::Error &er) const;
+		void			getpeername(char *buffer, size_t &size, uv::Error &err) const;
 		void			getpeername(char *buffer, size_t &size) const;
 		void			pendingInstances(int count);
-		int			pendingCount();
+		int				pendingCount();
 
 		uv_handle_type	pendingType();
 
@@ -48,41 +48,41 @@ namespace uv
 		uv_pipe_init(loop.m_loop_ptr, &m_handle, ipc);
 	}
 
-	inline void Pipe::open(uv_file file, uv::Error &er)
+	inline void Pipe::open(uv_file file, uv::Error &err)
 	{
-		er.m_error = uv_pipe_open(&m_handle, file);
+		err.m_error = uv_pipe_open(&m_handle, file);
 	}
 
 	inline void Pipe::open(uv_file file)
 	{
-		uv::Error er;
+		uv::Error err;
 
-		open(er);
-		if (er) {
-			throw uv::Exception(er);
+		open(err);
+		if (err) {
+			throw uv::Exception(err);
 		}
 	}
 
-	inline void Pipe::bind(const std::string &name, uv::Error &er)
+	inline void Pipe::bind(const std::string &name, uv::Error &err)
 	{
-		er.m_error = uv_pipe_bind(&m_handle, name.c_str());
+		err.m_error = uv_pipe_bind(&m_handle, name.c_str());
 	}
 
 	inline void Pipe::bind(const std::string &name)
 	{
-		uv::Error er;
+		uv::Error err;
 
-		bind(name, er);
-		if (er) {
-			throw uv::Exception(er);
+		bind(name, err);
+		if (err) {
+			throw uv::Exception(err);
 		}
 	}
 	
-	inline void Pipe::connect(const std::string &name, std::function<void(const Error &error)> handler, uv::Error &er)
+	inline void Pipe::connect(const std::string &name, std::function<void(const Error &error)> handler, uv::Error &err)
 	{
 		auto connect = new (std::nothrow) Connect;
 		if (connect == nullptr) {
-			er.m_error = ENOMEM;
+			err.m_error = ENOMEM;
 			return;
 		}
 
@@ -99,41 +99,41 @@ namespace uv
 
 	inline void Pipe::connect(const std::string &name, std::function<void(const Error&error)> handler)
 	{
-		uv::Error er;
+		uv::Error err;
 
-		connect(name, handler, er);
-		if (er) {
-			throw uv::Exception(er);
+		connect(name, handler, err);
+		if (err) {
+			throw uv::Exception(err);
 		}
 	}
 
-	inline void Pipe::getsockname(char *buffer, size_t &size, uv::Error &er) const
+	inline void Pipe::getsockname(char *buffer, size_t &size, uv::Error &err) const
 	{
-		er.m_error = uv_pipe_getsockname(&m_handle, buffer, &size);
+		err.m_error = uv_pipe_getsockname(&m_handle, buffer, &size);
 	}
 
 	inline void Pipe::getsockname(char *buffer, size_t &size) const
 	{
-		uv::Error er;
+		uv::Error err;
 
-		getsockname(buffer, size, er);
-		if (er) {
-			throw uv::Exception(er);
+		getsockname(buffer, size, err);
+		if (err) {
+			throw uv::Exception(err);
 		}
 	}
 
-	inline void Pipe::getpeername(char *buffer, size_t &size, uv::Error &er) const
+	inline void Pipe::getpeername(char *buffer, size_t &size, uv::Error &err) const
 	{
-		er.m_error =  uv_pipe_getpeername(&m_handle, buffer, &size);
+		err.m_error =  uv_pipe_getpeername(&m_handle, buffer, &size);
 	}
 
 	inline void Pipe::getpeername(char *buffer, size_t &size) const
 	{
-		uv::Error er;
+		uv::Error err;
 
-		getpeername(buffer, size, er);
-		if (er) {
-			throw uv::Exception(er);
+		getpeername(buffer, size, err);
+		if (err) {
+			throw uv::Exception(err);
 		}
 	}
 

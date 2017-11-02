@@ -14,10 +14,10 @@ namespace uv
 	{
 	public:
 					Tty(uv::Loop &loop, uv_file fd, int readable);
-		void			setMode(uv_tty_mode_t mode, uv::Error &er);
-		void			setMode(uv_tty_mode_t mode);
-		void			getWinsize(int &width, int &height, uv::Error &er);
-		void			getWinsize(int &width, int &height);
+		void		setMode(uv_tty_mode_t mode, uv::Error &err);
+		void		setMode(uv_tty_mode_t mode);
+		void		getWinsize(int &width, int &height, uv::Error &err);
+		void		getWinsize(int &width, int &height);
 
 		static void	resetMode(uv::Error &er);
 		static void	resetMode();
@@ -33,48 +33,48 @@ namespace uv
 		uv_tty_init(loop.m_loop_ptr, &m_handle, fd, readable);
 	}
 
-	inline void Tty::setMode(uv_tty_mode_t mode, uv::Error &er)
+	inline void Tty::setMode(uv_tty_mode_t mode, uv::Error &err)
 	{
-		er.m_error = uv_tty_set_mode(&m_handle, mode);
+		err.m_error = uv_tty_set_mode(&m_handle, mode);
 	}
 
 	inline void Tty::setMode(uv_tty_mode_t mode)
 	{
-		uv::Error er;
+		uv::Error err;
 
-		setMode(mode, er);
-		if (er) {
-			throw uv::Exception(er);
+		setMode(mode, err);
+		if (err) {
+			throw uv::Exception(err);
 		}
 	}
 
-	inline void Tty::resetMode(uv::Error &er)
+	inline void Tty::resetMode(uv::Error &err)
 	{
-		er.m_error = uv_tty_reset_mode();
+		err.m_error = uv_tty_reset_mode();
 	}
 
 	inline void Tty::resetMode()
 	{
-		uv::Error er;
+		uv::Error err;
 
-		resetMode(er);
-		if (er) {
-			throw uv::Exception(er);
+		resetMode(err);
+		if (err) {
+			throw uv::Exception(err);
 		}
 	}
 
-	inline void Tty::getWinsize(int &width, int &height, uv::Error &er)
+	inline void Tty::getWinsize(int &width, int &height, uv::Error &err)
 	{
-		er.m_error = uv_tty_get_winsize(&m_handle, &width, &height);
+		err.m_error = uv_tty_get_winsize(&m_handle, &width, &height);
 	}
 
 	inline void Tty::getWinsize(int & width, int & height)
 	{
-		uv::Error er;
+		uv::Error err;
 
-		getWinsize(width, height, er);
-		if (er) {
-			throw uv::Exception(er);
+		getWinsize(width, height, err);
+		if (err) {
+			throw uv::Exception(err);
 		}
 	}
 }

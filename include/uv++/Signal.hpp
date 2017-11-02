@@ -18,13 +18,13 @@ namespace uv
 		explicit		Signal(uv::Loop &);
 
     public:
-		void			start(std::function<void(int signum)> handler, int sigNum, uv::Error &er);
+		void			start(std::function<void(int signum)> handler, int sigNum, uv::Error &err);
 		void			start(std::function<void(int signum)> handler, int sigNum);
-		void			stop(uv::Error &er);
+		void			stop(uv::Error &err);
 		void			stop();
 
     private:
-        uv_signal_t	m_handle;
+        uv_signal_t		m_handle;
 
 	private:
         std::function<void(int signum)>	m_startHandler = [](int signum) {};
@@ -40,10 +40,10 @@ namespace uv
 		m_handle.data = this;
 	}
 
-	inline void Signal::start(std::function<void(int signum)> handler, int sigNum, uv::Error &er)
+	inline void Signal::start(std::function<void(int signum)> handler, int sigNum, uv::Error &err)
 	{
 		m_startHandler = handler;
-		er.m_error = uv_signal_start(&m_handle, [](uv_signal_t *handle, int num) {
+		err.m_error = uv_signal_start(&m_handle, [](uv_signal_t *handle, int num) {
 			auto &signal = *reinterpret_cast<uv::Signal *>(handle->data);
 			signal.m_startHandler(num);
 		}, sigNum);
@@ -51,26 +51,26 @@ namespace uv
 
 	inline void Signal::start(std::function<void(int signum)> handler, int sigNum)
 	{
-		uv::Error er;
+		uv::Error err;
 
-		start(handler, sigNum, er);
-		if (er) {
-			throw uv::Exception(er);
+		start(handler, sigNum, err);
+		if (err) {
+			throw uv::Exception(err);
 		}
 	}
 
-	inline void Signal::stop(uv::Error &er)
+	inline void Signal::stop(uv::Error &err)
 	{
-		er.m_error = uv_signal_stop(&m_handle);
+		err.m_error = uv_signal_stop(&m_handle);
 	}
 
 	inline void Signal::stop()
 	{
-		uv::Error er;
+		uv::Error err;
 
-		stop(er);
-		if (er) {
-			throw uv::Exception(er);
+		stop(err);
+		if (err) {
+			throw uv::Exception(err);
 		}
 	}
 }

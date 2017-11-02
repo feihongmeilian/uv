@@ -12,7 +12,7 @@ namespace uv
 	class Exception :public std::exception
 	{
 	public:
-		explicit				Exception(const uv::Error &error);
+		explicit			Exception(const uv::Error &err);
 		virtual const char	*what() const throw() override;
 
 	private:
@@ -23,8 +23,8 @@ namespace uv
 
 
 
-	inline Exception::Exception(const uv::Error &error)
-		:m_error(error)
+	inline Exception::Exception(const uv::Error &err)
+		:m_error(err)
 	{
 	}
 
