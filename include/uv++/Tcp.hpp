@@ -17,115 +17,167 @@ namespace uv
 	class Tcp : public Stream<uv_tcp_t>
 	{
 	public:
-		explicit		Tcp(uv::Loop &loop);
-						Tcp(uv::Loop &loop, unsigned int flags);
+		Tcp();
 
-		void			open(uv_os_sock_t sock, uv::Error &err);
+		void			init(uv::Loop &loop, std::error_code &ec);
+		void			init(uv::Loop &loop);
+		void			init(uv::Loop &loop, unsigned int flags, std::error_code &ec);
+		void			init(uv::Loop &loop, unsigned int flags);
+
+		void			open(uv_os_sock_t sock, std::error_code &ec);
 		void			open(uv_os_sock_t sock);
-		void			nodelay(int enable, uv::Error &err);
+		void			nodelay(int enable, std::error_code &ec);
 		void			nodelay(int enable);
-		void			keepalive(int enable, unsigned int delay, uv::Error &err);
+		void			keepalive(int enable, unsigned int delay, std::error_code &ec);
 		void			keepalive(int enable, unsigned int delay);
-		void			simultaneousAccepts(int enable, uv::Error &err);
+		void			simultaneousAccepts(int enable, std::error_code &ec);
 		void			simultaneousAccepts(int enable);
-		void			bind(const std::string &ip, int port, unsigned int flags, uv::Error &err);
+		void			bind(const std::string &ip, int port, unsigned int flags, std::error_code &ec);
 		void			bind(const std::string &ip, int port, unsigned int flags);
-		void			getsockname(struct sockaddr &name, int &namelen, uv::Error &err) const;
+		void			getsockname(struct sockaddr &name, int &namelen, std::error_code &ec) const;
 		void			getsockname(struct sockaddr &name, int &namelenr) const;
-		void			getpeername(struct sockaddr &name, int &namelen, uv::Error &err) const;
+		void			getpeername(struct sockaddr &name, int &namelen, std::error_code &ec) const;
 		void			getpeername(struct sockaddr &name, int &namelen) const;
 		void			connect(const std::string &ip, int port,
-							std::function<void(const Error &error)> handler, uv::Error &err);
+							std::function<void(const std::error_code &ec)> handler, std::error_code &ec);
 		void			connect(const std::string &ip, int port,
-							std::function<void(const Error &error)> handler);
+							std::function<void(const std::error_code &ec)> handler);
 
 	private:
-		std::function<void(const Error &error)>	m_connectHandler = [](const Error &error) {};
+		std::function<void(const std::error_code &ec)>	m_connectHandler = [](const std::error_code &ec) {};
 	};
 
 
 
 
 
-	inline Tcp::Tcp(uv::Loop &loop)
+	inline Tcp::Tcp()
 	{
 		m_handle.data = this;
-		uv_tcp_init(loop.m_loop_ptr, &m_handle);
 	}
 
-	inline Tcp::Tcp(uv::Loop &loop, unsigned int flags)
+	inline void Tcp::init(uv::Loop &loop, std::error_code &ec)
 	{
-		m_handle.data = this;
-		uv_tcp_init_ex(loop.m_loop_ptr, &m_handle, flags);
+		auto status = uv_tcp_init(loop.value(), &m_handle);
+
+		if (status != 0) {
+			ec = makeErrorCode(status);
+		}
 	}
 
-	inline void Tcp::open(uv_os_sock_t sock, uv::Error &err)
+	inline void Tcp::init(uv::Loop &loop)
 	{
-		err.m_error = uv_tcp_open(&m_handle, sock);
+		std::error_code ec;
+
+		init(loop, ec);
+		if (ec) {
+			throw uv::Exception(ec);
+		}
+	}
+
+	inline void Tcp::init(uv::Loop &loop, unsigned int flags, std::error_code &ec)
+	{
+		auto status = uv_tcp_init_ex(loop.value(), &m_handle, flags);
+
+		if (status != 0) {
+			ec = makeErrorCode(status);
+		}
+	}
+
+	inline void Tcp::init(uv::Loop &loop, unsigned int flags)
+	{
+		std::error_code ec;
+
+		init(loop, ec);
+		if (ec) {
+			throw uv::Exception(ec);
+		}
+	}
+
+	inline void Tcp::open(uv_os_sock_t sock, std::error_code &ec)
+	{
+		auto status = uv_tcp_open(&m_handle, sock);
+
+		if (status != 0) {
+			ec = makeErrorCode(status);
+		}
 	}
 
 	inline void Tcp::open(uv_os_sock_t sock)
 	{
-		uv::Error err;
+		std::error_code ec;
 
-		open(sock, err);
-		if (err) {
-			throw uv::Exception(err);
+		open(sock, ec);
+		if (ec) {
+			throw uv::Exception(ec);
 		}
 	}
 
-	inline void Tcp::nodelay(int enable, uv::Error &err)
+	inline void Tcp::nodelay(int enable, std::error_code &ec)
 	{
-		err.m_error = uv_tcp_nodelay(&m_handle, enable);
+		auto status = uv_tcp_nodelay(&m_handle, enable);
+
+		if (status != 0) {
+			ec = makeErrorCode(status);
+		}
 	}
 
 	inline void Tcp::nodelay(int enable)
 	{
-		uv::Error err;
+		std::error_code ec;
 
-		nodelay(enable, err);
-		if (err) {
-			throw uv::Exception(err);
+		nodelay(enable, ec);
+		if (ec) {
+			throw uv::Exception(ec);
 		}
 	}
 
-	inline void Tcp::keepalive(int enable, unsigned int delay, uv::Error &err)
+	inline void Tcp::keepalive(int enable, unsigned int delay, std::error_code &ec)
 	{
-		err.m_error = uv_tcp_keepalive(&m_handle, enable, delay);
+		auto status = uv_tcp_keepalive(&m_handle, enable, delay);
+
+		if (status != 0) {
+			ec = makeErrorCode(status);
+		}
 	}
 
 	inline void Tcp::keepalive(int enable, unsigned int delay)
 	{
-		uv::Error err;
+		std::error_code ec;
 
-		keepalive(enable, delay, err);
-		if (err) {
-			throw uv::Exception(err);
+		keepalive(enable, delay, ec);
+		if (ec) {
+			throw uv::Exception(ec);
 		}
 	}
 
-	inline void Tcp::simultaneousAccepts(int enable, uv::Error &err)
+	inline void Tcp::simultaneousAccepts(int enable, std::error_code &ec)
 	{
-		err.m_error = uv_tcp_simultaneous_accepts(&m_handle, enable);
+		auto status = uv_tcp_simultaneous_accepts(&m_handle, enable);
+
+		if (status != 0) {
+			ec = makeErrorCode(status);
+		}
 	}
 
 	inline void Tcp::simultaneousAccepts(int enable)
 	{
-		uv::Error err;
+		std::error_code ec;
 
-		simultaneousAccepts(enable, err);
-		if (err) {
-			throw uv::Exception(err);
+		simultaneousAccepts(enable, ec);
+		if (ec) {
+			throw uv::Exception(ec);
 		}
 	}
 	
-	inline void Tcp::bind(const std::string &ip, int port, unsigned int flags, uv::Error &err)
+	inline void Tcp::bind(const std::string &ip, int port, unsigned int flags, std::error_code &ec)
 	{
 		struct sockaddr *p_addr;
 
 		struct sockaddr_in addr4;	
-		err.m_error = uv_ip4_addr(ip.c_str(), port, &addr4);
-		if (err) {
+		auto status = uv_ip4_addr(ip.c_str(), port, &addr4);
+		if (status) {
+			ec = makeErrorCode(status);
 			struct sockaddr_in6 addr6;
 			auto status = uv_ip6_addr(ip.c_str(), port, &addr6);
 			if (status) {
@@ -138,64 +190,78 @@ namespace uv
 			p_addr = reinterpret_cast<sockaddr *>(&addr4);
 		}
 
-		err.m_error = uv_tcp_bind(&m_handle, p_addr, flags);
+		status = uv_tcp_bind(&m_handle, p_addr, flags);
+
+		if (status != 0) {
+			ec = makeErrorCode(status);
+		}
 	}
 
 	inline void Tcp::bind(const std::string &ip, int port, unsigned int flags)
 	{
-		uv::Error err;
+		std::error_code ec;
 
-		bind(ip, port, flags, err);
-		if (err) {
-			throw uv::Exception(err);
+		bind(ip, port, flags, ec);
+		if (ec) {
+			throw uv::Exception(ec);
 		}
 	}
 	
-	inline void Tcp::getsockname(struct sockaddr &name, int &namelen, uv::Error &err) const
+	inline void Tcp::getsockname(struct sockaddr &name, int &namelen, std::error_code &ec) const
 	{
-		err.m_error = uv_tcp_getsockname(&m_handle, &name, &namelen);
+		auto status = uv_tcp_getsockname(&m_handle, &name, &namelen);
+
+		if (status != 0) {
+			ec = makeErrorCode(status);
+		}
 	}
 
 	inline void Tcp::getsockname(sockaddr &name, int &namelen) const
 	{
-		uv::Error err;
+		std::error_code ec;
 
-		getsockname(name, namelen, err);
-		if (err) {
-			throw uv::Exception(err);
+		getsockname(name, namelen, ec);
+		if (ec) {
+			throw uv::Exception(ec);
 		}
 	}
 	
-	inline void Tcp::getpeername(struct sockaddr &name, int &namelen, uv::Error &err) const
+	inline void Tcp::getpeername(struct sockaddr &name, int &namelen, std::error_code &ec) const
 	{
-		err.m_error = uv_tcp_getpeername(&m_handle, &name, &namelen);
+		auto status = uv_tcp_getpeername(&m_handle, &name, &namelen);
+
+		if (status != 0) {
+			ec = makeErrorCode(status);
+		}
 	}
 
 	inline void Tcp::getpeername(sockaddr &name, int &namelen) const
 	{
-		uv::Error err;
+		std::error_code ec;
 
-		getpeername(name, namelen, err);
-		if (err) {
-			throw uv::Exception(err);
+		getpeername(name, namelen, ec);
+		if (ec) {
+			throw uv::Exception(ec);
 		}
 	}
 	
-	inline void Tcp::connect(const std::string &ip, int port, std::function<void(const Error &error)> handler, uv::Error &err)
+	inline void Tcp::connect(const std::string &ip, int port,
+		std::function<void(const std::error_code &ec)> handler, std::error_code &ec)
 	{
 		m_connectHandler = handler;
 
 		auto connect = new (std::nothrow) Connect;
 		if (connect == nullptr) {
-			err.m_error = ENOMEM;
+			ec = makeErrorCode(ENOMEM);
 			return;
 		}
 
 		struct sockaddr *p_addr;
 
 		struct sockaddr_in addr4;
-		err.m_error = uv_ip4_addr(ip.c_str(), port, &addr4);
-		if (err) {
+		auto status = uv_ip4_addr(ip.c_str(), port, &addr4);
+		if (status != 0) {
+			ec = makeErrorCode(status);
 			struct sockaddr_in6 addr6;
 			auto status = uv_ip6_addr(ip.c_str(), port, &addr6);
 			if (status) {
@@ -208,22 +274,27 @@ namespace uv
 			p_addr = reinterpret_cast<sockaddr *>(&addr4);
 		}
 
-		err.m_error = uv_tcp_connect(&connect->m_handle, &m_handle, p_addr,
+		status = uv_tcp_connect(&connect->m_handle, &m_handle, p_addr,
 			[](uv_connect_t *req, int status) {
             std::shared_ptr<Connect> connect(reinterpret_cast<Connect *>(req->data));
 			
             auto &tcp = *reinterpret_cast<uv::Tcp *>(req->handle->data);
-			tcp.m_connectHandler(Error(status));
+			tcp.m_connectHandler(makeErrorCode(status));
 		});
+
+		if (status != 0) {
+			ec = makeErrorCode(status);
+		}
 	}
 
-	inline void Tcp::connect(const std::string &ip, int port, std::function<void(const Error&error)> handler)
+	inline void Tcp::connect(const std::string &ip, int port,
+		std::function<void(const std::error_code &ec)> handler)
 	{
-		uv::Error err;
+		std::error_code ec;
 
-		connect(ip, port, handler, err);
-		if (err) {
-			throw uv::Exception(err);
+		connect(ip, port, handler, ec);
+		if (ec) {
+			throw uv::Exception(ec);
 		}
 	}
 

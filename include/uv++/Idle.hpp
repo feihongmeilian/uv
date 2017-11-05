@@ -15,11 +15,13 @@ namespace uv
 	class Idle : public Noncopyable
 	{
 	public:
-		explicit		Idle(uv::Loop &loop);
+		Idle();
 
-		void			start(std::function<void()> cb, uv::Error &err);
+		void			init(uv::Loop &loop, std::error_code &ec);
+		void			init(uv::Loop &loop);
+		void			start(std::function<void()> cb, std::error_code &ec);
 		void			start(std::function<void()> cb);
-		void			stop(uv::Error &err);
+		void			stop(std::error_code &ec);
 		void			stop();
 
 	private:
@@ -33,43 +35,69 @@ namespace uv
 
 
 
-	inline Idle::Idle(uv::Loop &loop)
+	inline Idle::Idle()
 	{
 		m_handle.data = this;
-		uv_idle_init(loop.m_loop_ptr, &m_handle);
 	}
 
-	inline void Idle::start(std::function<void()> cb, uv::Error &err)
+	inline void Idle::init(uv::Loop &loop, std::error_code &ec)
+	{
+		auto status = uv_idle_init(loop.value(), &m_handle);
+
+		if (status != 0) {
+			ec = makeErrorCode(status);
+		}
+	}
+
+	inline void Idle::init(uv::Loop &loop)
+	{
+		std::error_code ec;
+
+		init(loop, ec);
+		if (ec) {
+			throw uv::Exception(ec);
+		}
+	}
+
+	inline void Idle::start(std::function<void()> cb, std::error_code &ec)
 	{
 		m_startHandler = cb;
-		err.m_error = uv_idle_start(&m_handle, [](uv_idle_t *handle) {
+		auto status = uv_idle_start(&m_handle, [](uv_idle_t *handle) {
 			auto &idle = *reinterpret_cast<uv::Idle *>(handle->data);
 			idle.m_startHandler();
 		});
+
+		if (status != 0) {
+			ec = makeErrorCode(status);
+		}
 	}
 
 	inline void Idle::start(std::function<void()> cb)
 	{
-		uv::Error err;
+		std::error_code ec;
 
-		start(cb, err);
-		if (err) {
-			throw uv::Exception(err);
+		start(cb, ec);
+		if (ec) {
+			throw uv::Exception(ec);
 		}
 	}
 
-	inline void Idle::stop(uv::Error &err)
+	inline void Idle::stop(std::error_code &ec)
 	{
-		err.m_error = uv_idle_stop(&m_handle);
+		auto status = uv_idle_stop(&m_handle);
+
+		if (status != 0) {
+			ec = makeErrorCode(status);
+		}
 	}
 
 	inline void Idle::stop()
 	{
-		uv::Error err;
+		std::error_code ec;
 
-		stop(err);
-		if (err) {
-			throw uv::Exception(err);
+		stop(ec);
+		if (ec) {
+			throw uv::Exception(ec);
 		}
 	}
 }

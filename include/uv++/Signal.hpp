@@ -15,12 +15,13 @@ namespace uv
     class Signal : public Noncopyable
     {
     public:
-		explicit		Signal(uv::Loop &);
+		Signal();
 
-    public:
-		void			start(std::function<void(int signum)> handler, int sigNum, uv::Error &err);
+		void			init(uv::Loop &loop, std::error_code &ec);
+		void			init(uv::Loop &loop);
+		void			start(std::function<void(int signum)> handler, int sigNum, std::error_code &ec);
 		void			start(std::function<void(int signum)> handler, int sigNum);
-		void			stop(uv::Error &err);
+		void			stop(std::error_code &ec);
 		void			stop();
 
     private:
@@ -34,43 +35,69 @@ namespace uv
 
 
 
-	inline Signal::Signal(uv::Loop &loop)
+	inline Signal::Signal()
 	{
-		uv_signal_init(loop.m_loop_ptr, &m_handle);
 		m_handle.data = this;
 	}
 
-	inline void Signal::start(std::function<void(int signum)> handler, int sigNum, uv::Error &err)
+	inline void Signal::init(uv::Loop &loop, std::error_code &ec)
+	{
+		auto status = uv_signal_init(loop.value(), &m_handle);
+
+		if (status != 0) {
+			ec = makeErrorCode(status);
+		}
+	}
+
+	inline void Signal::init(uv::Loop &loop)
+	{
+		std::error_code ec;
+
+		init(loop, ec);
+		if (ec) {
+			throw uv::Exception(ec);
+		}
+	}
+
+	inline void Signal::start(std::function<void(int signum)> handler, int sigNum, std::error_code &ec)
 	{
 		m_startHandler = handler;
-		err.m_error = uv_signal_start(&m_handle, [](uv_signal_t *handle, int num) {
+		auto status = uv_signal_start(&m_handle, [](uv_signal_t *handle, int num) {
 			auto &signal = *reinterpret_cast<uv::Signal *>(handle->data);
 			signal.m_startHandler(num);
 		}, sigNum);
+
+		if (status != 0) {
+			ec = makeErrorCode(status);
+		}
 	}
 
 	inline void Signal::start(std::function<void(int signum)> handler, int sigNum)
 	{
-		uv::Error err;
+		std::error_code ec;
 
-		start(handler, sigNum, err);
-		if (err) {
-			throw uv::Exception(err);
+		start(handler, sigNum, ec);
+		if (ec) {
+			throw uv::Exception(ec);
 		}
 	}
 
-	inline void Signal::stop(uv::Error &err)
+	inline void Signal::stop(std::error_code &ec)
 	{
-		err.m_error = uv_signal_stop(&m_handle);
+		auto status = uv_signal_stop(&m_handle);
+
+		if (status != 0) {
+			ec = makeErrorCode(status);
+		}
 	}
 
 	inline void Signal::stop()
 	{
-		uv::Error err;
+		std::error_code ec;
 
-		stop(err);
-		if (err) {
-			throw uv::Exception(err);
+		stop(ec);
+		if (ec) {
+			throw uv::Exception(ec);
 		}
 	}
 }

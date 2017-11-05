@@ -15,46 +15,50 @@ namespace uv
 	class Work : public Req<uv_work_t>
 	{
 	public:
-		Work(std::function<void()> wh, std::function<void(const Error &error)> ah);
-		void			queue(uv::Loop &loop, uv::Error &err);
+		Work(std::function<void()> wh, std::function<void(const std::error_code &ec)> ah);
+		void			queue(uv::Loop &loop, std::error_code &ec);
 		void			queue(uv::Loop &loop);
 
 	private:
 		std::function<void()>		m_workHandler	= []() {};
-		std::function<void(const Error &error)>	m_afterWorkHandler = [](const Error &error) {};
+		std::function<void(const std::error_code &ec)>	m_afterWorkHandler = [](const std::error_code &ec) {};
 	};
 
 
 
 
 
-	inline Work::Work(std::function<void()> wh, std::function<void(const Error &error)> ah)
+	inline Work::Work(std::function<void()> wh, std::function<void(const std::error_code &ec)> ah)
 	{
 		m_handle.data = this;
 		m_workHandler = wh;
 		m_afterWorkHandler = ah;
 	}
 
-	inline void Work::queue(uv::Loop &loop, uv::Error &err)
+	inline void Work::queue(uv::Loop &loop, std::error_code &ec)
 	{
-		err.m_error = uv_queue_work(loop.m_loop_ptr, &m_handle,
+		auto status = uv_queue_work(loop.value(), &m_handle,
 			[](uv_work_t *r) {
 				auto &req = *reinterpret_cast<uv::Work *>(r->data);
 				req.m_workHandler();
 			}, 
 			[](uv_work_t *r,int status) {
 				auto &req = *reinterpret_cast<uv::Work *>(r->data);
-				req.m_afterWorkHandler(Error(status));
+				req.m_afterWorkHandler(makeErrorCode(status));
 		});
+
+		if (status != 0) {
+			ec = makeErrorCode(status);
+		}
 	}
 
 	inline void Work::queue(uv::Loop &loop)
 	{
-		uv::Error err;
+		std::error_code ec;
 
-		queue(loop, err);
-		if (err) {
-			throw uv::Exception(err);
+		queue(loop, ec);
+		if (ec) {
+			throw uv::Exception(ec);
 		}
 	}
 }

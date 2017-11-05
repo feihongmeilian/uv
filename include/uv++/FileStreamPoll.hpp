@@ -16,15 +16,17 @@ namespace uv
 	class FileStreamPoll : public Noncopyable
 	{
 	public:
-		explicit		FileStreamPoll(uv::Loop &loop);
+		FileStreamPoll();
 
+		void			init(uv::Loop &loop, std::error_code &ec);
+		void			init(uv::Loop &loop);
 		void			start(const std::string &path, unsigned int interval, 
-						std::function<void(const Error &error)> handler, uv::Error &err);
+						std::function<void(const std::error_code &ec)> handler, std::error_code &ec);
 		void			start(const std::string &path, unsigned int interval,
-						std::function<void(const Error &error)> handler);
-		void			stop(uv::Error &err);
+						std::function<void(const std::error_code &ec)> handler);
+		void			stop(std::error_code &ec);
 		void			stop();
-		void			getpath(char *buffer, size_t &size, uv::Error &err);
+		void			getpath(char *buffer, size_t &size, std::error_code &ec);
 		void			getpath(char *buffer, size_t &size);
 
 		//just use in callback function
@@ -34,70 +36,100 @@ namespace uv
 		uv_fs_poll_t	m_handle;
 		const uv_stat_t	*m_prevStat;
 		const uv_stat_t	*m_currStat;
-		std::function<void(const Error &error)>	m_callbackHandler = [](const Error &error) {};
+		std::function<void(const std::error_code &ec)>	m_callbackHandler = [](const std::error_code &ec) {};
 	};
 
 
 
 
 
-	inline FileStreamPoll::FileStreamPoll(uv::Loop &loop)
+	inline FileStreamPoll::FileStreamPoll()
 	{
 		m_handle.data = this;
-		uv_fs_poll_init(loop.m_loop_ptr, &m_handle);
+	}
+
+	inline void FileStreamPoll::init(uv::Loop &loop, std::error_code &ec)
+	{
+		auto status = uv_fs_poll_init(loop.value(), &m_handle);
+
+		if (status != 0) {
+			ec = makeErrorCode(status);
+		}
+	}
+
+	inline void FileStreamPoll::init(uv::Loop &loop)
+	{
+		std::error_code ec;
+
+		init(loop, ec);
+		if (ec) {
+			throw uv::Exception(ec);
+		}
 	}
 
 	inline void FileStreamPoll::start(const std::string &path, unsigned int interval,
-		std::function<void(const Error &error)> handler, uv::Error &err)
+		std::function<void(const std::error_code &ec)> handler, std::error_code &ec)
 	{
 		m_callbackHandler = handler;
-		err.m_error = uv_fs_poll_start(&m_handle,
+		auto status = uv_fs_poll_start(&m_handle,
 			[](uv_fs_poll_t* handle, int status, const uv_stat_t *prev, const uv_stat_t *curr) {
 			auto &fp = *reinterpret_cast<uv::FileStreamPoll *>(handle->data);
 			fp.m_prevStat = prev;
 			fp.m_currStat = curr;
-			fp.m_callbackHandler(Error(status));
+			fp.m_callbackHandler(makeErrorCode(status));
 		}, path.c_str(), interval);
-	}
 
-	inline void FileStreamPoll::start(const std::string &path, unsigned int interval,
-		std::function<void(const Error&error)> handler)
-	{
-		uv::Error err;
-
-		start(path, interval, handler, err);
-		if (err) {
-			throw uv::Exception(err);
+		if (status != 0) {
+			ec = makeErrorCode(status);
 		}
 	}
 
-	inline void FileStreamPoll::stop(uv::Error &err)
+	inline void FileStreamPoll::start(const std::string &path, unsigned int interval,
+		std::function<void(const std::error_code &ec)> handler)
 	{
-		err.m_error = uv_fs_poll_stop(&m_handle);
+		std::error_code ec;
+
+		start(path, interval, handler, ec);
+		if (ec) {
+			throw uv::Exception(ec);
+		}
+	}
+
+	inline void FileStreamPoll::stop(std::error_code &ec)
+	{
+		auto status = uv_fs_poll_stop(&m_handle);
+
+		if (status != 0) {
+			ec = makeErrorCode(status);
+		}
 	}
 
 	inline void FileStreamPoll::stop()
 	{
-		uv::Error err;
+		std::error_code ec;
 
-		stop(err);
-		if (err) {
-			throw uv::Exception(err);
+		stop(ec);
+		if (ec) {
+			throw uv::Exception(ec);
 		}
 	}
 
-	inline void FileStreamPoll::getpath(char *buffer, size_t &size, uv::Error &err)
+	inline void FileStreamPoll::getpath(char *buffer, size_t &size, std::error_code &ec)
 	{
-		err.m_error = uv_fs_poll_getpath(&m_handle, buffer, &size);
+		auto status = uv_fs_poll_getpath(&m_handle, buffer, &size);
+
+		if (status != 0) {
+			ec = makeErrorCode(status);
+		}
 	}
 
 	inline void FileStreamPoll::getpath(char *buffer, size_t &size)
 	{
-		uv::Error err;
+		std::error_code ec;
 
-		getpath(buffer, size, err);
-		if (err) {
-			throw uv::Exception(err);
+		getpath(buffer, size, ec);
+		if (ec) {
+			throw uv::Exception(ec);
 		}
 	}
 

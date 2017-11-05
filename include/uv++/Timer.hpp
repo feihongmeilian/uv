@@ -13,14 +13,15 @@ namespace uv
     class Timer : public Noncopyable
     {
     public:
-		explicit		Timer(uv::Loop &);
+		Timer();
 
-    public:
-		void			start(std::function<void ()> handler, uint64_t timeout, uint64_t repeat, uv::Error &err);
+		void			init(uv::Loop &loop, std::error_code &ec);
+		void			init(uv::Loop &loop);
+		void			start(std::function<void ()> handler, uint64_t timeout, uint64_t repeat, std::error_code &ec);
 		void			start(std::function<void()> handler, uint64_t timeout, uint64_t repeat);
-		void			stop(uv::Error &err);
+		void			stop(std::error_code &ec);
 		void			stop();
-		void			again(uv::Error &err);
+		void			again(std::error_code &ec);
 		void			again();
 		void			setRepeat(uint64_t repeat);
 		uint64_t		getRepeat() const;
@@ -36,58 +37,88 @@ namespace uv
 
 
 
-	inline Timer::Timer(uv::Loop &loop)
+	inline Timer::Timer()
 	{
-		uv_timer_init(loop.m_loop_ptr, &m_handle);
 		m_handle.data = this;
 	}
 
-	inline void Timer::start(std::function<void()> handler, uint64_t timeout, uint64_t repeat, uv::Error &err)
+	inline void Timer::init(uv::Loop &loop, std::error_code &ec)
+	{
+		auto status = uv_timer_init(loop.value(), &m_handle);
+
+		if (status != 0) {
+			ec = makeErrorCode(status);
+		}
+	}
+
+	inline void Timer::init(uv::Loop &loop)
+	{
+		std::error_code ec;
+
+		init(loop, ec);
+		if (ec) {
+			throw uv::Exception(ec);
+		}
+	}
+
+	inline void Timer::start(std::function<void()> handler, uint64_t timeout, uint64_t repeat, std::error_code &ec)
 	{
 		m_startHandler = handler;
-		err.m_error = uv_timer_start(&m_handle, [](uv_timer_t *handle) {
+		auto status = uv_timer_start(&m_handle, [](uv_timer_t *handle) {
 			auto &timer = *reinterpret_cast<uv::Timer *>(handle->data);
 			timer.m_startHandler();
 		}, timeout, repeat);
+
+		if (status != 0) {
+			ec = makeErrorCode(status);
+		}
 	}
 
 	inline void Timer::start(std::function<void()> handler, uint64_t timeout, uint64_t repeat)
 	{
-		uv::Error err;
+		std::error_code ec;
 
-		start(handler, timeout, repeat, err);
-		if (err) {
-			throw uv::Exception(err);
+		start(handler, timeout, repeat, ec);
+		if (ec) {
+			throw uv::Exception(ec);
 		}
 	}
 
-	inline void Timer::stop(uv::Error &err)
+	inline void Timer::stop(std::error_code &ec)
 	{
-		err.m_error = uv_timer_stop(&m_handle);
+		auto status = uv_timer_stop(&m_handle);
+
+		if (status != 0) {
+			ec = makeErrorCode(status);
+		}
 	}
 
 	inline void Timer::stop()
 	{
-		uv::Error err;
+		std::error_code ec;
 
-		stop(err);
-		if (err) {
-			throw uv::Exception(err);
+		stop(ec);
+		if (ec) {
+			throw uv::Exception(ec);
 		}
 	}
 
-	inline void Timer::again(uv::Error &err)
+	inline void Timer::again(std::error_code &ec)
 	{
-		err.m_error = uv_timer_again(&m_handle);
+		auto status = uv_timer_again(&m_handle);
+
+		if (status != 0) {
+			ec = makeErrorCode(status);
+		}
 	}
 
 	inline void Timer::again()
 	{
-		uv::Error err;
+		std::error_code ec;
 
-		again(err);
-		if (err) {
-			throw uv::Exception(err);
+		again(ec);
+		if (ec) {
+			throw uv::Exception(ec);
 		}
 	}
 

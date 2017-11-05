@@ -18,15 +18,15 @@ namespace uv
 	public:
 		explicit		GetAddrInfo(uv::Loop &loop);
 		void			get(const std::string &node, const std::string &service, const struct addrinfo &hints,
-						std::function<void(const Error &error, struct addrinfo *res)> handler, uv::Error &err);
+						std::function<void(const std::error_code &ec, struct addrinfo *res)> handler, std::error_code &ec);
 		void			get(const std::string &node, const std::string &service, const struct addrinfo &hints,
-						std::function<void(const Error &error, struct addrinfo *res)> handler);
+						std::function<void(const std::error_code &ec, struct addrinfo *res)> handler);
 		
-		static void	freeaddrinfo(struct addrinfo *ai);
+		static void		freeaddrinfo(struct addrinfo *ai);
 	private:
 		uv::Loop		&m_loop;
-		std::function<void(const Error &error, struct addrinfo *res)> m_callbackHandler
-			= [] (const Error &, struct addrinfo *) {};
+		std::function<void(const std::error_code &ec, struct addrinfo *res)> m_callbackHandler
+			= [] (const std::error_code &ec,struct addrinfo *) {};
 	};
 
 
@@ -40,23 +40,27 @@ namespace uv
 	}
 
 	inline void GetAddrInfo::get(const std::string &node, const std::string &service, const struct addrinfo &hints,
-		std::function<void(const Error &error, struct addrinfo *res)> handler, uv::Error &err)
+		std::function<void(const std::error_code &ecr, struct addrinfo *res)> handler, std::error_code &ec)
 	{
 		m_callbackHandler = handler;
-		err.m_error = uv_getaddrinfo(m_loop.m_loop_ptr, &m_handle, [](uv_getaddrinfo_t* req, int status, struct addrinfo *res) {
+		auto status = uv_getaddrinfo(m_loop.value(), &m_handle, [](uv_getaddrinfo_t* req, int status, struct addrinfo *res) {
 			auto &addr = *reinterpret_cast<uv::GetAddrInfo *>(req->data);
-			addr.m_callbackHandler(Error(status), res);
+			addr.m_callbackHandler(makeErrorCode(status), res);
 		}, node.c_str(), service.c_str(), &hints);
+
+		if (status != 0) {
+			ec = makeErrorCode(status);
+		}
 	}
 
 	inline void GetAddrInfo::get(const std::string &node, const std::string &service, const addrinfo &hints,
-		std::function<void(const Error&error, struct addrinfo*res)> handler)
+		std::function<void(const std::error_code &ec, struct addrinfo *res)> handler)
 	{
-		uv::Error err;
+		std::error_code ec;
 
-		get(node, service, hints, handler, err);
-		if (err) {
-			throw uv::Exception(err);
+		get(node, service, hints, handler, ec);
+		if (ec) {
+			throw uv::Exception(ec);
 		}
 	}
 

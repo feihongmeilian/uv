@@ -17,11 +17,11 @@ namespace uv
 		void			ref();
 		void			unref();
 		bool			hasRef();
-		void			sendBufferSize(int &value, uv::Error &err);
+		void			sendBufferSize(int &value, std::error_code &ec);
 		void			sendBufferSize(int &value);
-		void			recvBufferSize(int &value, uv::Error &err);
+		void			recvBufferSize(int &value, std::error_code &ec);
 		void			recvBufferSize(int &value);
-		void			fileno(uv_os_fd_t &fd, uv::Error &err);
+		void			fileno(uv_os_fd_t &fd, std::error_code &ec);
 		void			fileno(uv_os_fd_t &fd);
 		void			close(std::function<void()> handler);
 	protected:
@@ -66,53 +66,65 @@ namespace uv
 
 
 	template<typename T>
-	inline void Handle<T>::sendBufferSize(int &value, uv::Error &err)
+	inline void Handle<T>::sendBufferSize(int &value, std::error_code &ec)
 	{
-		err.m_error = uv_send_buffer_size(reinterpret_cast<uv_handle_t *>(&m_handle), &value);
+		auto status = uv_send_buffer_size(reinterpret_cast<uv_handle_t *>(&m_handle), &value);
+
+		if (status != 0) {
+			ec = makeErrorCode(status);
+		}
 	}
 
 	template<typename T>
 	inline void Handle<T>::sendBufferSize(int &value)
 	{
-		uv::Error err;
+		std::error_code ec;
 
-		sendBufferSize(value, err);
-		if (err) {
-			throw uv::Exception(err);
+		sendBufferSize(value, ec);
+		if (ec) {
+			throw uv::Exception(ec);
 		}
 	}
 
 	template<typename T>
-	inline void Handle<T>::recvBufferSize(int &value, uv::Error &err)
+	inline void Handle<T>::recvBufferSize(int &value, std::error_code &ec)
 	{
-		err.m_error = uv_recv_buffer_size(reinterpret_cast<uv_handle_t *>(&m_handle), &value);
+		auto status = uv_recv_buffer_size(reinterpret_cast<uv_handle_t *>(&m_handle), &value);
+
+		if (status != 0) {
+			ec = makeErrorCode(status);
+		}
 	}
 
 	template<typename T>
 	inline void Handle<T>::recvBufferSize(int &value)
 	{
-		uv::Error err;
+		std::error_code ec;
 
-		recvBufferSize(value, err);
-		if (err) {
-			throw uv::Exception(err);
+		recvBufferSize(value, ec);
+		if (ec) {
+			throw uv::Exception(ec);
 		}
 	}
 
 	template<typename T>
-	inline void Handle<T>::fileno(uv_os_fd_t &fd, uv::Error &err)
+	inline void Handle<T>::fileno(uv_os_fd_t &fd, std::error_code &ec)
 	{
-		err.m_error = uv_fileno(reinterpret_cast<uv_handle_t *>(&m_handle), &fd);
+		auto status = uv_fileno(reinterpret_cast<uv_handle_t *>(&m_handle), &fd);
+
+		if (status != 0) {
+			ec = makeErrorCode(status);
+		}
 	}
 
 	template<typename T>
 	inline void Handle<T>::fileno(uv_os_fd_t &fd)
 	{
-		uv::Error err;
+		std::error_code ec;
 
-		fileno(fd, err);
-		if (err) {
-			throw uv::Exception(err);
+		fileno(fd, ec);
+		if (ec) {
+			throw uv::Exception(ec);
 		}
 	}
 

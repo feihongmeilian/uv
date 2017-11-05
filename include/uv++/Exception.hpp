@@ -2,6 +2,7 @@
 #define UV_EXCEPTION_HPP
 
 #include <stdexcept>
+#include <string>
 
 #include <uv.h>
 
@@ -9,29 +10,32 @@
 
 namespace uv
 {
-	class Exception :public std::exception
+	class Exception : public std::exception
 	{
 	public:
-		explicit			Exception(const uv::Error &err);
-		virtual const char	*what() const throw() override;
+		Exception(const std::string  &msg, std::error_code ec = makeErrorCode(0))
+			: m_msg(msg.empty() ? ec.message() : msg), m_code(ec)
+		{}
 
-	private:
-		uv::Error			m_error;
+		explicit Exception(std::error_code ec)
+			: m_msg(ec.message()), m_code(ec)
+		{}
+
+		~Exception() throw() {}
+
+		virtual char const * what() const throw()
+		{
+			return m_msg.c_str();
+		}
+
+		std::error_code code() const throw()
+		{
+			return m_code;
+		}
+
+		const std::string m_msg;
+		std::error_code m_code;
 	};
-
-
-
-
-
-	inline Exception::Exception(const uv::Error &err)
-		:m_error(err)
-	{
-	}
-
-	inline const char *Exception::what() const throw()
-	{
-		return m_error.toString();
-	}
 }
 
 #endif

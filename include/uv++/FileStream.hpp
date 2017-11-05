@@ -14,9 +14,9 @@ namespace uv
 	class FileStream : public Req<uv_fs_t>
 	{
 	public:
-		explicit		FileStream(uv::Loop &loop);
+		explicit	FileStream(uv::Loop &loop);
 
-		void			reqCleanup();
+		void		reqCleanup();
 		int			close(uv_file file, std::function<void()> handler);
 		int			open(const std::string &path, int flags, int mode, std::function<void()> handler);
 		int			read(uv_file file, const uv_buf_t bufs[], unsigned int nbufs, int64_t offset, std::function<void()> handler);
@@ -69,7 +69,7 @@ namespace uv
 	inline int FileStream::close(uv_file file, std::function<void()> handler)
 	{
 		m_callbackHandler = handler;
-		return uv_fs_close(m_loop.m_loop_ptr, &m_handle, file, [](uv_fs_t *req) {
+		return uv_fs_close(m_loop.value(), &m_handle, file, [](uv_fs_t *req) {
 			auto &fs = *reinterpret_cast<uv::FileStream *>(req->data);
 			fs.m_callbackHandler();
 		});
@@ -78,7 +78,7 @@ namespace uv
 	inline int FileStream::open(const std::string &path, int flags, int mode, std::function<void()> handler)
 	{
 		m_callbackHandler = handler;
-		return uv_fs_open(m_loop.m_loop_ptr, &m_handle, path.c_str(), flags, mode, [](uv_fs_t *req) {
+		return uv_fs_open(m_loop.value(), &m_handle, path.c_str(), flags, mode, [](uv_fs_t *req) {
 			auto &fs = *reinterpret_cast<uv::FileStream *>(req->data);
 			fs.m_callbackHandler();
 		});
@@ -87,7 +87,7 @@ namespace uv
 	inline int FileStream::read(uv_file file, const uv_buf_t bufs[], unsigned int nbufs, int64_t offset, std::function<void()> handler)
 	{
 		m_callbackHandler = handler;
-		return uv_fs_read(m_loop.m_loop_ptr, &m_handle, file, bufs, nbufs, offset, [](uv_fs_t *req) {
+		return uv_fs_read(m_loop.value(), &m_handle, file, bufs, nbufs, offset, [](uv_fs_t *req) {
 			auto &fs = *reinterpret_cast<uv::FileStream *>(req->data);
 			fs.m_callbackHandler();
 		});
@@ -96,7 +96,7 @@ namespace uv
 	inline int FileStream::write(uv_file file, const uv_buf_t bufs[], unsigned int nbufs, int64_t offset, std::function<void()> handler)
 	{
 		m_callbackHandler = handler;
-		return uv_fs_write(m_loop.m_loop_ptr, &m_handle, file, bufs, nbufs, offset, [](uv_fs_t *req) {
+		return uv_fs_write(m_loop.value(), &m_handle, file, bufs, nbufs, offset, [](uv_fs_t *req) {
 			auto &fs = *reinterpret_cast<uv::FileStream *>(req->data);
 			fs.m_callbackHandler();
 		});
@@ -105,7 +105,7 @@ namespace uv
 	inline int FileStream::unlink(const std::string &path, std::function<void()> handler)
 	{
 		m_callbackHandler = handler;
-		return uv_fs_unlink(m_loop.m_loop_ptr, &m_handle, path.c_str(), [](uv_fs_t *req) {
+		return uv_fs_unlink(m_loop.value(), &m_handle, path.c_str(), [](uv_fs_t *req) {
 			auto &fs = *reinterpret_cast<uv::FileStream *>(req->data);
 			fs.m_callbackHandler();
 		});
@@ -114,7 +114,7 @@ namespace uv
 	inline int FileStream::mkdir(const std::string &path, int mode, std::function<void()> handler)
 	{
 		m_callbackHandler = handler;
-		return uv_fs_mkdir(m_loop.m_loop_ptr, &m_handle, path.c_str(), mode, [](uv_fs_t *req) {
+		return uv_fs_mkdir(m_loop.value(), &m_handle, path.c_str(), mode, [](uv_fs_t *req) {
 			auto &fs = *reinterpret_cast<uv::FileStream *>(req->data);
 			fs.m_callbackHandler();
 		});
@@ -123,7 +123,7 @@ namespace uv
 	inline int FileStream::mkdtemp(const std::string &tpl, std::function<void()> handler)
 	{
 		m_callbackHandler = handler;
-		return uv_fs_mkdtemp(m_loop.m_loop_ptr, &m_handle, tpl.c_str(), [](uv_fs_t *req) {
+		return uv_fs_mkdtemp(m_loop.value(), &m_handle, tpl.c_str(), [](uv_fs_t *req) {
 			auto &fs = *reinterpret_cast<uv::FileStream *>(req->data);
 			fs.m_callbackHandler();
 		});
@@ -132,7 +132,7 @@ namespace uv
 	inline int FileStream::rmdir(const std::string &path, std::function<void()> handler)
 	{
 		m_callbackHandler = handler;
-		return uv_fs_rmdir(m_loop.m_loop_ptr, &m_handle, path.c_str(), [](uv_fs_t *req) {
+		return uv_fs_rmdir(m_loop.value(), &m_handle, path.c_str(), [](uv_fs_t *req) {
 			auto &fs = *reinterpret_cast<uv::FileStream *>(req->data);
 			fs.m_callbackHandler();
 		});
@@ -141,7 +141,7 @@ namespace uv
 	inline int FileStream::scandir(const std::string &path, int flags, std::function<void()> handler)
 	{
 		m_callbackHandler = handler;
-		return uv_fs_scandir(m_loop.m_loop_ptr, &m_handle, path.c_str(), flags, [](uv_fs_t *req) {
+		return uv_fs_scandir(m_loop.value(), &m_handle, path.c_str(), flags, [](uv_fs_t *req) {
 			auto &fs = *reinterpret_cast<uv::FileStream *>(req->data);
 			fs.m_callbackHandler();
 		});
@@ -155,7 +155,7 @@ namespace uv
 	inline int FileStream::stat(const std::string &path, std::function<void()> handler)
 	{
 		m_callbackHandler = handler;
-		return uv_fs_stat(m_loop.m_loop_ptr, &m_handle, path.c_str(), [](uv_fs_t *req) {
+		return uv_fs_stat(m_loop.value(), &m_handle, path.c_str(), [](uv_fs_t *req) {
 			auto &fs = *reinterpret_cast<uv::FileStream *>(req->data);
 			fs.m_callbackHandler();
 		});
@@ -164,7 +164,7 @@ namespace uv
 	inline int FileStream::fstat(uv_file file, std::function<void()> handler)
 	{
 		m_callbackHandler = handler;
-		return uv_fs_fstat(m_loop.m_loop_ptr, &m_handle, file, [](uv_fs_t *req) {
+		return uv_fs_fstat(m_loop.value(), &m_handle, file, [](uv_fs_t *req) {
 			auto &fs = *reinterpret_cast<uv::FileStream *>(req->data);
 			fs.m_callbackHandler();
 		});
@@ -173,7 +173,7 @@ namespace uv
 	inline int FileStream::rename(const std::string &path, const std::string &new_path, std::function<void()> handler)
 	{
 		m_callbackHandler = handler;
-		return uv_fs_rename(m_loop.m_loop_ptr, &m_handle, path.c_str(), new_path.c_str(), [](uv_fs_t *req) {
+		return uv_fs_rename(m_loop.value(), &m_handle, path.c_str(), new_path.c_str(), [](uv_fs_t *req) {
 			auto &fs = *reinterpret_cast<uv::FileStream *>(req->data);
 			fs.m_callbackHandler();
 		});
@@ -182,7 +182,7 @@ namespace uv
 	inline int FileStream::fsync(uv_file file, std::function<void()> handler)
 	{
 		m_callbackHandler = handler;
-		return uv_fs_fsync(m_loop.m_loop_ptr, &m_handle, file, [](uv_fs_t *req) {
+		return uv_fs_fsync(m_loop.value(), &m_handle, file, [](uv_fs_t *req) {
 			auto &fs = *reinterpret_cast<uv::FileStream *>(req->data);
 			fs.m_callbackHandler();
 		});
@@ -191,7 +191,7 @@ namespace uv
 	inline int FileStream::fdatasync(uv_file file, std::function<void()> handler)
 	{
 		m_callbackHandler = handler;
-		return uv_fs_fdatasync(m_loop.m_loop_ptr, &m_handle, file, [](uv_fs_t *req) {
+		return uv_fs_fdatasync(m_loop.value(), &m_handle, file, [](uv_fs_t *req) {
 			auto &fs = *reinterpret_cast<uv::FileStream *>(req->data);
 			fs.m_callbackHandler();
 		});
@@ -200,7 +200,7 @@ namespace uv
 	inline int FileStream::ftruncate(uv_file file, int64_t offset, std::function<void()> handler)
 	{
 		m_callbackHandler = handler;
-		return uv_fs_ftruncate(m_loop.m_loop_ptr, &m_handle, file, offset, [](uv_fs_t *req) {
+		return uv_fs_ftruncate(m_loop.value(), &m_handle, file, offset, [](uv_fs_t *req) {
 			auto &fs = *reinterpret_cast<uv::FileStream *>(req->data);
 			fs.m_callbackHandler();
 		});
@@ -209,7 +209,7 @@ namespace uv
 	inline int FileStream::sendfile(uv_file out_fd, uv_file in_fd, int64_t in_offset, size_t length, std::function<void()> handler)
 	{
 		m_callbackHandler = handler;
-		return uv_fs_sendfile(m_loop.m_loop_ptr, &m_handle, out_fd, in_fd, in_offset, length, [](uv_fs_t *req) {
+		return uv_fs_sendfile(m_loop.value(), &m_handle, out_fd, in_fd, in_offset, length, [](uv_fs_t *req) {
 			auto &fs = *reinterpret_cast<uv::FileStream *>(req->data);
 			fs.m_callbackHandler();
 		});
@@ -218,7 +218,7 @@ namespace uv
 	inline int FileStream::access(const std::string &path, int mode, std::function<void()> handler)
 	{
 		m_callbackHandler = handler;
-		return uv_fs_access(m_loop.m_loop_ptr, &m_handle, path.c_str(), mode, [](uv_fs_t *req) {
+		return uv_fs_access(m_loop.value(), &m_handle, path.c_str(), mode, [](uv_fs_t *req) {
 			auto &fs = *reinterpret_cast<uv::FileStream *>(req->data);
 			fs.m_callbackHandler();
 		});
@@ -227,7 +227,7 @@ namespace uv
 	inline int FileStream::chmod(const std::string &path, int mode, std::function<void()> handler)
 	{
 		m_callbackHandler = handler;
-		return uv_fs_chmod(m_loop.m_loop_ptr, &m_handle, path.c_str(), mode, [](uv_fs_t *req) {
+		return uv_fs_chmod(m_loop.value(), &m_handle, path.c_str(), mode, [](uv_fs_t *req) {
 			auto &fs = *reinterpret_cast<uv::FileStream *>(req->data);
 			fs.m_callbackHandler();
 		});
@@ -236,7 +236,7 @@ namespace uv
 	inline int FileStream::utime(const std::string &path, double atime, double mtime, std::function<void()> handler)
 	{
 		m_callbackHandler = handler;
-		return uv_fs_utime(m_loop.m_loop_ptr, &m_handle, path.c_str(), atime, mtime, [](uv_fs_t *req) {
+		return uv_fs_utime(m_loop.value(), &m_handle, path.c_str(), atime, mtime, [](uv_fs_t *req) {
 			auto &fs = *reinterpret_cast<uv::FileStream *>(req->data);
 			fs.m_callbackHandler();
 		});
@@ -245,7 +245,7 @@ namespace uv
 	inline int FileStream::futime(uv_file file, double atime, double mtime, std::function<void()> handler)
 	{
 		m_callbackHandler = handler;
-		return uv_fs_futime(m_loop.m_loop_ptr, &m_handle, file, atime, mtime, [](uv_fs_t *req) {
+		return uv_fs_futime(m_loop.value(), &m_handle, file, atime, mtime, [](uv_fs_t *req) {
 			auto &fs = *reinterpret_cast<uv::FileStream *>(req->data);
 			fs.m_callbackHandler();
 		});
@@ -254,7 +254,7 @@ namespace uv
 	inline int FileStream::lstat(const std::string &path, std::function<void()> handler)
 	{
 		m_callbackHandler = handler;
-		return uv_fs_lstat(m_loop.m_loop_ptr, &m_handle, path.c_str(), [](uv_fs_t *req) {
+		return uv_fs_lstat(m_loop.value(), &m_handle, path.c_str(), [](uv_fs_t *req) {
 			auto &fs = *reinterpret_cast<uv::FileStream *>(req->data);
 			fs.m_callbackHandler();
 		});
@@ -263,7 +263,7 @@ namespace uv
 	inline int FileStream::link(const std::string &path, const std::string &newPath, std::function<void()> handler)
 	{
 		m_callbackHandler = handler;
-		return uv_fs_link(m_loop.m_loop_ptr, &m_handle, path.c_str(), newPath.c_str(), [](uv_fs_t *req) {
+		return uv_fs_link(m_loop.value(), &m_handle, path.c_str(), newPath.c_str(), [](uv_fs_t *req) {
 			auto &fs = *reinterpret_cast<uv::FileStream *>(req->data);
 			fs.m_callbackHandler();
 		});
@@ -272,7 +272,7 @@ namespace uv
 	inline int FileStream::symlink(const std::string &path, const std::string &newPath, int flags, std::function<void()> handler)
 	{
 		m_callbackHandler = handler;
-		return uv_fs_symlink(m_loop.m_loop_ptr, &m_handle, path.c_str(), newPath.c_str(), flags, [](uv_fs_t *req) {
+		return uv_fs_symlink(m_loop.value(), &m_handle, path.c_str(), newPath.c_str(), flags, [](uv_fs_t *req) {
 			auto &fs = *reinterpret_cast<uv::FileStream *>(req->data);
 			fs.m_callbackHandler();
 		});
@@ -281,7 +281,7 @@ namespace uv
 	inline int FileStream::readlink(const std::string &path, std::function<void()> handler)
 	{
 		m_callbackHandler = handler;
-		return uv_fs_readlink(m_loop.m_loop_ptr, &m_handle, path.c_str(), [](uv_fs_t *req) {
+		return uv_fs_readlink(m_loop.value(), &m_handle, path.c_str(), [](uv_fs_t *req) {
 			auto &fs = *reinterpret_cast<uv::FileStream *>(req->data);
 			fs.m_callbackHandler();
 		});
@@ -290,7 +290,7 @@ namespace uv
 	inline int FileStream::realpath(const std::string &path, std::function<void()> handler)
 	{
 		m_callbackHandler = handler;
-		return uv_fs_realpath(m_loop.m_loop_ptr, &m_handle, path.c_str(),[](uv_fs_t *req) {
+		return uv_fs_realpath(m_loop.value(), &m_handle, path.c_str(),[](uv_fs_t *req) {
 			auto &fs = *reinterpret_cast<uv::FileStream *>(req->data);
 			fs.m_callbackHandler();
 		});
@@ -299,7 +299,7 @@ namespace uv
 	inline int FileStream::fchmod(uv_file file, int mode, std::function<void()> handler)
 	{
 		m_callbackHandler = handler;
-		return uv_fs_fchmod(m_loop.m_loop_ptr, &m_handle, file, mode, [](uv_fs_t *req) {
+		return uv_fs_fchmod(m_loop.value(), &m_handle, file, mode, [](uv_fs_t *req) {
 			auto &fs = *reinterpret_cast<uv::FileStream *>(req->data);
 			fs.m_callbackHandler();
 		});
@@ -308,7 +308,7 @@ namespace uv
 	inline int FileStream::chown(const std::string &path, uv_uid_t uid, uv_gid_t gid, std::function<void()> handler)
 	{
 		m_callbackHandler = handler;
-		return uv_fs_chown(m_loop.m_loop_ptr, &m_handle, path.c_str(), uid, gid, [](uv_fs_t *req) {
+		return uv_fs_chown(m_loop.value(), &m_handle, path.c_str(), uid, gid, [](uv_fs_t *req) {
 			auto &fs = *reinterpret_cast<uv::FileStream *>(req->data);
 			fs.m_callbackHandler();
 		});
@@ -317,7 +317,7 @@ namespace uv
 	inline int FileStream::fchown(uv_file file, uv_uid_t uid, uv_gid_t gid, std::function<void()> handler)
 	{
 		m_callbackHandler = handler;
-		return uv_fs_fchown(m_loop.m_loop_ptr, &m_handle, file, uid, gid, [](uv_fs_t *req) {
+		return uv_fs_fchown(m_loop.value(), &m_handle, file, uid, gid, [](uv_fs_t *req) {
 			auto &fs = *reinterpret_cast<uv::FileStream *>(req->data);
 			fs.m_callbackHandler();
 		});

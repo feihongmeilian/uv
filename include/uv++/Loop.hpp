@@ -9,38 +9,22 @@
 
 namespace uv
 {
-	class Pipe;
-	class Tty;
-	class Tcp;
-	class Udp;
-	class Check;
-	class Timer;
-	class Signal;
-	class Prepare;
-	class Poll;
-	class Idle;
-	class Async;
-	class Work;
-	class FileStream;
-	class FileStreamPoll;
-	class FileStreamEvent;
-	class GetAddrInfo;
-
-
     class Loop : public Noncopyable
     {
     public:
-		explicit		Loop(bool is_default = false);
-						~Loop();
+		Loop() = default;
+		~Loop();
 
-		void			run(uv::Error &err);
+		void			init(bool is_default, std::error_code &ec);
+		void			init(bool is_default = false);
+		void			run(std::error_code &ec);
 		void			run();
-        void			runOnce(uv::Error &err);
+        void			runOnce(std::error_code &ec);
 		void			runOnce();
-        void			runNowait(uv::Error &err);
+        void			runNowait(std::error_code &ec);
 		void			runNowait();
 		void			stop();
-		void			fork(uv::Error &err);
+		void			fork(std::error_code &ec);
 		void			fork();
 		uint64_t		now() const;
 		void			updateTime();
@@ -50,24 +34,7 @@ namespace uv
 		void			printAllHandles(FILE *stream);
 		void			printActiveHandles(FILE *stream);
 		uv_loop_t		&operator()();
-
-	private:
-		friend class Pipe;
-		friend class Tcp;
-		friend class Udp;
-		friend class Check;
-		friend class Timer;
-		friend class Signal;
-		friend class Prepare;
-		friend class Poll;
-		friend class Idle;
-		friend class Tty;
-		friend class Async;
-		friend class Work;
-		friend class FileStream;
-		friend class FileStreamPoll;
-		friend class FileStreamEvent;
-		friend class GetAddrInfo;
+		uv_loop_t		*value();
 
     private:
         uv_loop_t	m_loop;	//not use
@@ -78,65 +45,97 @@ namespace uv
 
 
 
-	inline Loop::Loop(bool is_default)
-	{
-        if (is_default) {
-			m_loop_ptr = uv_default_loop();
-        }
-        else {
-            m_loop_ptr = &m_loop;
-		    uv_loop_init(m_loop_ptr);
-        }
-        m_loop_ptr->data = this;
-    }
-
 	inline Loop::~Loop()
 	{
 		uv_loop_close(m_loop_ptr);
 	}
 
-	inline void Loop::run(uv::Error &err)
+	inline void Loop::init(bool is_default, std::error_code & ec)
 	{
-		err.m_error = uv_run(m_loop_ptr, UV_RUN_DEFAULT);
+		if (is_default) {
+			m_loop_ptr = uv_default_loop();
+		}
+		else {
+			m_loop_ptr = &m_loop;
+			auto status = uv_loop_init(m_loop_ptr);
+			if (status != 0) {
+				ec = makeErrorCode(status);
+				return;
+			}
+		}
+
+		if (m_loop_ptr == nullptr) {
+			ec = makeErrorCode(ENOMEM);
+			return;
+		}
+
+		m_loop_ptr->data = this;
+	}
+
+	inline void Loop::init(bool is_default)
+	{
+		std::error_code ec;
+
+		init(is_default, ec);
+		if (ec) {
+			throw uv::Exception(ec);
+		}
+	}
+
+	inline void Loop::run(std::error_code &ec)
+	{
+		auto status = uv_run(m_loop_ptr, UV_RUN_DEFAULT);
+		
+		if (status != 0) {
+			ec = makeErrorCode(status);
+		}
 	}
 
 	inline void Loop::run()
 	{
-		uv::Error err;
+		std::error_code ec;
 
-		run(err);
-		if (err) {
-			throw uv::Exception(err);
+		run(ec);
+		if (ec) {
+			throw uv::Exception(ec);
 		}
 	}
 
-	inline void Loop::runOnce(uv::Error &err)
+	inline void Loop::runOnce(std::error_code &ec)
     {
-		err.m_error = uv_run(m_loop_ptr, UV_RUN_ONCE);
+		auto status = uv_run(m_loop_ptr, UV_RUN_ONCE);
+
+		if (status != 0) {
+			ec = makeErrorCode(status);
+		}
     }
 
 	inline void Loop::runOnce()
 	{
-		uv::Error err;
+		std::error_code ec;
 
-		runOnce(err);
-		if (err) {
-			throw uv::Exception(err);
+		runOnce(ec);
+		if (ec) {
+			throw uv::Exception(ec);
 		}
 	}
 
-	inline void Loop::runNowait(uv::Error &err)
+	inline void Loop::runNowait(std::error_code &ec)
     {
-		err.m_error = uv_run(m_loop_ptr, UV_RUN_NOWAIT);
+		auto status = uv_run(m_loop_ptr, UV_RUN_NOWAIT);
+
+		if (status != 0) {
+			ec = makeErrorCode(status);
+		}
     }
 
 	inline void Loop::runNowait()
 	{
-		uv::Error err;
+		std::error_code ec;
 
-		runNowait(err);
-		if (err) {
-			throw uv::Exception(err);
+		runNowait(ec);
+		if (ec) {
+			throw uv::Exception(ec);
 		}
 	}
 
@@ -145,18 +144,22 @@ namespace uv
 		uv_stop(m_loop_ptr);
 	}
 
-	inline void Loop::fork(uv::Error &err)
+	inline void Loop::fork(std::error_code &ec)
 	{
-		err.m_error = uv_loop_fork(m_loop_ptr);
+		auto status = uv_loop_fork(m_loop_ptr);
+
+		if (status != 0) {
+			ec = makeErrorCode(status);
+		}
 	}
 
 	inline void Loop::fork()
 	{
-		uv::Error err;
+		std::error_code ec;
 
-		fork(err);
-		if (err) {
-			throw uv::Exception(err);
+		fork(ec);
+		if (ec) {
+			throw uv::Exception(ec);
 		}
 	}
 
@@ -198,6 +201,10 @@ namespace uv
 	inline uv_loop_t &Loop::operator()()
 	{
 		return *m_loop_ptr;
+	}
+	inline uv_loop_t * Loop::value()
+	{
+		return m_loop_ptr;
 	}
 }
 

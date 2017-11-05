@@ -17,17 +17,19 @@ namespace uv
 	class Pipe : public Stream<uv_pipe_t>
 	{
 	public:
-						Pipe(uv::Loop &loop, int ipc);
+		Pipe();
 
-		void			open(uv_file file, uv::Error &err);
+		void			init(uv::Loop &loop, int ipc, std::error_code &ec);
+		void			init(uv::Loop &loop, int ipc);
+		void			open(uv_file file, std::error_code &ec);
 		void			open(uv_file file);
-		void			bind(const std::string &name, uv::Error &err);
+		void			bind(const std::string &name, std::error_code &ec);
 		void			bind(const std::string &name);
-		void			connect(const std::string &name, std::function<void(const Error &error)> handler, uv::Error &err);
-		void			connect(const std::string &name, std::function<void(const Error &error)> handler);
-		void			getsockname(char *buffer, size_t &size, uv::Error &err) const;
+		void			connect(const std::string &name, std::function<void(const std::error_code &ec)> handler, std::error_code &ec);
+		void			connect(const std::string &name, std::function<void(const std::error_code &ec)> handler);
+		void			getsockname(char *buffer, size_t &size, std::error_code &ecr) const;
 		void			getsockname(char *buffer, size_t &size) const;
-		void			getpeername(char *buffer, size_t &size, uv::Error &err) const;
+		void			getpeername(char *buffer, size_t &size, std::error_code &ec) const;
 		void			getpeername(char *buffer, size_t &size) const;
 		void			pendingInstances(int count);
 		int				pendingCount();
@@ -35,54 +37,80 @@ namespace uv
 		uv_handle_type	pendingType();
 
 	private:
-		std::function<void(const Error &error)>	m_connectHandler = [](const Error &error) {};
+		std::function<void(const std::error_code &ec)>	m_connectHandler = [](const std::error_code &ec) {};
 	};
 
 
 
 
 
-	inline Pipe::Pipe(uv::Loop &loop, int ipc)
+	inline Pipe::Pipe()
 	{
 		m_handle.data = this;
-		uv_pipe_init(loop.m_loop_ptr, &m_handle, ipc);
 	}
 
-	inline void Pipe::open(uv_file file, uv::Error &err)
+	inline void Pipe::init(uv::Loop &loop, int ipc, std::error_code &ec)
 	{
-		err.m_error = uv_pipe_open(&m_handle, file);
+		auto status = uv_pipe_init(loop.value(), &m_handle, ipc);
+
+		if (status != 0) {
+			ec = makeErrorCode(status);
+		}
+	}
+
+	inline void Pipe::init(uv::Loop &loop, int ipc)
+	{
+		std::error_code ec;
+
+		init(loop, ipc, ec);
+		if (ec) {
+			throw uv::Exception(ec);
+		}
+	}
+
+	inline void Pipe::open(uv_file file, std::error_code &ec)
+	{
+		auto status = uv_pipe_open(&m_handle, file);
+
+		if (status != 0) {
+			ec = makeErrorCode(status);
+		}
 	}
 
 	inline void Pipe::open(uv_file file)
 	{
-		uv::Error err;
+		std::error_code ec;
 
-		open(err);
-		if (err) {
-			throw uv::Exception(err);
+		open(file, ec);
+		if (ec) {
+			throw uv::Exception(ec);
 		}
 	}
 
-	inline void Pipe::bind(const std::string &name, uv::Error &err)
+	inline void Pipe::bind(const std::string &name, std::error_code &ec)
 	{
-		err.m_error = uv_pipe_bind(&m_handle, name.c_str());
+		auto status = uv_pipe_bind(&m_handle, name.c_str());
+
+		if (status != 0) {
+			ec = makeErrorCode(status);
+		}
 	}
 
 	inline void Pipe::bind(const std::string &name)
 	{
-		uv::Error err;
+		std::error_code ec;
 
-		bind(name, err);
-		if (err) {
-			throw uv::Exception(err);
+		bind(name, ec);
+		if (ec) {
+			throw uv::Exception(ec);
 		}
 	}
 	
-	inline void Pipe::connect(const std::string &name, std::function<void(const Error &error)> handler, uv::Error &err)
+	inline void Pipe::connect(const std::string &name, std::function<void(const std::error_code &ec)> handler, std::error_code &ec)
 	{
 		auto connect = new (std::nothrow) Connect;
 		if (connect == nullptr) {
-			err.m_error = ENOMEM;
+			ec = makeErrorCode(ENOMEM);
 			return;
 		}
 
@@ -93,47 +121,55 @@ namespace uv
 			std::shared_ptr<Connect> connect(reinterpret_cast<Connect *>(req->data));
 
 			auto &pipe = *reinterpret_cast<uv::Pipe *>(req->handle->data);
-			pipe.m_connectHandler(Error(status));
+			pipe.m_connectHandler(makeErrorCode(status));
 		});
 	}
 
-	inline void Pipe::connect(const std::string &name, std::function<void(const Error&error)> handler)
+	inline void Pipe::connect(const std::string &name, std::function<void(const std::error_code &ec)> handler)
 	{
-		uv::Error err;
+		std::error_code ec;
 
-		connect(name, handler, err);
-		if (err) {
-			throw uv::Exception(err);
+		connect(name, handler, ec);
+		if (ec) {
+			throw uv::Exception(ec);
 		}
 	}
 
-	inline void Pipe::getsockname(char *buffer, size_t &size, uv::Error &err) const
+	inline void Pipe::getsockname(char *buffer, size_t &size, std::error_code &ec) const
 	{
-		err.m_error = uv_pipe_getsockname(&m_handle, buffer, &size);
+		auto status = uv_pipe_getsockname(&m_handle, buffer, &size);
+
+		if (status != 0) {
+			ec = makeErrorCode(status);
+		}
 	}
 
 	inline void Pipe::getsockname(char *buffer, size_t &size) const
 	{
-		uv::Error err;
+		std::error_code ec;
 
-		getsockname(buffer, size, err);
-		if (err) {
-			throw uv::Exception(err);
+		getsockname(buffer, size, ec);
+		if (ec) {
+			throw uv::Exception(ec);
 		}
 	}
 
-	inline void Pipe::getpeername(char *buffer, size_t &size, uv::Error &err) const
+	inline void Pipe::getpeername(char *buffer, size_t &size, std::error_code &ec) const
 	{
-		err.m_error =  uv_pipe_getpeername(&m_handle, buffer, &size);
+		auto status =  uv_pipe_getpeername(&m_handle, buffer, &size);
+
+		if (status != 0) {
+			ec = makeErrorCode(status);
+		}
 	}
 
 	inline void Pipe::getpeername(char *buffer, size_t &size) const
 	{
-		uv::Error err;
+		std::error_code ec;
 
-		getpeername(buffer, size, err);
-		if (err) {
-			throw uv::Exception(err);
+		getpeername(buffer, size, ec);
+		if (ec) {
+			throw uv::Exception(ec);
 		}
 	}
 

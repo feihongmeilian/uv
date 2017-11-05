@@ -15,8 +15,11 @@ namespace uv
 	class Async : public Noncopyable
 	{
 	public:
-		Async(uv::Loop &loop, std::function<void()> handler);
-		void			send(uv::Error &err);
+		Async();
+
+		void			init(uv::Loop &loop, std::function<void()> handler, std::error_code &ec);
+		void			init(uv::Loop &loop, std::function<void()> handler);
+		void			send(std::error_code &ec);
 		void			send();
 
 	private:
@@ -28,28 +31,50 @@ namespace uv
 
 
 
-	inline Async::Async(uv::Loop &loop, std::function<void()> handler)
+	inline Async::Async()
 	{
 		m_handle.data = this;
-        m_callbackHandler = handler;
-		uv_async_init(loop.m_loop_ptr, &m_handle, [](uv_async_t *a) {
+	}
+
+	inline void Async::init(uv::Loop &loop, std::function<void()> handler, std::error_code & ec)
+	{
+		m_callbackHandler = handler;
+		auto status = uv_async_init(loop.value(), &m_handle, [](uv_async_t *a) {
 			auto &async = *reinterpret_cast<uv::Async *>(a->data);
 			async.m_callbackHandler();
 		});
+
+		if (status != 0) {
+			ec = makeErrorCode(status);
+		}
 	}
 
-	inline void Async::send(uv::Error &err)
+	inline void Async::init(uv::Loop &loop, std::function<void()> handler)
 	{
-		err.m_error = uv_async_send(&m_handle);
+		std::error_code ec;
+
+		init(loop, handler, ec);
+		if (ec) {
+			throw uv::Exception(ec);
+		}
+	}
+
+	inline void Async::send(std::error_code &ec)
+	{
+		auto status = uv_async_send(&m_handle);
+
+		if (status != 0) {
+			ec = makeErrorCode(status);
+		}
 	}
 
 	inline void Async::send()
 	{
-		uv::Error err;
+		std::error_code ec;
 
-		send(err);
-		if (err) {
-			throw uv::Exception(err);
+		send(ec);
+		if (ec) {
+			throw uv::Exception(ec);
 		}
 	}
 }

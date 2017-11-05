@@ -15,11 +15,13 @@ namespace uv
 	class Check : public Noncopyable
 	{
 	public:
-		explicit		Check(uv::Loop &loop);
+		Check();
 
-		void			start(std::function<void()> cb, uv::Error &err);
+		void			init(uv::Loop &loop, std::error_code &ec);
+		void			init(uv::Loop &loop);
+		void			start(std::function<void()> cb, std::error_code &ec);
 		void			start(std::function<void()> cb);
-		void			stop(uv::Error &err);
+		void			stop(std::error_code &ec);
 		void			stop();
 
 	private:
@@ -33,43 +35,69 @@ namespace uv
 
 
 
-	inline Check::Check(uv::Loop &loop)
+	inline Check::Check()
 	{
 		m_handle.data = this;
-		uv_check_init(loop.m_loop_ptr, &m_handle);
 	}
 
-	inline void Check::start(std::function<void()> cb, uv::Error &err)
+	inline void Check::init(uv::Loop &loop, std::error_code &ec)
+	{
+		auto status = uv_check_init(loop.value(), &m_handle);
+
+		if (status != 0) {
+			ec = makeErrorCode(status);
+		}
+	}
+
+	inline void Check::init(uv::Loop &loop)
+	{
+		std::error_code ec;
+
+		init(loop, ec);
+		if (ec) {
+			throw uv::Exception(ec);
+		}
+	}
+
+	inline void Check::start(std::function<void()> cb, std::error_code &ec)
 	{
 		m_startHandler = cb;
-		err.m_error = uv_check_start(&m_handle, [](uv_check_t *handle) {
+		auto status = uv_check_start(&m_handle, [](uv_check_t *handle) {
 			auto &check = *reinterpret_cast<uv::Check *>(handle->data);
 			check.m_startHandler();
 		});
+
+		if (status != 0) {
+			ec = makeErrorCode(status);
+		}
 	}
 
 	inline void Check::start(std::function<void()> cb)
 	{
-		uv::Error err;
+		std::error_code ec;
 
-		start(cb, err);
-		if (err) {
-			throw uv::Exception(err);
+		start(cb, ec);
+		if (ec) {
+			throw uv::Exception(ec);
 		}
 	}
 
-	inline void Check::stop(uv::Error &err)
+	inline void Check::stop(std::error_code &ec)
 	{
-		err.m_error = uv_check_stop(&m_handle);
+		auto status = uv_check_stop(&m_handle);
+
+		if (status != 0) {
+			ec = makeErrorCode(status);
+		}
 	}
 
 	inline void Check::stop()
 	{
-		uv::Error err;
+		std::error_code ec;
 
-		stop(err);
-		if (err) {
-			throw uv::Exception(err);
+		stop(ec);
+		if (ec) {
+			throw uv::Exception(ec);
 		}
 	}
 }

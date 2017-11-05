@@ -13,13 +13,16 @@ namespace uv
 	class Tty : public Stream<uv_tty_t>
 	{
 	public:
-					Tty(uv::Loop &loop, uv_file fd, int readable);
-		void		setMode(uv_tty_mode_t mode, uv::Error &err);
+		Tty();
+
+		void		init(uv::Loop &loop, uv_file fd, int readable, std::error_code &ec);
+		void		init(uv::Loop &loop, uv_file fd, int readable);
+		void		setMode(uv_tty_mode_t mode, std::error_code &ec);
 		void		setMode(uv_tty_mode_t mode);
-		void		getWinsize(int &width, int &height, uv::Error &err);
+		void		getWinsize(int &width, int &height, std::error_code &ec);
 		void		getWinsize(int &width, int &height);
 
-		static void	resetMode(uv::Error &er);
+		static void	resetMode(std::error_code &ec);
 		static void	resetMode();
 	};
 
@@ -27,54 +30,84 @@ namespace uv
 
 
 
-	inline Tty::Tty(uv::Loop &loop, uv_file fd, int readable)
+	inline Tty::Tty()
 	{
 		m_handle.data = this;
-		uv_tty_init(loop.m_loop_ptr, &m_handle, fd, readable);
 	}
 
-	inline void Tty::setMode(uv_tty_mode_t mode, uv::Error &err)
+
+	inline void Tty::init(uv::Loop &loop, uv_file fd, int readable, std::error_code &ec)
 	{
-		err.m_error = uv_tty_set_mode(&m_handle, mode);
+		auto status = uv_tty_init(loop.value(), &m_handle, fd, readable);
+
+		if (status != 0) {
+			ec = makeErrorCode(status);
+		}
+	}
+
+	inline void Tty::init(uv::Loop &loop, uv_file fd, int readable)
+	{
+		std::error_code ec;
+
+		init(loop, fd, readable, ec);
+		if (ec) {
+			throw uv::Exception(ec);
+		}
+	}
+	inline void Tty::setMode(uv_tty_mode_t mode, std::error_code &ec)
+	{
+		auto status = uv_tty_set_mode(&m_handle, mode);
+
+		if (status != 0) {
+			ec = makeErrorCode(status);
+		}
 	}
 
 	inline void Tty::setMode(uv_tty_mode_t mode)
 	{
-		uv::Error err;
+		std::error_code ec;
 
-		setMode(mode, err);
-		if (err) {
-			throw uv::Exception(err);
+		setMode(mode, ec);
+		if (ec) {
+			throw uv::Exception(ec);
 		}
 	}
 
-	inline void Tty::resetMode(uv::Error &err)
+	inline void Tty::resetMode(std::error_code &ec)
 	{
-		err.m_error = uv_tty_reset_mode();
+		auto status = uv_tty_reset_mode();
+
+		if (status != 0) {
+			ec = makeErrorCode(status);
+		}
 	}
 
 	inline void Tty::resetMode()
 	{
-		uv::Error err;
+		std::error_code ec;
 
-		resetMode(err);
-		if (err) {
-			throw uv::Exception(err);
+		resetMode(ec);
+		if (ec) {
+			throw uv::Exception(ec);
 		}
 	}
 
-	inline void Tty::getWinsize(int &width, int &height, uv::Error &err)
+	inline void Tty::getWinsize(int &width, int &height, std::error_code &ec)
 	{
-		err.m_error = uv_tty_get_winsize(&m_handle, &width, &height);
+		auto status = uv_tty_get_winsize(&m_handle, &width, &height);
+
+		if (status != 0) {
+			ec = makeErrorCode(status);
+		}
 	}
 
 	inline void Tty::getWinsize(int & width, int & height)
 	{
-		uv::Error err;
+		std::error_code ec;
 
-		getWinsize(width, height, err);
-		if (err) {
-			throw uv::Exception(err);
+		getWinsize(width, height, ec);
+		if (ec) {
+			throw uv::Exception(ec);
 		}
 	}
 }

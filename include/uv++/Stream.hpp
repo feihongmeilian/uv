@@ -18,31 +18,31 @@ namespace uv
 	class Stream : public Handle<T>
 	{
 	public:
-		void			listen(std::function<void(const Error &error)> handler, int backlog, uv::Error &err);
-		void			listen(std::function<void(const Error &error)> handler, int backlog = SOMAXCONN);
-		void			accept(uv::Stream<T> &client, uv::Error &err);
+		void			listen(std::function<void(const std::error_code &ec)> handler, int backlog, std::error_code &ec);
+		void			listen(std::function<void(const std::error_code &ec)> handler, int backlog = SOMAXCONN);
+		void			accept(uv::Stream<T> &client, std::error_code &ec);
 		void			accept(uv::Stream<T> &client);
-		void			readStart(std::function<void(char *data, ssize_t len)> handler, uv::Error &err);
+		void			readStart(std::function<void(char *data, ssize_t len)> handler, std::error_code &ec);
 		void			readStart(std::function<void(char *data, ssize_t len)> handler);
-		void			readStop(uv::Error &err);
+		void			readStop(std::error_code &ec);
 		void			readStop();
-		void			write(const char *p, ssize_t len, uv::Error &err);
+		void			write(const char *p, ssize_t len, std::error_code &ec);
 		void			write(const char *p, ssize_t len);
-		void			onWrite(std::function<void(const Error &error)>	 handler);
-		void			shutdown(std::function<void(const Error &error)> handler, uv::Error &err);
-		void			shutdown(std::function<void(const Error &error)> handler);
+		void			onWrite(std::function<void(const std::error_code &ec)>	 handler);
+		void			shutdown(std::function<void(const std::error_code &ec)> handler, std::error_code &ec);
+		void			shutdown(std::function<void(const std::error_code &ec)> handler);
 		bool			isReadable();
 		bool			isWritable();
-		void			setBlocking(bool blocking, uv::Error &err);
+		void			setBlocking(bool blocking, std::error_code &ec);
 		void			setBlocking(bool blocking = true);
 	protected:
 		using Handle<T>::m_handle;
 		using Handle<T>::m_closeHandler;
 
 	private:
-		std::function<void(const Error &error)>	m_listenHandler	= [](const Error &error) {};
-		std::function<void(const Error &error)>	m_shutdownHandler	= [](const Error &error) {};
-		std::function<void(const Error &error)>	m_writeHandler	= [](const Error &error) {};
+		std::function<void(const std::error_code &ec)>	m_listenHandler	= [](const std::error_code &ec) {};
+		std::function<void(const std::error_code &ec)>	m_shutdownHandler	= [](const std::error_code &ec) {};
+		std::function<void(const std::error_code &ec)>	m_writeHandler	= [](const std::error_code &ec) {};
 		std::function<void(char *data, ssize_t len)>m_readHandler	= [](char *data, ssize_t len) {};
 		
 	};
@@ -52,49 +52,57 @@ namespace uv
 
 
 	template<typename T>
-	inline void Stream<T>::listen(std::function<void(const Error &error)> handler, int backlog, uv::Error &err)
+	inline void Stream<T>::listen(std::function<void(const std::error_code &ec)> handler, int backlog, std::error_code &ec)
 	{
 		m_listenHandler = handler;
-		err.m_error = uv_listen(reinterpret_cast<uv_stream_t *>(&m_handle), backlog, [](uv_stream_t *st, int status) {
+		auto status = uv_listen(reinterpret_cast<uv_stream_t *>(&m_handle), backlog, [](uv_stream_t *st, int status) {
 			auto &stream = *reinterpret_cast<uv::Stream<T> *>(st->data);
-			stream.m_listenHandler(Error(status));
+			stream.m_listenHandler(makeErrorCode(status));
 		});
-	}
 
-	template<typename T>
-	inline void Stream<T>::listen(std::function<void(const Error&error)> handler, int backlog)
-	{
-		uv::Error err;
-
-		listen(handler, backlog, err);
-		if (err) {
-			throw uv::Exception(err);
+		if (status != 0) {
+			ec = makeErrorCode(status);
 		}
 	}
 
 	template<typename T>
-	inline void Stream<T>::accept(uv::Stream<T> &client, uv::Error &err)
+	inline void Stream<T>::listen(std::function<void(const std::error_code &ec)> handler, int backlog)
 	{
-		err.m_error = uv_accept(reinterpret_cast<uv_stream_t *>(&m_handle),
+		std::error_code ec;
+
+		listen(handler, backlog, ec);
+		if (ec) {
+			throw uv::Exception(ec);
+		}
+	}
+
+	template<typename T>
+	inline void Stream<T>::accept(uv::Stream<T> &client, std::error_code &ec)
+	{
+		auto status = uv_accept(reinterpret_cast<uv_stream_t *>(&m_handle),
 			reinterpret_cast<uv_stream_t *>(&(client.m_handle)));
+
+		if (status != 0) {
+			ec = makeErrorCode(status);
+		}
 	}
 
 	template<typename T>
 	inline void Stream<T>::accept(uv::Stream<T> &client)
 	{
-		uv::Error err;
+		std::error_code ec;
 
-		accept(client, err);
-		if (err) {
-			throw uv::Exception(err);
+		accept(client, ec);
+		if (ec) {
+			throw uv::Exception(ec);
 		}
 	}
 
 	template<typename T>
-	inline void Stream<T>::readStart(std::function<void(char *data, ssize_t len)> handler, uv::Error &err)
+	inline void Stream<T>::readStart(std::function<void(char *data, ssize_t len)> handler, std::error_code &ec)
 	{
 		m_readHandler = handler;
-		err.m_error = uv_read_start(reinterpret_cast<uv_stream_t *>(&m_handle),
+		auto status = uv_read_start(reinterpret_cast<uv_stream_t *>(&m_handle),
 			[](uv_handle_t* handle, size_t suggested_size, uv_buf_t *buff)
 		{
 			buff->base = new char[suggested_size];
@@ -112,44 +120,55 @@ namespace uv
 				stream.m_readHandler(buff->base, nread);
 			}
 		});
+
+		if (status != 0) {
+			ec = makeErrorCode(status);
+		}
 	}
 
 	template<typename T>
 	inline void Stream<T>::readStart(std::function<void(char *data, ssize_t len)> handler)
 	{
-		uv::Error err;
+		std::error_code ec;
 
-		readStart(handler, err);
-		if (err) {
-			throw uv::Exception(err);
+		readStart(handler, ec);
+		if (ec) {
+			throw uv::Exception(ec);
 		}
 	}
 
 	template<typename T>
-	inline void Stream<T>::readStop(uv::Error &err)
+	inline void Stream<T>::readStop(std::error_code &ec)
 	{
-		err.m_error = uv_read_stop(reinterpret_cast<uv_stream_t *>(&m_handle));
+		auto status = uv_read_stop(reinterpret_cast<uv_stream_t *>(&m_handle));
+
+		if (status != 0) {
+			ec = makeErrorCode(status);
+		}
 	}
 
 	template<typename T>
 	inline void Stream<T>::readStop()
 	{
-		uv::Error err;
+		std::error_code ec;
 
-		readStop(err);
-		if (err) {
-			throw uv::Exception(err);
+		readStop(ec);
+		if (ec) {
+			throw uv::Exception(ec);
 		}
 	}
 
 	//传入的p指针必须是通过new的
 	template<typename T>
-	inline void Stream<T>::write(const char *p, ssize_t len, uv::Error &err)
+	inline void Stream<T>::write(const char *p, ssize_t len, std::error_code &ec)
 	{
 		auto writeHandler = new (std::nothrow) uv::Write(p, len);
-		if (writeHandler == nullptr) return ENOMEM;
+		if (writeHandler == nullptr) {
+			ec = makeErrorCode(ENOMEM);
+			return;
+		}
 
-		err.m_error = uv_write(&writeHandler->m_handle, reinterpret_cast<uv_stream_t *>(&m_handle),
+		auto status = uv_write(&writeHandler->m_handle, reinterpret_cast<uv_stream_t *>(&m_handle),
 			&writeHandler->m_buf, 1, [](uv_write_t *req, int status) {
 			std::shared_ptr<uv::Write> writeHandler(reinterpret_cast<uv::Write *>(req->data));
 			std::shared_ptr<char> bytes(writeHandler->m_buf.base, std::default_delete<char[]>());
@@ -157,50 +176,62 @@ namespace uv
 			auto &stream = *reinterpret_cast<Stream<T> *>(req->handle->data);
 			stream.m_writeHandler(Error(status));
 		});
+
+		if (status != 0) {
+			ec = makeErrorCode(status);
+		}
 	}
 
 	template<typename T>
 	inline void Stream<T>::write(const char *p, ssize_t len)
 	{
-		uv::Error err;
+		std::error_code ec;
 
-		write(p, len, err);
-		if (err) {
-			throw uv::Exception(err);
+		write(p, len, ec);
+		if (ec) {
+			throw uv::Exception(ec);
 		}
 	}
 
 	template<typename T>
-	inline void Stream<T>::onWrite(std::function<void(const Error &error)> handler)
+	inline void Stream<T>::onWrite(std::function<void(const std::error_code &ec)> handler)
 	{
 		m_writeHandler = handler;
 	}
 
 	template<typename T>
-	inline void Stream<T>::shutdown(std::function<void(const Error &error)> handler, uv::Error &err)
+	inline void Stream<T>::shutdown(std::function<void(const std::error_code &ec)> handler, std::error_code &ec)
 	{
 		m_shutdownHandler = handler;
 
 		auto req = new (std::nothrow) Shutdown;
-		if (req == nullptr) return ENOMEM;
+		if (req == nullptr) {
+			ec = makeErrorCode(ENOMEM);
+			return;
+		}
 
-		err.m_error = uv_shutdown(&req->m_handle, reinterpret_cast<uv_stream_t *>(&m_handle),
+		auto status = uv_shutdown(&req->m_handle, reinterpret_cast<uv_stream_t *>(&m_handle),
 			[](uv_shutdown_t *req, int status) {
 			std::shared_ptr<uv::Shutdown> shutdown(reinterpret_cast<Shutdown *>(req->data));
 			
 			auto &stream = *reinterpret_cast<uv::Stream<T> *>(req->handle->data);
-			stream.m_shutdownHandler(Error(status));
+			stream.m_shutdownHandler(makeErrorCode(status));
 		});
+
+
+		if (status != 0) {
+			ec = makeErrorCode(status);
+		}
 	}
 
 	template<typename T>
-	inline void Stream<T>::shutdown(std::function<void(const Error&error)> handler)
+	inline void Stream<T>::shutdown(std::function<void(const std::error_code &ec)> handler)
 	{
-		uv::Error err;
+		std::error_code ec;
 
-		shutdown(handler, err);
-		if (err) {
-			throw uv::Exception(err);
+		shutdown(handler, ec);
+		if (ec) {
+			throw uv::Exception(ec);
 		}
 	}
 
@@ -217,18 +248,23 @@ namespace uv
 	}
 
 	template<typename T>
-	inline void Stream<T>::setBlocking(bool blocking, uv::Error &err)
+	inline void Stream<T>::setBlocking(bool blocking, std::error_code &ec)
 	{
-		err.m_error = uv_stream_set_blocking(reinterpret_cast<uv_stream_t *>(&m_handle), blocking);
+		auto status = uv_stream_set_blocking(reinterpret_cast<uv_stream_t *>(&m_handle), blocking);
+
+
+		if (status != 0) {
+			ec = makeErrorCode(status);
+		}
 	}
 	template<typename T>
 	inline void Stream<T>::setBlocking(bool blocking)
 	{
-		uv::Error err;
+		std::error_code ec;
 
-		setBlocking(blocking, err);
-		if (err) {
-			throw uv::Exception(err);
+		setBlocking(blocking, ec);
+		if (ec) {
+			throw uv::Exception(ec);
 		}
 	}
 }
