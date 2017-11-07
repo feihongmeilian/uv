@@ -5,12 +5,13 @@
 int main()
 {
 	uv::Loop loop;
-
-	uv::Tcp tcp(loop);
-
+	uv::Tcp tcp;
+	
 	try {
-		tcp.connect("127.0.0.1", 13, [&tcp](const uv::Error &error) {
-			if (error) {
+		loop.init();
+		tcp.init(loop);
+		tcp.connect("127.0.0.1", 13, [&tcp](const std::error_code &ec) {
+			if (ec) {
 				std::cout << "链接失败" << std::endl;
 			}
 			else {

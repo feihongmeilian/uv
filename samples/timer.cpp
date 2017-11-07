@@ -4,9 +4,12 @@
 int main()
 {
 	uv::Loop loop;
-	uv::Timer timer(loop);
+	uv::Timer timer;
 
 	try {
+		loop.init();
+		timer.init(loop);
+
 		timer.start([]() {
 			std::cout << "Hello,World" << std::endl;
 		}, 1000, 1000);

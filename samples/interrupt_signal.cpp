@@ -4,11 +4,13 @@
 int main()
 {
 	uv::Loop loop;
-
-	uv::Signal sig(loop);
+	uv::Signal signal;
 
 	try {
-		sig.start([](int signum) {
+		loop.init();
+		signal.init(loop);
+
+		signal.start([](int signum) {
 			std::cout << "Ctrl+C中断,信号量值为:" << signum << std::endl;
 		}, SIGINT);
 
