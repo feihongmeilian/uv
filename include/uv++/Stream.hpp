@@ -18,19 +18,19 @@ namespace uv
 	class Stream : public Handle<T>
 	{
 	public:
-		void			listen(std::function<void(const std::error_code &ec)> handler, int backlog, std::error_code &ec);
-		void			listen(std::function<void(const std::error_code &ec)> handler, int backlog = SOMAXCONN);
+		void			listen(const std::function<void(const std::error_code &ec)> &handler, int backlog, std::error_code &ec);
+		void			listen(const std::function<void(const std::error_code &ec)> &handler, int backlog = SOMAXCONN);
 		void			accept(uv::Stream<T> &client, std::error_code &ec);
 		void			accept(uv::Stream<T> &client);
-		void			readStart(std::function<void(char *data, ssize_t len)> handler, std::error_code &ec);
-		void			readStart(std::function<void(char *data, ssize_t len)> handler);
+		void			readStart(const std::function<void(char *data, ssize_t len)> &handler, std::error_code &ec);
+		void			readStart(const std::function<void(char *data, ssize_t len)> &handler);
 		void			readStop(std::error_code &ec);
 		void			readStop();
 		void			write(const char *p, ssize_t len, std::error_code &ec);
 		void			write(const char *p, ssize_t len);
-		void			onWrite(std::function<void(const std::error_code &ec)>	 handler);
-		void			shutdown(std::function<void(const std::error_code &ec)> handler, std::error_code &ec);
-		void			shutdown(std::function<void(const std::error_code &ec)> handler);
+		void			onWrite(const std::function<void(const std::error_code &ec)> &handler);
+		void			shutdown(const std::function<void(const std::error_code &ec)> &handler, std::error_code &ec);
+		void			shutdown(const std::function<void(const std::error_code &ec)> &handler);
 		bool			isReadable();
 		bool			isWritable();
 		void			setBlocking(bool blocking, std::error_code &ec);
@@ -43,7 +43,7 @@ namespace uv
 		std::function<void(const std::error_code &ec)>	m_listenHandler	= [](const std::error_code &ec) {};
 		std::function<void(const std::error_code &ec)>	m_shutdownHandler	= [](const std::error_code &ec) {};
 		std::function<void(const std::error_code &ec)>	m_writeHandler	= [](const std::error_code &ec) {};
-		std::function<void(char *data, ssize_t len)>m_readHandler	= [](char *data, ssize_t len) {};
+		std::function<void(char *data, ssize_t len)>	m_readHandler	= [](char *data, ssize_t len) {};
 		
 	};
 
@@ -52,7 +52,7 @@ namespace uv
 
 
 	template<typename T>
-	inline void Stream<T>::listen(std::function<void(const std::error_code &ec)> handler, int backlog, std::error_code &ec)
+	inline void Stream<T>::listen(const std::function<void(const std::error_code &ec)> &handler, int backlog, std::error_code &ec)
 	{
 		m_listenHandler = handler;
 		auto status = uv_listen(reinterpret_cast<uv_stream_t *>(&m_handle), backlog, [](uv_stream_t *st, int status) {
@@ -66,7 +66,7 @@ namespace uv
 	}
 
 	template<typename T>
-	inline void Stream<T>::listen(std::function<void(const std::error_code &ec)> handler, int backlog)
+	inline void Stream<T>::listen(const std::function<void(const std::error_code &ec)> &handler, int backlog)
 	{
 		std::error_code ec;
 
@@ -99,7 +99,7 @@ namespace uv
 	}
 
 	template<typename T>
-	inline void Stream<T>::readStart(std::function<void(char *data, ssize_t len)> handler, std::error_code &ec)
+	inline void Stream<T>::readStart(const std::function<void(char *data, ssize_t len)> &handler, std::error_code &ec)
 	{
 		m_readHandler = handler;
 		auto status = uv_read_start(reinterpret_cast<uv_stream_t *>(&m_handle),
@@ -127,7 +127,7 @@ namespace uv
 	}
 
 	template<typename T>
-	inline void Stream<T>::readStart(std::function<void(char *data, ssize_t len)> handler)
+	inline void Stream<T>::readStart(const std::function<void(char *data, ssize_t len)> &handler)
 	{
 		std::error_code ec;
 
@@ -194,13 +194,13 @@ namespace uv
 	}
 
 	template<typename T>
-	inline void Stream<T>::onWrite(std::function<void(const std::error_code &ec)> handler)
+	inline void Stream<T>::onWrite(const std::function<void(const std::error_code &ec)> &handler)
 	{
 		m_writeHandler = handler;
 	}
 
 	template<typename T>
-	inline void Stream<T>::shutdown(std::function<void(const std::error_code &ec)> handler, std::error_code &ec)
+	inline void Stream<T>::shutdown(const std::function<void(const std::error_code &ec)> &handler, std::error_code &ec)
 	{
 		m_shutdownHandler = handler;
 
@@ -225,7 +225,7 @@ namespace uv
 	}
 
 	template<typename T>
-	inline void Stream<T>::shutdown(std::function<void(const std::error_code &ec)> handler)
+	inline void Stream<T>::shutdown(const std::function<void(const std::error_code &ec)> &handler)
 	{
 		std::error_code ec;
 

@@ -39,9 +39,9 @@ namespace uv
 		void			getpeername(struct sockaddr &name, int &namelen, std::error_code &ec) const;
 		void			getpeername(struct sockaddr &name, int &namelen) const;
 		void			connect(const std::string &ip, int port,
-							std::function<void(const std::error_code &ec)> handler, std::error_code &ec);
+						const std::function<void(const std::error_code &ec)> &handler, std::error_code &ec);
 		void			connect(const std::string &ip, int port,
-							std::function<void(const std::error_code &ec)> handler);
+						const std::function<void(const std::error_code &ec)> &handler);
 
 	private:
 		std::function<void(const std::error_code &ec)>	m_connectHandler = [](const std::error_code &ec) {};
@@ -246,7 +246,7 @@ namespace uv
 	}
 	
 	inline void Tcp::connect(const std::string &ip, int port,
-		std::function<void(const std::error_code &ec)> handler, std::error_code &ec)
+		const std::function<void(const std::error_code &ec)> &handler, std::error_code &ec)
 	{
 		m_connectHandler = handler;
 
@@ -288,7 +288,7 @@ namespace uv
 	}
 
 	inline void Tcp::connect(const std::string &ip, int port,
-		std::function<void(const std::error_code &ec)> handler)
+		const std::function<void(const std::error_code &ec)> &handler)
 	{
 		std::error_code ec;
 

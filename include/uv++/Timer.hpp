@@ -17,8 +17,8 @@ namespace uv
 
 		void			init(uv::Loop &loop, std::error_code &ec);
 		void			init(uv::Loop &loop);
-		void			start(std::function<void ()> handler, uint64_t timeout, uint64_t repeat, std::error_code &ec);
-		void			start(std::function<void()> handler, uint64_t timeout, uint64_t repeat);
+		void			start(const std::function<void()> &handler, uint64_t timeout, uint64_t repeat, std::error_code &ec);
+		void			start(const std::function<void()> &handler, uint64_t timeout, uint64_t repeat);
 		void			stop(std::error_code &ec);
 		void			stop();
 		void			again(std::error_code &ec);
@@ -61,7 +61,7 @@ namespace uv
 		}
 	}
 
-	inline void Timer::start(std::function<void()> handler, uint64_t timeout, uint64_t repeat, std::error_code &ec)
+	inline void Timer::start(const std::function<void()> &handler, uint64_t timeout, uint64_t repeat, std::error_code &ec)
 	{
 		m_startHandler = handler;
 		auto status = uv_timer_start(&m_handle, [](uv_timer_t *handle) {
@@ -74,7 +74,7 @@ namespace uv
 		}
 	}
 
-	inline void Timer::start(std::function<void()> handler, uint64_t timeout, uint64_t repeat)
+	inline void Timer::start(const std::function<void()> &handler, uint64_t timeout, uint64_t repeat)
 	{
 		std::error_code ec;
 

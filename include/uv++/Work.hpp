@@ -15,7 +15,7 @@ namespace uv
 	class Work : public Req<uv_work_t>
 	{
 	public:
-		Work(std::function<void()> wh, std::function<void(const std::error_code &ec)> ah);
+		Work(const std::function<void()> &wh, const std::function<void(const std::error_code &ec)> &ah);
 		void			queue(uv::Loop &loop, std::error_code &ec);
 		void			queue(uv::Loop &loop);
 
@@ -28,7 +28,7 @@ namespace uv
 
 
 
-	inline Work::Work(std::function<void()> wh, std::function<void(const std::error_code &ec)> ah)
+	inline Work::Work(const std::function<void()> &wh, const std::function<void(const std::error_code &ec)> &ah)
 	{
 		m_handle.data = this;
 		m_workHandler = wh;

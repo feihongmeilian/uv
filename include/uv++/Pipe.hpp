@@ -25,8 +25,8 @@ namespace uv
 		void			open(uv_file file);
 		void			bind(const std::string &name, std::error_code &ec);
 		void			bind(const std::string &name);
-		void			connect(const std::string &name, std::function<void(const std::error_code &ec)> handler, std::error_code &ec);
-		void			connect(const std::string &name, std::function<void(const std::error_code &ec)> handler);
+		void			connect(const std::string &name, const std::function<void(const std::error_code &ec)> &handler, std::error_code &ec);
+		void			connect(const std::string &name, const std::function<void(const std::error_code &ec)> &handler);
 		void			getsockname(char *buffer, size_t &size, std::error_code &ecr) const;
 		void			getsockname(char *buffer, size_t &size) const;
 		void			getpeername(char *buffer, size_t &size, std::error_code &ec) const;
@@ -106,7 +106,7 @@ namespace uv
 		}
 	}
 	
-	inline void Pipe::connect(const std::string &name, std::function<void(const std::error_code &ec)> handler, std::error_code &ec)
+	inline void Pipe::connect(const std::string &name, const std::function<void(const std::error_code &ec)> &handler, std::error_code &ec)
 	{
 		auto connect = new (std::nothrow) Connect;
 		if (connect == nullptr) {
@@ -125,7 +125,7 @@ namespace uv
 		});
 	}
 
-	inline void Pipe::connect(const std::string &name, std::function<void(const std::error_code &ec)> handler)
+	inline void Pipe::connect(const std::string &name, const std::function<void(const std::error_code &ec)> &handler)
 	{
 		std::error_code ec;
 

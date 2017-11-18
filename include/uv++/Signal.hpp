@@ -19,8 +19,8 @@ namespace uv
 
 		void			init(uv::Loop &loop, std::error_code &ec);
 		void			init(uv::Loop &loop);
-		void			start(std::function<void(int signum)> handler, int sigNum, std::error_code &ec);
-		void			start(std::function<void(int signum)> handler, int sigNum);
+		void			start(const std::function<void(int signum)> &handler, int sigNum, std::error_code &ec);
+		void			start(const std::function<void(int signum)> &handler, int sigNum);
 		void			stop(std::error_code &ec);
 		void			stop();
 
@@ -59,7 +59,7 @@ namespace uv
 		}
 	}
 
-	inline void Signal::start(std::function<void(int signum)> handler, int sigNum, std::error_code &ec)
+	inline void Signal::start(const std::function<void(int signum)> &handler, int sigNum, std::error_code &ec)
 	{
 		m_startHandler = handler;
 		auto status = uv_signal_start(&m_handle, [](uv_signal_t *handle, int num) {
@@ -72,7 +72,7 @@ namespace uv
 		}
 	}
 
-	inline void Signal::start(std::function<void(int signum)> handler, int sigNum)
+	inline void Signal::start(const std::function<void(int signum)> &handler, int sigNum)
 	{
 		std::error_code ec;
 

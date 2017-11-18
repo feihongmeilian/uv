@@ -18,9 +18,9 @@ namespace uv
 	public:
 		explicit		GetAddrInfo(uv::Loop &loop);
 		void			get(const std::string &node, const std::string &service, const struct addrinfo &hints,
-						std::function<void(const std::error_code &ec, struct addrinfo *res)> handler, std::error_code &ec);
+						const std::function<void(const std::error_code &ec, struct addrinfo *res)> &handler, std::error_code &ec);
 		void			get(const std::string &node, const std::string &service, const struct addrinfo &hints,
-						std::function<void(const std::error_code &ec, struct addrinfo *res)> handler);
+						const std::function<void(const std::error_code &ec, struct addrinfo *res)> &handler);
 		
 		static void		freeaddrinfo(struct addrinfo *ai);
 	private:
@@ -40,7 +40,7 @@ namespace uv
 	}
 
 	inline void GetAddrInfo::get(const std::string &node, const std::string &service, const struct addrinfo &hints,
-		std::function<void(const std::error_code &ecr, struct addrinfo *res)> handler, std::error_code &ec)
+		const std::function<void(const std::error_code &ecr, struct addrinfo *res)> &handler, std::error_code &ec)
 	{
 		m_callbackHandler = handler;
 		auto status = uv_getaddrinfo(m_loop.value(), &m_handle, [](uv_getaddrinfo_t* req, int status, struct addrinfo *res) {
@@ -54,7 +54,7 @@ namespace uv
 	}
 
 	inline void GetAddrInfo::get(const std::string &node, const std::string &service, const addrinfo &hints,
-		std::function<void(const std::error_code &ec, struct addrinfo *res)> handler)
+		const std::function<void(const std::error_code &ec, struct addrinfo *res)> &handler)
 	{
 		std::error_code ec;
 

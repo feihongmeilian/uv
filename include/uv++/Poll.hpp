@@ -26,10 +26,10 @@ namespace uv
 		void			stop(std::error_code &ec);
 		void			stop();
 
-		void			onReadable(std::function<void(const std::error_code &ec)> cb);
-		void			onWritable(std::function<void(const std::error_code &ec)> cb);
-		void			onDisconnect(std::function<void(const std::error_code &ec)> cb);
-		void			onPrioritized(std::function<void(const std::error_code &ec)> cb);
+		void			onReadable(const std::function<void(const std::error_code &ec)> &handler);
+		void			onWritable(const std::function<void(const std::error_code &ec)> &handler);
+		void			onDisconnect(const std::function<void(const std::error_code &ec)> &handler);
+		void			onPrioritized(const std::function<void(const std::error_code &ec)> &handler);
 
 	private:
 		uv_poll_t		m_handle;
@@ -139,28 +139,28 @@ namespace uv
 		}
 	}
 
-	inline void Poll::onReadable(std::function<void(const std::error_code &ec)> cb)
+	inline void Poll::onReadable(const std::function<void(const std::error_code &ec)> &handler)
 	{
 		m_events += UV_READABLE;
-		m_readableHandler = cb;
+		m_readableHandler = handler;
 	}
 
-	inline void Poll::onWritable(std::function<void(const std::error_code &ec)> cb)
+	inline void Poll::onWritable(const std::function<void(const std::error_code &ec)> &handler)
 	{
 		m_events += UV_WRITABLE;
-		m_writableHandler = cb;
+		m_writableHandler = handler;
 	}
 
-	inline void Poll::onDisconnect(std::function<void(const std::error_code &ec)> cb)
+	inline void Poll::onDisconnect(const std::function<void(const std::error_code &ec)> &handler)
 	{
 		m_events += UV_DISCONNECT;
-		m_disconnectHandler = cb;
+		m_disconnectHandler = handler;
 	}
 
-	inline void Poll::onPrioritized(std::function<void(const std::error_code &ec)> cb)
+	inline void Poll::onPrioritized(const std::function<void(const std::error_code &ec)> &handler)
 	{
 		m_events += UV_PRIORITIZED;
-		m_prioritizedHandler = cb;
+		m_prioritizedHandler = handler;
 	}
 }
 

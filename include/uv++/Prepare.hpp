@@ -19,8 +19,8 @@ namespace uv
 
 		void			init(uv::Loop &loop, std::error_code &ec);
 		void			init(uv::Loop &loop);
-		void			start(std::function<void()> cb, std::error_code &ec);
-		void			start(std::function<void()> cb);
+		void			start(const std::function<void()> &handler, std::error_code &ec);
+		void			start(const std::function<void()> &handler);
 		void			stop(std::error_code &ec);
 		void			stop();
 
@@ -59,9 +59,9 @@ namespace uv
 		}
 	}
 
-	inline void Prepare::start(std::function<void()> cb, std::error_code &ec)
+	inline void Prepare::start(const std::function<void()> &handler, std::error_code &ec)
 	{
-		m_startHandler = cb;
+		m_startHandler = handler;
 		auto status = uv_prepare_start(&m_handle, [](uv_prepare_t *handle) {
 			auto &prepare = *reinterpret_cast<uv::Prepare *>(handle->data);
 			prepare.m_startHandler();
@@ -72,11 +72,11 @@ namespace uv
 		}
 	}
 
-	inline void Prepare::start(std::function<void()> cb)
+	inline void Prepare::start(const std::function<void()> &handler)
 	{
 		std::error_code ec;
 
-		start(cb, ec);
+		start(handler, ec);
 		if (ec) {
 			throw uv::Exception(ec);
 		}

@@ -21,9 +21,9 @@ namespace uv
 		void			init(uv::Loop &loop, std::error_code &ec);
 		void			init(uv::Loop &loop);
 		void			start(const std::string &path, unsigned int interval, 
-						std::function<void(const std::error_code &ec)> handler, std::error_code &ec);
+						const std::function<void(const std::error_code &ec)> &handler, std::error_code &ec);
 		void			start(const std::string &path, unsigned int interval,
-						std::function<void(const std::error_code &ec)> handler);
+						const std::function<void(const std::error_code &ec)> &handler);
 		void			stop(std::error_code &ec);
 		void			stop();
 		void			getpath(char *buffer, size_t &size, std::error_code &ec);
@@ -68,7 +68,7 @@ namespace uv
 	}
 
 	inline void FileStreamPoll::start(const std::string &path, unsigned int interval,
-		std::function<void(const std::error_code &ec)> handler, std::error_code &ec)
+		const std::function<void(const std::error_code &ec)> &handler, std::error_code &ec)
 	{
 		m_callbackHandler = handler;
 		auto status = uv_fs_poll_start(&m_handle,
@@ -85,7 +85,7 @@ namespace uv
 	}
 
 	inline void FileStreamPoll::start(const std::string &path, unsigned int interval,
-		std::function<void(const std::error_code &ec)> handler)
+		const std::function<void(const std::error_code &ec)> &handler)
 	{
 		std::error_code ec;
 

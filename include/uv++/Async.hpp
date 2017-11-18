@@ -17,8 +17,8 @@ namespace uv
 	public:
 		Async();
 
-		void			init(uv::Loop &loop, std::function<void()> handler, std::error_code &ec);
-		void			init(uv::Loop &loop, std::function<void()> handler);
+		void			init(uv::Loop &loop, const std::function<void()> &handler, std::error_code &ec);
+		void			init(uv::Loop &loop, const std::function<void()> &handler);
 		void			send(std::error_code &ec);
 		void			send();
 
@@ -36,7 +36,7 @@ namespace uv
 		m_handle.data = this;
 	}
 
-	inline void Async::init(uv::Loop &loop, std::function<void()> handler, std::error_code & ec)
+	inline void Async::init(uv::Loop &loop, const std::function<void()> &handler, std::error_code & ec)
 	{
 		m_callbackHandler = handler;
 		auto status = uv_async_init(loop.value(), &m_handle, [](uv_async_t *a) {
@@ -49,7 +49,7 @@ namespace uv
 		}
 	}
 
-	inline void Async::init(uv::Loop &loop, std::function<void()> handler)
+	inline void Async::init(uv::Loop &loop, const std::function<void()> &handler)
 	{
 		std::error_code ec;
 

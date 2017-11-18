@@ -23,7 +23,7 @@ namespace uv
 		void			recvBufferSize(int &value);
 		void			fileno(uv_os_fd_t &fd, std::error_code &ec);
 		void			fileno(uv_os_fd_t &fd);
-		void			close(std::function<void()> handler);
+		void			close(const std::function<void()> &handler);
 	protected:
 		T				m_handle;
 
@@ -129,7 +129,7 @@ namespace uv
 	}
 
 	template<typename T>
-	inline void Handle<T>::close(std::function<void()> handler)
+	inline void Handle<T>::close(const std::function<void()> &handler)
 	{
 		m_closeHandler = handler;
 		uv_close(reinterpret_cast<uv_handle_t *>(&m_handle), [](uv_handle_t *h) {
