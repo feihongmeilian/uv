@@ -26,7 +26,6 @@
 #include "Tty.hpp"
 #include "Udp.hpp"
 #include "UdpSend.hpp"
-#include "UvExcept.hpp"
 #include "Work.hpp"
 #include "Write.hpp"
 
