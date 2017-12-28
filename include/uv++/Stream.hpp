@@ -27,6 +27,7 @@ namespace uv
 		void			readStop(std::error_code &ec);
 		void			readStop();
 		void			write(const char *p, ssize_t len, std::error_code &ec);
+		//传入的p指针必须是通过new的
 		void			write(const char *p, ssize_t len);
 		void			onWrite(const std::function<void(const std::error_code &ec)> &handler);
 		void			shutdown(const std::function<void(const std::error_code &ec)> &handler, std::error_code &ec);
@@ -158,7 +159,6 @@ namespace uv
 		}
 	}
 
-	//传入的p指针必须是通过new的
 	template<typename T>
 	inline void Stream<T>::write(const char *p, ssize_t len, std::error_code &ec)
 	{
@@ -174,7 +174,7 @@ namespace uv
 			std::shared_ptr<char> bytes(writeHandler->m_buf.base, std::default_delete<char[]>());
 
 			auto &stream = *reinterpret_cast<Stream<T> *>(req->handle->data);
-			stream.m_writeHandler(Error(status));
+			stream.m_writeHandler(makeErrorCode(status));
 		});
 
 		if (status != 0) {
