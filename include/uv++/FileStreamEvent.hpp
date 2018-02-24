@@ -9,11 +9,11 @@
 #include "Error.hpp"
 #include "Exception.hpp"
 #include "Loop.hpp"
-#include "Noncopyable.hpp"
+#include "Handle.hpp"
 
 namespace uv
 {
-	class FileStreamEvent : public Noncopyable
+	class FileStreamEvent : public Handle<uv_fs_event_t>
 	{
 	public:
 		FileStreamEvent();
@@ -30,7 +30,6 @@ namespace uv
 		void			getpath(char *buffer, size_t &size);
 
 	private:
-		uv_fs_event_t	m_handle;
 		std::function<void(const std::string &filename, int events, const std::error_code &ec)>	m_callbackHandler
 			= [](const std::string &filename, int events, const std::error_code &ec) {};
 	};

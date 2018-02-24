@@ -6,11 +6,11 @@
 #include "Error.hpp"
 #include "Exception.hpp"
 #include "Loop.hpp"
-#include "Noncopyable.hpp"
+#include "Handle.hpp"
 
 namespace uv
 {
-    class Timer : public Noncopyable
+    class Timer : public Handle<uv_timer_t>
     {
     public:
 		Timer();
@@ -25,9 +25,6 @@ namespace uv
 		void			again();
 		void			setRepeat(uint64_t repeat);
 		uint64_t		getRepeat() const;
-
-    private:
-        uv_timer_t		m_handle;
 
 	private:
         std::function<void ()>	m_startHandler = []() {};

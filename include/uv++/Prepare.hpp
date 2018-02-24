@@ -8,11 +8,11 @@
 #include "Error.hpp"
 #include "Exception.hpp"
 #include "Loop.hpp"
-#include "Noncopyable.hpp"
+#include "Handle.hpp"
 
 namespace uv
 {
-	class Prepare : public Noncopyable
+	class Prepare : public Handle<uv_prepare_t>
 	{
 	public:
 		Prepare();
@@ -23,9 +23,6 @@ namespace uv
 		void			start(const std::function<void()> &handler);
 		void			stop(std::error_code &ec);
 		void			stop();
-
-	private:
-		uv_prepare_t	m_handle;
 
 	private:
 		std::function<void()>	m_startHandler = []() {};

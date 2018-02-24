@@ -2,7 +2,6 @@
 #define UV_STREAM_HPP
 
 #include <functional>
-#include <algorithm>
 #include <memory>
 
 #include <uv.h>

@@ -8,11 +8,11 @@
 #include "Error.hpp"
 #include "Exception.hpp"
 #include "Loop.hpp"
-#include "Noncopyable.hpp"
+#include "Handle.hpp"
 
 namespace uv
 {
-	class Idle : public Noncopyable
+	class Idle : public Handle<uv_idle_t>
 	{
 	public:
 		Idle();
@@ -23,9 +23,6 @@ namespace uv
 		void			start(const std::function<void()> &handler);
 		void			stop(std::error_code &ec);
 		void			stop();
-
-	private:
-		uv_idle_t		m_handle;
 
 	private:
 		std::function<void()>	m_startHandler = []() {};

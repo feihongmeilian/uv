@@ -8,11 +8,11 @@
 #include "Error.hpp"
 #include "Exception.hpp"
 #include "Loop.hpp"
-#include "Noncopyable.hpp"
+#include "Handle.hpp"
 
 namespace uv
 {
-	class Poll : public Noncopyable
+	class Poll : public Handle<uv_poll_t>
 	{
 	public:
 		Poll();
@@ -32,7 +32,6 @@ namespace uv
 		void			onPrioritized(const std::function<void(const std::error_code &ec)> &handler);
 
 	private:
-		uv_poll_t		m_handle;
 		int				m_events = 0;
 		std::function<void(const std::error_code &ec)>	m_readableHandler = [](const std::error_code &ec) {};
 		std::function<void(const std::error_code &ec)>	m_writableHandler = [](const std::error_code &ec) {};

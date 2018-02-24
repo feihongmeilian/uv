@@ -8,11 +8,11 @@
 #include "Error.hpp"
 #include "Exception.hpp"
 #include "Loop.hpp"
-#include "Noncopyable.hpp"
+#include "Handle.hpp"
 
 namespace uv
 {
-    class Signal : public Noncopyable
+    class Signal : public Handle<uv_signal_t>
     {
     public:
 		Signal();
@@ -23,9 +23,6 @@ namespace uv
 		void			start(const std::function<void(int signum)> &handler, int sigNum);
 		void			stop(std::error_code &ec);
 		void			stop();
-
-    private:
-        uv_signal_t		m_handle;
 
 	private:
         std::function<void(int signum)>	m_startHandler = [](int signum) {};

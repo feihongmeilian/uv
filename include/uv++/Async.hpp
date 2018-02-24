@@ -8,11 +8,11 @@
 #include "Error.hpp"
 #include "Exception.hpp"
 #include "Loop.hpp"
-#include "Noncopyable.hpp"
+#include "Handle.hpp"
 
 namespace uv
 {
-	class Async : public Noncopyable
+	class Async : public Handle<uv_async_t>
 	{
 	public:
 		Async();
@@ -23,7 +23,6 @@ namespace uv
 		void			send();
 
 	private:
-		uv_async_t		m_handle;
 		std::function<void()> m_callbackHandler = []() {};
 	};
 

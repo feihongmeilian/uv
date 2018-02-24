@@ -9,11 +9,11 @@
 #include "Error.hpp"
 #include "Exception.hpp"
 #include "Loop.hpp"
-#include "Noncopyable.hpp"
+#include "Handle.hpp"
 
 namespace uv
 {
-	class FileStreamPoll : public Noncopyable
+	class FileStreamPoll : public Handle<uv_fs_poll_t>
 	{
 	public:
 		FileStreamPoll();
@@ -32,8 +32,8 @@ namespace uv
 		//just use in callback function
 		const uv_stat_t	*getPrevStat() const;
 		const uv_stat_t	*getCurrStat() const;
+
 	private:
-		uv_fs_poll_t	m_handle;
 		const uv_stat_t	*m_prevStat;
 		const uv_stat_t	*m_currStat;
 		std::function<void(const std::error_code &ec)>	m_callbackHandler = [](const std::error_code &ec) {};
