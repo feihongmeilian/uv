@@ -21,9 +21,9 @@ namespace uv
 		void			sendBufferSize(int &value);
 		void			recvBufferSize(int &value, std::error_code &ec);
 		void			recvBufferSize(int &value);
-		void			fileno(uv_os_fd_t &fd, std::error_code &ec);
-		void			fileno(uv_os_fd_t &fd);
+
 		void			close(const std::function<void()> &handler);
+
 	protected:
 		T				m_handle;
 
@@ -102,27 +102,6 @@ namespace uv
 		std::error_code ec;
 
 		recvBufferSize(value, ec);
-		if (ec) {
-			throw uv::Exception(ec);
-		}
-	}
-
-	template<typename T>
-	inline void Handle<T>::fileno(uv_os_fd_t &fd, std::error_code &ec)
-	{
-		auto status = uv_fileno(reinterpret_cast<uv_handle_t *>(&m_handle), &fd);
-
-		if (status != 0) {
-			ec = makeErrorCode(status);
-		}
-	}
-
-	template<typename T>
-	inline void Handle<T>::fileno(uv_os_fd_t &fd)
-	{
-		std::error_code ec;
-
-		fileno(fd, ec);
 		if (ec) {
 			throw uv::Exception(ec);
 		}

@@ -8,11 +8,11 @@
 #include "Error.hpp"
 #include "Exception.hpp"
 #include "Loop.hpp"
-#include "Handle.hpp"
+#include "private/FileHandle.hpp"
 
 namespace uv
 {
-	class Poll : public Handle<uv_poll_t>
+	class Poll : public FileHandle<uv_poll_t>
 	{
 	public:
 		Poll();
@@ -32,7 +32,7 @@ namespace uv
 		void			onPrioritized(const std::function<void(const std::error_code &ec)> &handler);
 
 	private:
-		int				m_events = 0;
+		int			m_events = 0;
 		std::function<void(const std::error_code &ec)>	m_readableHandler = [](const std::error_code &ec) {};
 		std::function<void(const std::error_code &ec)>	m_writableHandler = [](const std::error_code &ec) {};
 		std::function<void(const std::error_code &ec)>	m_disconnectHandler = [](const std::error_code &ec) {};

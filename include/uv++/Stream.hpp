@@ -8,13 +8,13 @@
 
 #include "Error.hpp"
 #include "Write.hpp"
-#include "Handle.hpp"
 #include "Shutdown.hpp"
+#include "private/FileHandle.hpp"
 
 namespace uv
 {
 	template<typename T>
-	class Stream : public Handle<T>
+	class Stream : public FileHandle<T>
 	{
 	public:
 		void			listen(const std::function<void(const std::error_code &ec)> &handler, int backlog, std::error_code &ec);
@@ -35,6 +35,7 @@ namespace uv
 		bool			isWritable();
 		void			setBlocking(bool blocking, std::error_code &ec);
 		void			setBlocking(bool blocking = true);
+
 	protected:
 		using Handle<T>::m_handle;
 		using Handle<T>::m_closeHandler;
@@ -266,6 +267,7 @@ namespace uv
 			throw uv::Exception(ec);
 		}
 	}
+
 }
 
 
