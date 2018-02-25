@@ -4,6 +4,7 @@
 #include "Async.hpp"
 #include "Check.hpp"
 #include "Connect.hpp"
+#include "DynamicLibrary.hpp"
 #include "Error.hpp"
 #include "Exception.hpp"
 #include "FileStream.hpp"
@@ -26,6 +27,7 @@
 #include "Tty.hpp"
 #include "Udp.hpp"
 #include "UdpSend.hpp"
+#include "Utility.hpp"
 #include "Work.hpp"
 #include "Write.hpp"
 
