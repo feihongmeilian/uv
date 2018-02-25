@@ -3,8 +3,9 @@
 
 #include <uv.h>
 
-#include "../Error.hpp"
-#include "../Handle.hpp"
+#include "Error.hpp"
+#include "Exception.hpp"
+#include "Handle.hpp"
 
 namespace uv
 {
@@ -14,9 +15,6 @@ namespace uv
 	public:
 		void			fileno(uv_os_fd_t &fd, std::error_code &ec);
 		void			fileno(uv_os_fd_t &fd);
-
-	protected:
-		using Handle<T>::m_handle;
 	};
 
 

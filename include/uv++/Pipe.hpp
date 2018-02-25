@@ -10,11 +10,20 @@
 #include "Exception.hpp"
 #include "Loop.hpp"
 #include "Connect.hpp"
+
+#if ( defined(WIN32) || defined(WIN64) )
 #include "Stream.hpp"
+#else
+#include "FileStreamHandle.hpp"
+#endif
 
 namespace uv
 {
+#if ( defined(WIN32) || defined(WIN64) )
 	class Pipe : public Stream<uv_pipe_t>
+#else
+	class Pipe : public FileStreamHandle<uv_pipe_t>
+#endif
 	{
 	public:
 		Pipe();
@@ -32,7 +41,7 @@ namespace uv
 		void			getpeername(char *buffer, size_t &size, std::error_code &ec) const;
 		void			getpeername(char *buffer, size_t &size) const;
 		void			pendingInstances(int count);
-		int				pendingCount();
+		int			pendingCount();
 
 		uv_handle_type	pendingType();
 

@@ -9,7 +9,7 @@
 #include "Error.hpp"
 #include "Write.hpp"
 #include "Shutdown.hpp"
-#include "private/FileHandle.hpp"
+#include "FileHandle.hpp"
 
 namespace uv
 {
@@ -35,10 +35,6 @@ namespace uv
 		bool			isWritable();
 		void			setBlocking(bool blocking, std::error_code &ec);
 		void			setBlocking(bool blocking = true);
-
-	protected:
-		using Handle<T>::m_handle;
-		using Handle<T>::m_closeHandler;
 
 	private:
 		std::function<void(const std::error_code &ec)>	m_listenHandler	= [](const std::error_code &ec) {};

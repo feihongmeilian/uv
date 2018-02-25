@@ -8,7 +8,7 @@
 #include "Error.hpp"
 #include "Exception.hpp"
 #include "Loop.hpp"
-#include "private/FileHandle.hpp"
+#include "FileHandle.hpp"
 
 namespace uv
 {

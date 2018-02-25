@@ -9,12 +9,12 @@
 #include "Error.hpp"
 #include "Exception.hpp"
 #include "Loop.hpp"
-#include "Stream.hpp"
+#include "FileStreamHandle.hpp"
 #include "UdpSend.hpp"
 
 namespace uv
 {
-	class Udp : public Stream<uv_udp_t>
+	class Udp : public FileStreamHandle<uv_udp_t>
 	{
 	public:
 		Udp();
@@ -48,7 +48,7 @@ namespace uv
 		void			recvStop();
 
 	private:
-		uv::UdpSend		m_udpSend;
+		uv::UdpSend	m_udpSend;
 	};
 
 

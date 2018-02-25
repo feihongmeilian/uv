@@ -17,15 +17,10 @@ namespace uv
 		void			ref();
 		void			unref();
 		bool			hasRef();
-		void			sendBufferSize(int &value, std::error_code &ec);
-		void			sendBufferSize(int &value);
-		void			recvBufferSize(int &value, std::error_code &ec);
-		void			recvBufferSize(int &value);
-
 		void			close(const std::function<void()> &handler);
 
 	protected:
-		T				m_handle;
+		T			m_handle;
 
 		std::function<void()> m_closeHandler = []() {};
 	};
@@ -62,49 +57,6 @@ namespace uv
 	inline bool Handle<T>::hasRef()
 	{
 		return uv_has_ref(reinterpret_cast<uv_handle_t *>(&m_handle));
-	}
-
-
-	template<typename T>
-	inline void Handle<T>::sendBufferSize(int &value, std::error_code &ec)
-	{
-		auto status = uv_send_buffer_size(reinterpret_cast<uv_handle_t *>(&m_handle), &value);
-
-		if (status != 0) {
-			ec = makeErrorCode(status);
-		}
-	}
-
-	template<typename T>
-	inline void Handle<T>::sendBufferSize(int &value)
-	{
-		std::error_code ec;
-
-		sendBufferSize(value, ec);
-		if (ec) {
-			throw uv::Exception(ec);
-		}
-	}
-
-	template<typename T>
-	inline void Handle<T>::recvBufferSize(int &value, std::error_code &ec)
-	{
-		auto status = uv_recv_buffer_size(reinterpret_cast<uv_handle_t *>(&m_handle), &value);
-
-		if (status != 0) {
-			ec = makeErrorCode(status);
-		}
-	}
-
-	template<typename T>
-	inline void Handle<T>::recvBufferSize(int &value)
-	{
-		std::error_code ec;
-
-		recvBufferSize(value, ec);
-		if (ec) {
-			throw uv::Exception(ec);
-		}
 	}
 
 	template<typename T>

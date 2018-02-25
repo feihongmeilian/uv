@@ -16,7 +16,7 @@ namespace uv
 	public:
 		explicit	FileStream(uv::Loop &loop);
 
-		void		reqCleanup();
+		void			reqCleanup();
 		int			close(uv_file file, const std::function<void()> &handler);
 		int			open(const std::string &path, int flags, int mode, const std::function<void()> &handler);
 		int			read(uv_file file, const uv_buf_t bufs[], unsigned int nbufs, int64_t offset, const std::function<void()> &handler);

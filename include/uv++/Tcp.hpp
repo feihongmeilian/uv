@@ -10,11 +10,11 @@
 #include "Exception.hpp"
 #include "Loop.hpp"
 #include "Connect.hpp"
-#include "Stream.hpp"
+#include "FileStreamHandle.hpp"
 
 namespace uv
 {
-	class Tcp : public Stream<uv_tcp_t>
+	class Tcp : public FileStreamHandle<uv_tcp_t>
 	{
 	public:
 		Tcp();
