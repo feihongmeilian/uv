@@ -12,16 +12,16 @@ namespace uv
 	class Utility
 	{
 	public:
-		static void	GetExePath(std::string &path, std::error_code &ec);
-		static void	GetExePath(std::string &path);
-		static void	GetExeDirectory(std::string &path, std::error_code &ec);
-		static void	GetExeDirectory(std::string &path);
-		static void	GetCurrentWorkingDirectory(std::string &path, std::error_code& ec);
-		static void	GetCurrentWorkingDirectory(std::string &path);
-		static void	GetHomeDirectory(std::string &home, std::error_code &ec);
-		static void	GetHomeDirectory(std::string &home);
-		static void	ChangeDirectory(const std::string &path, std::error_code &ec);
-		static void	ChangeDirectory(const std::string &path);
+		static void	getExePath(std::string &path, std::error_code &ec);
+		static void	getExePath(std::string &path);
+		static void	getExeDirectory(std::string &path, std::error_code &ec);
+		static void	getExeDirectory(std::string &path);
+		static void	getCurrentWorkingDirectory(std::string &path, std::error_code& ec);
+		static void	getCurrentWorkingDirectory(std::string &path);
+		static void	getHomeDirectory(std::string &home, std::error_code &ec);
+		static void	getHomeDirectory(std::string &home);
+		static void	changeDirectory(const std::string &path, std::error_code &ec);
+		static void	changeDirectory(const std::string &path);
 	};
 
 
@@ -29,7 +29,7 @@ namespace uv
 
 
 
-	inline void Utility::GetExePath(std::string &path, std::error_code &ec)
+	inline void Utility::getExePath(std::string &path, std::error_code &ec)
 	{
 		char buffer[MAX_PATH];
 		size_t size = sizeof(buffer);
@@ -43,19 +43,19 @@ namespace uv
 		}
 	}
 
-	inline void Utility::GetExePath(std::string &path)
+	inline void Utility::getExePath(std::string &path)
 	{
 		std::error_code ec;
 
-		GetExePath(path, ec);
+		getExePath(path, ec);
 		if (ec) {
 			throw uv::Exception(ec);
 		}
 	}
 
-	inline void Utility::GetExeDirectory(std::string &path, std::error_code &ec)
+	inline void Utility::getExeDirectory(std::string &path, std::error_code &ec)
 	{
-		GetExePath(path, ec);
+		getExePath(path, ec);
 		if (ec) return;
 		
 		auto index = path.rfind('/');
@@ -71,17 +71,17 @@ namespace uv
 		path.erase(index);
 	}
 
-	inline void Utility::GetExeDirectory(std::string &path)
+	inline void Utility::getExeDirectory(std::string &path)
 	{
 		std::error_code ec;
 
-		GetExeDirectory(path, ec);
+		getExeDirectory(path, ec);
 		if (ec) {
 			throw uv::Exception(ec);
 		}
 	}
 
-	inline void Utility::GetCurrentWorkingDirectory(std::string &path, std::error_code &ec)
+	inline void Utility::getCurrentWorkingDirectory(std::string &path, std::error_code &ec)
 	{
 		char buffer[MAX_PATH];
 		size_t size = sizeof(buffer);
@@ -95,17 +95,17 @@ namespace uv
 		}
 	}
 
-	inline void Utility::GetCurrentWorkingDirectory(std::string &path)
+	inline void Utility::getCurrentWorkingDirectory(std::string &path)
 	{
 		std::error_code ec;
 
-		GetCurrentWorkingDirectory(path, ec);
+		getCurrentWorkingDirectory(path, ec);
 		if (ec) {
 			throw uv::Exception(ec);
 		}
 	}
 
-	inline void Utility::ChangeDirectory(const std::string &path, std::error_code &ec)
+	inline void Utility::changeDirectory(const std::string &path, std::error_code &ec)
 	{
 		auto status = uv_chdir(path.c_str());
 
@@ -114,17 +114,17 @@ namespace uv
 		}
 	}
 
-	inline void Utility::ChangeDirectory(const std::string &path)
+	inline void Utility::changeDirectory(const std::string &path)
 	{
 		std::error_code ec;
 
-		ChangeDirectory(path, ec);
+		changeDirectory(path, ec);
 		if (ec) {
 			throw uv::Exception(ec);
 		}
 	}
 
-	inline void Utility::GetHomeDirectory(std::string &home, std::error_code &ec)
+	inline void Utility::getHomeDirectory(std::string &home, std::error_code &ec)
 	{
 		char buffer[MAX_PATH];
 		size_t size = sizeof(buffer);
@@ -138,11 +138,11 @@ namespace uv
 		}
 	}
 
-	inline void Utility::GetHomeDirectory(std::string &home)
+	inline void Utility::getHomeDirectory(std::string &home)
 	{
 		std::error_code ec;
 
-		GetHomeDirectory(home, ec);
+		getHomeDirectory(home, ec);
 		if (ec) {
 			throw uv::Exception(ec);
 		}
