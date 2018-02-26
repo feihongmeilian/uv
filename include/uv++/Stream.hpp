@@ -36,6 +36,9 @@ namespace uv
 		void			setBlocking(bool blocking, std::error_code &ec);
 		void			setBlocking(bool blocking = true);
 
+    protected:
+        using Handle<T>::m_handle;
+
 	private:
 		std::function<void(const std::error_code &ec)>	m_listenHandler	= [](const std::error_code &ec) {};
 		std::function<void(const std::error_code &ec)>	m_shutdownHandler	= [](const std::error_code &ec) {};

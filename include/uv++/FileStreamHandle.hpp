@@ -17,6 +17,9 @@ namespace uv
 		void			sendBufferSize(int &value);
 		void			recvBufferSize(int &value, std::error_code &ec);
 		void			recvBufferSize(int &value);
+
+    protected:
+        using Handle<T>::m_handle;
 	};
 
 

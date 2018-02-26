@@ -3,6 +3,10 @@
 
 #include <string>
 
+#if !(defined(WIN32) || defined(WIN64))
+#define MAX_PATH PATH_MAX
+#endif
+
 #include <uv.h>
 
 #include "Error.hpp"
