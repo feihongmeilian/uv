@@ -169,8 +169,8 @@ namespace uv
 
 		auto status = uv_write(&writeHandler->m_handle, reinterpret_cast<uv_stream_t *>(&m_handle),
 			&writeHandler->m_buf, 1, [](uv_write_t *req, int status) {
-			std::shared_ptr<uv::Write> writeHandler(reinterpret_cast<uv::Write *>(req->data));
-			std::shared_ptr<char> bytes(writeHandler->m_buf.base, std::default_delete<char[]>());
+			std::unique_ptr<uv::Write> writeHandler(reinterpret_cast<uv::Write *>(req->data));
+			std::unique_ptr<char> bytes(writeHandler->m_buf.base, std::default_delete<char[]>());
 
 			auto &stream = *reinterpret_cast<Stream<T> *>(req->handle->data);
 			stream.m_writeHandler(makeErrorCode(status));
@@ -211,7 +211,7 @@ namespace uv
 
 		auto status = uv_shutdown(&req->m_handle, reinterpret_cast<uv_stream_t *>(&m_handle),
 			[](uv_shutdown_t *req, int status) {
-			std::shared_ptr<uv::Shutdown> shutdown(reinterpret_cast<Shutdown *>(req->data));
+			std::unique_ptr<uv::Shutdown> shutdown(reinterpret_cast<Shutdown *>(req->data));
 			
 			auto &stream = *reinterpret_cast<uv::Stream<T> *>(req->handle->data);
 			stream.m_shutdownHandler(makeErrorCode(status));

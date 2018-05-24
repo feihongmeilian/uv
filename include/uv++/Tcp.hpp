@@ -276,7 +276,7 @@ namespace uv
 
 		status = uv_tcp_connect(&connect->m_handle, &m_handle, p_addr,
 			[](uv_connect_t *req, int status) {
-            std::shared_ptr<Connect> connect(reinterpret_cast<Connect *>(req->data));
+            std::unique_ptr<Connect> connect(reinterpret_cast<Connect *>(req->data));
 			
             auto &tcp = *reinterpret_cast<uv::Tcp *>(req->handle->data);
 			tcp.m_connectHandler(makeErrorCode(status));
