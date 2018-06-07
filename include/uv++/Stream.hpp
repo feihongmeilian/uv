@@ -26,7 +26,7 @@ namespace uv
 		void			readStop(std::error_code &ec);
 		void			readStop();
 		void			write(const char *p, ssize_t len, std::error_code &ec);
-		//´«ÈëµÄpÖ¸Õë±ØÐëÊÇÍ¨¹ýnewµÄ
+		//ä¼ å…¥çš„pæŒ‡é’ˆå¿…é¡»æ˜¯é€šè¿‡newçš„
 		void			write(const char *p, ssize_t len);
 		void			onWrite(const std::function<void(const std::error_code &ec)> &handler);
 		void			shutdown(const std::function<void(const std::error_code &ec)> &handler, std::error_code &ec);
@@ -110,7 +110,7 @@ namespace uv
 		},
 			[](uv_stream_t *handle, ssize_t nread, const uv_buf_t *buff)
 		{
-			std::shared_ptr<char> bytes(buff->base, std::default_delete<char[]>());
+			std::unique_ptr<char[]> bytes(buff->base);
 			auto &stream = *reinterpret_cast<Stream<T> *>(handle->data);
 
 			if (nread < 0) {
@@ -170,7 +170,7 @@ namespace uv
 		auto status = uv_write(&writeHandler->m_handle, reinterpret_cast<uv_stream_t *>(&m_handle),
 			&writeHandler->m_buf, 1, [](uv_write_t *req, int status) {
 			std::unique_ptr<uv::Write> writeHandler(reinterpret_cast<uv::Write *>(req->data));
-			std::unique_ptr<char> bytes(writeHandler->m_buf.base, std::default_delete<char[]>());
+			std::unique_ptr<char[]> bytes(writeHandler->m_buf.base);
 
 			auto &stream = *reinterpret_cast<Stream<T> *>(req->handle->data);
 			stream.m_writeHandler(makeErrorCode(status));
