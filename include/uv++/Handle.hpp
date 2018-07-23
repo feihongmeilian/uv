@@ -4,6 +4,8 @@
 #include <functional>
 
 #include <uv.h>
+
+#include "Loop.hpp"
 #include "Noncopyable.hpp"
 
 namespace uv
@@ -17,6 +19,7 @@ namespace uv
 		void			ref();
 		void			unref();
 		bool			hasRef();
+		uv::Loop		&loop();
 		void			close(const std::function<void()> &handler);
 
 	protected:
@@ -57,6 +60,13 @@ namespace uv
 	inline bool Handle<T>::hasRef()
 	{
 		return uv_has_ref(reinterpret_cast<uv_handle_t *>(&m_handle));
+	}
+
+	template<typename T>
+	inline uv::Loop &Handle<T>::loop()
+	{
+		return *reinterpret_cast<uv::Loop *>(
+			reinterpret_cast<uv_handle_t *>(&m_handle)->loop->data);
 	}
 
 	template<typename T>

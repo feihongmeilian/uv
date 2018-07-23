@@ -3,6 +3,7 @@
 
 #include <functional>
 #include <memory>
+#include <sstream>
 
 #include <uv.h>
 
@@ -26,8 +27,9 @@ namespace uv
 		void			readStop(std::error_code &ec);
 		void			readStop();
 		void			write(const char *p, ssize_t len, std::error_code &ec);
-		//传入的p指针必须是通过new的
 		void			write(const char *p, ssize_t len);
+		void			write(std::stringstream &ss, std::error_code &ec);
+		void			write(std::stringstream &ss);
 		void			onWrite(const std::function<void(const std::error_code &ec)> &handler);
 		void			shutdown(const std::function<void(const std::error_code &ec)> &handler, std::error_code &ec);
 		void			shutdown(const std::function<void(const std::error_code &ec)> &handler);
@@ -35,6 +37,8 @@ namespace uv
 		bool			isWritable();
 		void			setBlocking(bool blocking, std::error_code &ec);
 		void			setBlocking(bool blocking = true);
+	private:
+		void			writeNewArrayAndDeleteIt(const char *p, ssize_t len, std::error_code &ec);
 
     protected:
         using Handle<T>::m_handle;
@@ -161,24 +165,11 @@ namespace uv
 	template<typename T>
 	inline void Stream<T>::write(const char *p, ssize_t len, std::error_code &ec)
 	{
-		auto writeHandler = new (std::nothrow) uv::Write(p, len);
-		if (writeHandler == nullptr) {
-			ec = makeErrorCode(ENOMEM);
-			return;
-		}
+		if (len == 0) return;
 
-		auto status = uv_write(&writeHandler->m_handle, reinterpret_cast<uv_stream_t *>(&m_handle),
-			&writeHandler->m_buf, 1, [](uv_write_t *req, int status) {
-			std::unique_ptr<uv::Write> writeHandler(reinterpret_cast<uv::Write *>(req->data));
-			std::unique_ptr<char[]> bytes(writeHandler->m_buf.base);
-
-			auto &stream = *reinterpret_cast<Stream<T> *>(req->handle->data);
-			stream.m_writeHandler(makeErrorCode(status));
-		});
-
-		if (status != 0) {
-			ec = makeErrorCode(status);
-		}
+		auto sendbuf = new char[len];
+		memcpy_s(sendbuf, len,  p, len);
+		writeNewArrayAndDeleteIt(sendbuf, len, ec);
 	}
 
 	template<typename T>
@@ -187,6 +178,28 @@ namespace uv
 		std::error_code ec;
 
 		write(p, len, ec);
+		if (ec) {
+			throw uv::Exception(ec);
+		}
+	}
+
+	template<typename T>
+	inline void Stream<T>::write(std::stringstream &ss, std::error_code &ec)
+	{
+		auto len = ss.str().length();
+		if (len == 0) return;
+
+		auto sendbuf = new char[len];
+		ss.read(sendbuf, len);
+		writeNewArrayAndDeleteIt(sendbuf, len, ec);
+	}
+
+	template<typename T>
+	inline void Stream<T>::write(std::stringstream &ss)
+	{
+		std::error_code ec;
+
+		write(ss, ec);
 		if (ec) {
 			throw uv::Exception(ec);
 		}
@@ -264,6 +277,29 @@ namespace uv
 		setBlocking(blocking, ec);
 		if (ec) {
 			throw uv::Exception(ec);
+		}
+	}
+
+	template<typename T>
+	inline void Stream<T>::writeNewArrayAndDeleteIt(const char * p, ssize_t len, std::error_code & ec)
+	{
+		auto writeHandler = new (std::nothrow) uv::Write(p, len);
+		if (writeHandler == nullptr) {
+			ec = makeErrorCode(ENOMEM);
+			return;
+		}
+
+		auto status = uv_write(&writeHandler->m_handle, reinterpret_cast<uv_stream_t *>(&m_handle),
+			&writeHandler->m_buf, 1, [](uv_write_t *req, int status) {
+			std::unique_ptr<uv::Write> writeHandler(reinterpret_cast<uv::Write *>(req->data));
+			std::unique_ptr<char[]> bytes(writeHandler->m_buf.base);
+
+			auto &stream = *reinterpret_cast<Stream<T> *>(req->handle->data);
+			stream.m_writeHandler(makeErrorCode(status));
+		});
+
+		if (status != 0) {
+			ec = makeErrorCode(status);
 		}
 	}
 
