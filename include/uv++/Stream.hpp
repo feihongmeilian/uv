@@ -3,6 +3,7 @@
 
 #include <functional>
 #include <memory>
+#include <cstring>
 #include <sstream>
 
 #include <uv.h>
@@ -168,7 +169,7 @@ namespace uv
 		if (len == 0) return;
 
 		auto sendbuf = new char[len];
-		memcpy_s(sendbuf, len,  p, len);
+        std::memcpy(sendbuf, p, len);
 		writeNewArrayAndDeleteIt(sendbuf, len, ec);
 	}
 
