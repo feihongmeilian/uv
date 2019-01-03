@@ -27,7 +27,7 @@ namespace uv
 
 	inline UdpSend::UdpSend()
 	{
-		m_handle.data = this;
+		handle_.data = this;
 	}
 }
 

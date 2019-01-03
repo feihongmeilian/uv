@@ -19,36 +19,36 @@ namespace uv
 	class Stream : public FileHandle<T>
 	{
 	public:
-		void			listen(const std::function<void(const std::error_code &ec)> &handler, int backlog, std::error_code &ec);
-		void			listen(const std::function<void(const std::error_code &ec)> &handler, int backlog = SOMAXCONN);
-		void			accept(uv::Stream<T> &client, std::error_code &ec);
-		void			accept(uv::Stream<T> &client);
-		void			readStart(const std::function<void(char *data, ssize_t len)> &handler, std::error_code &ec);
-		void			readStart(const std::function<void(char *data, ssize_t len)> &handler);
-		void			readStop(std::error_code &ec);
-		void			readStop();
-		void			write(const char *p, ssize_t len, std::error_code &ec);
-		void			write(const char *p, ssize_t len);
-		void			write(std::stringstream &ss, std::error_code &ec);
-		void			write(std::stringstream &ss);
-		void			onWrite(const std::function<void(const std::error_code &ec)> &handler);
-		void			shutdown(const std::function<void(const std::error_code &ec)> &handler, std::error_code &ec);
-		void			shutdown(const std::function<void(const std::error_code &ec)> &handler);
-		bool			isReadable();
-		bool			isWritable();
-		void			setBlocking(bool blocking, std::error_code &ec);
-		void			setBlocking(bool blocking = true);
+		void        listen(const std::function<void(const std::error_code &ec)> &handler, int backlog, std::error_code &ec);
+		void        listen(const std::function<void(const std::error_code &ec)> &handler, int backlog = SOMAXCONN);
+		void        accept(uv::Stream<T> &client, std::error_code &ec);
+		void        accept(uv::Stream<T> &client);
+		void        readStart(const std::function<void(char *data, ssize_t len)> &handler, std::error_code &ec);
+		void        readStart(const std::function<void(char *data, ssize_t len)> &handler);
+		void        readStop(std::error_code &ec);
+		void        readStop();
+		void        write(const char *p, ssize_t len, std::error_code &ec);
+		void        write(const char *p, ssize_t len);
+		void        write(std::stringstream &ss, std::error_code &ec);
+		void        write(std::stringstream &ss);
+		void        onWrite(const std::function<void(const std::error_code &ec)> &handler);
+		void        shutdown(const std::function<void(const std::error_code &ec)> &handler, std::error_code &ec);
+		void        shutdown(const std::function<void(const std::error_code &ec)> &handler);
+		bool        isReadable();
+		bool        isWritable();
+		void        setBlocking(bool blocking, std::error_code &ec);
+		void        setBlocking(bool blocking = true);
 	private:
-		void			writeNewArrayAndDeleteIt(const char *p, ssize_t len, std::error_code &ec);
+		void        writeNewArrayAndDeleteIt(const char *p, ssize_t len, std::error_code &ec);
 
     protected:
-        using Handle<T>::m_handle;
+        using Handle<T>::handle_;
 
 	private:
-		std::function<void(const std::error_code &ec)>	m_listenHandler	= [](const std::error_code &ec) {};
-		std::function<void(const std::error_code &ec)>	m_shutdownHandler	= [](const std::error_code &ec) {};
-		std::function<void(const std::error_code &ec)>	m_writeHandler	= [](const std::error_code &ec) {};
-		std::function<void(char *data, ssize_t len)>	m_readHandler	= [](char *data, ssize_t len) {};
+		std::function<void(const std::error_code &ec)>	listenHandler_	= [](const std::error_code &ec) {};
+		std::function<void(const std::error_code &ec)>	shutdownHandler_	= [](const std::error_code &ec) {};
+		std::function<void(const std::error_code &ec)>	writeHandler_	= [](const std::error_code &ec) {};
+		std::function<void(char *data, ssize_t len)>	readHandler_	= [](char *data, ssize_t len) {};
 		
 	};
 
@@ -59,10 +59,10 @@ namespace uv
 	template<typename T>
 	inline void Stream<T>::listen(const std::function<void(const std::error_code &ec)> &handler, int backlog, std::error_code &ec)
 	{
-		m_listenHandler = handler;
-		auto status = uv_listen(reinterpret_cast<uv_stream_t *>(&m_handle), backlog, [](uv_stream_t *st, int status) {
+		listenHandler_ = handler;
+		auto status = uv_listen(reinterpret_cast<uv_stream_t *>(&handle_), backlog, [](uv_stream_t *st, int status) {
 			auto &stream = *reinterpret_cast<uv::Stream<T> *>(st->data);
-			stream.m_listenHandler(makeErrorCode(status));
+			stream.listenHandler_(makeErrorCode(status));
 		});
 
 		if (status != 0) {
@@ -84,8 +84,8 @@ namespace uv
 	template<typename T>
 	inline void Stream<T>::accept(uv::Stream<T> &client, std::error_code &ec)
 	{
-		auto status = uv_accept(reinterpret_cast<uv_stream_t *>(&m_handle),
-			reinterpret_cast<uv_stream_t *>(&(client.m_handle)));
+		auto status = uv_accept(reinterpret_cast<uv_stream_t *>(&handle_),
+			reinterpret_cast<uv_stream_t *>(&(client.handle_)));
 
 		if (status != 0) {
 			ec = makeErrorCode(status);
@@ -106,8 +106,8 @@ namespace uv
 	template<typename T>
 	inline void Stream<T>::readStart(const std::function<void(char *data, ssize_t len)> &handler, std::error_code &ec)
 	{
-		m_readHandler = handler;
-		auto status = uv_read_start(reinterpret_cast<uv_stream_t *>(&m_handle),
+		readHandler_ = handler;
+		auto status = uv_read_start(reinterpret_cast<uv_stream_t *>(&handle_),
 			[](uv_handle_t* handle, size_t suggested_size, uv_buf_t *buff)
 		{
 			buff->base = new char[suggested_size];
@@ -119,10 +119,10 @@ namespace uv
 			auto &stream = *reinterpret_cast<Stream<T> *>(handle->data);
 
 			if (nread < 0) {
-				stream.m_readHandler(nullptr, nread);
+				stream.readHandler_(nullptr, nread);
 			}				
 			else {
-				stream.m_readHandler(buff->base, nread);
+				stream.readHandler_(buff->base, nread);
 			}
 		});
 
@@ -145,7 +145,7 @@ namespace uv
 	template<typename T>
 	inline void Stream<T>::readStop(std::error_code &ec)
 	{
-		auto status = uv_read_stop(reinterpret_cast<uv_stream_t *>(&m_handle));
+		auto status = uv_read_stop(reinterpret_cast<uv_stream_t *>(&handle_));
 
 		if (status != 0) {
 			ec = makeErrorCode(status);
@@ -209,13 +209,13 @@ namespace uv
 	template<typename T>
 	inline void Stream<T>::onWrite(const std::function<void(const std::error_code &ec)> &handler)
 	{
-		m_writeHandler = handler;
+		writeHandler_ = handler;
 	}
 
 	template<typename T>
 	inline void Stream<T>::shutdown(const std::function<void(const std::error_code &ec)> &handler, std::error_code &ec)
 	{
-		m_shutdownHandler = handler;
+		shutdownHandler_ = handler;
 
 		auto req = new (std::nothrow) Shutdown;
 		if (req == nullptr) {
@@ -223,12 +223,12 @@ namespace uv
 			return;
 		}
 
-		auto status = uv_shutdown(&req->m_handle, reinterpret_cast<uv_stream_t *>(&m_handle),
+		auto status = uv_shutdown(&req->handle_, reinterpret_cast<uv_stream_t *>(&handle_),
 			[](uv_shutdown_t *req, int status) {
 			std::unique_ptr<uv::Shutdown> shutdown(reinterpret_cast<Shutdown *>(req->data));
 			
 			auto &stream = *reinterpret_cast<uv::Stream<T> *>(req->handle->data);
-			stream.m_shutdownHandler(makeErrorCode(status));
+			stream.shutdownHandler_(makeErrorCode(status));
 		});
 
 
@@ -251,19 +251,19 @@ namespace uv
 	template<typename T>
 	inline bool Stream<T>::isReadable()
 	{
-		return uv_is_readable(reinterpret_cast<uv_stream_t *>(&m_handle));
+		return uv_is_readable(reinterpret_cast<uv_stream_t *>(&handle_));
 	}
 
 	template<typename T>
 	inline bool Stream<T>::isWritable()
 	{
-		return uv_is_writable(reinterpret_cast<uv_stream_t *>(&m_handle));
+		return uv_is_writable(reinterpret_cast<uv_stream_t *>(&handle_));
 	}
 
 	template<typename T>
 	inline void Stream<T>::setBlocking(bool blocking, std::error_code &ec)
 	{
-		auto status = uv_stream_set_blocking(reinterpret_cast<uv_stream_t *>(&m_handle), blocking);
+		auto status = uv_stream_set_blocking(reinterpret_cast<uv_stream_t *>(&handle_), blocking);
 
 
 		if (status != 0) {
@@ -290,13 +290,13 @@ namespace uv
 			return;
 		}
 
-		auto status = uv_write(&writeHandler->m_handle, reinterpret_cast<uv_stream_t *>(&m_handle),
-			&writeHandler->m_buf, 1, [](uv_write_t *req, int status) {
+		auto status = uv_write(&writeHandler->handle_, reinterpret_cast<uv_stream_t *>(&handle_),
+			&writeHandler->buf_, 1, [](uv_write_t *req, int status) {
 			std::unique_ptr<uv::Write> writeHandler(reinterpret_cast<uv::Write *>(req->data));
-			std::unique_ptr<char[]> bytes(writeHandler->m_buf.base);
+			std::unique_ptr<char[]> bytes(writeHandler->buf_.base);
 
 			auto &stream = *reinterpret_cast<Stream<T> *>(req->handle->data);
-			stream.m_writeHandler(makeErrorCode(status));
+			stream.writeHandler_(makeErrorCode(status));
 		});
 
 		if (status != 0) {

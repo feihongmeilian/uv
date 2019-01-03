@@ -32,13 +32,13 @@ namespace uv
 
 	inline Tty::Tty()
 	{
-		m_handle.data = this;
+		handle_.data = this;
 	}
 
 
 	inline void Tty::init(uv::Loop &loop, uv_file fd, int readable, std::error_code &ec)
 	{
-		auto status = uv_tty_init(loop.value(), &m_handle, fd, readable);
+		const auto status = uv_tty_init(loop.value(), &handle_, fd, readable);
 
 		if (status != 0) {
 			ec = makeErrorCode(status);
@@ -56,7 +56,7 @@ namespace uv
 	}
 	inline void Tty::setMode(uv_tty_mode_t mode, std::error_code &ec)
 	{
-		auto status = uv_tty_set_mode(&m_handle, mode);
+		const auto status = uv_tty_set_mode(&handle_, mode);
 
 		if (status != 0) {
 			ec = makeErrorCode(status);
@@ -75,7 +75,7 @@ namespace uv
 
 	inline void Tty::resetMode(std::error_code &ec)
 	{
-		auto status = uv_tty_reset_mode();
+		const auto status = uv_tty_reset_mode();
 
 		if (status != 0) {
 			ec = makeErrorCode(status);
@@ -94,7 +94,7 @@ namespace uv
 
 	inline void Tty::getWinsize(int &width, int &height, std::error_code &ec)
 	{
-		auto status = uv_tty_get_winsize(&m_handle, &width, &height);
+		const auto status = uv_tty_get_winsize(&handle_, &width, &height);
 
 		if (status != 0) {
 			ec = makeErrorCode(status);

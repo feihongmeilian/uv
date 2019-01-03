@@ -16,16 +16,16 @@ namespace uv
 	class GetAddrInfo : public Req<uv_getaddrinfo_t>
 	{
 	public:
-		explicit		GetAddrInfo(uv::Loop &loop);
-		void			get(const std::string &node, const std::string &service, const struct addrinfo &hints,
+		explicit    GetAddrInfo(uv::Loop &loop);
+		void        get(const std::string &node, const std::string &service, const struct addrinfo &hints,
 						const std::function<void(const std::error_code &ec, struct addrinfo *res)> &handler, std::error_code &ec);
-		void			get(const std::string &node, const std::string &service, const struct addrinfo &hints,
+		void        get(const std::string &node, const std::string &service, const struct addrinfo &hints,
 						const std::function<void(const std::error_code &ec, struct addrinfo *res)> &handler);
 		
-		static void		freeaddrinfo(struct addrinfo *ai);
+		static void freeaddrinfo(struct addrinfo *ai);
 	private:
-		uv::Loop		&m_loop;
-		std::function<void(const std::error_code &ec, struct addrinfo *res)> m_callbackHandler
+		uv::Loop    &loop_;
+		std::function<void(const std::error_code &ec, struct addrinfo *res)> callbackHandler_
 			= [] (const std::error_code &ec,struct addrinfo *) {};
 	};
 
@@ -34,18 +34,18 @@ namespace uv
 
 
 	inline GetAddrInfo::GetAddrInfo(uv::Loop &loop)
-		: m_loop(loop)
+		: loop_(loop)
 	{
-		m_handle.data = this;
+		handle_.data = this;
 	}
 
 	inline void GetAddrInfo::get(const std::string &node, const std::string &service, const struct addrinfo &hints,
 		const std::function<void(const std::error_code &ecr, struct addrinfo *res)> &handler, std::error_code &ec)
 	{
-		m_callbackHandler = handler;
-		auto status = uv_getaddrinfo(m_loop.value(), &m_handle, [](uv_getaddrinfo_t* req, int status, struct addrinfo *res) {
+		callbackHandler_ = handler;
+		auto status = uv_getaddrinfo(loop_.value(), &handle_, [](uv_getaddrinfo_t* req, int status, struct addrinfo *res) {
 			auto &addr = *reinterpret_cast<uv::GetAddrInfo *>(req->data);
-			addr.m_callbackHandler(makeErrorCode(status), res);
+			addr.callbackHandler_(makeErrorCode(status), res);
 		}, node.c_str(), service.c_str(), &hints);
 
 		if (status != 0) {

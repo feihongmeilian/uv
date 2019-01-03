@@ -10,13 +10,13 @@ namespace uv
 	class Barrier : public Noncopyable
 	{
 	public:
-		explicit		Barrier(unsigned int count);
+		explicit    Barrier(unsigned int count);
 		~Barrier();
 
-		int			wait();
+		int         wait();
 
 	private:
-		uv_barrier_t	m_handle;
+		uv_barrier_t	handle_;
 	};
 
 
@@ -25,17 +25,17 @@ namespace uv
 
 	inline Barrier::Barrier(unsigned int count)
 	{
-		uv_barrier_init(&m_handle, count);
+		uv_barrier_init(&handle_, count);
 	}
 
 	inline Barrier::~Barrier()
 	{
-		uv_barrier_destroy(&m_handle);
+		uv_barrier_destroy(&handle_);
 	}
 
 	inline int Barrier::wait()
 	{
-		return uv_barrier_wait(&m_handle);
+		return uv_barrier_wait(&handle_);
 	}
 }
 

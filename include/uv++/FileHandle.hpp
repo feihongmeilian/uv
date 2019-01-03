@@ -17,7 +17,7 @@ namespace uv
 		void			fileno(uv_os_fd_t &fd);
 
     protected:
-        using Handle<T>::m_handle;
+        using Handle<T>::handle_;
 	};
 
 

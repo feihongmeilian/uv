@@ -13,14 +13,14 @@ namespace uv
 		Rwlock();
 		~Rwlock();
 
-		void			rdlock();
-		int			tryrdlock();
-		void			rdunlock();
-		void			wrlock();
-		int			trywrlock();
-		void			wrunlock();
+		void        rdlock();
+		int         tryrdlock();
+		void        rdunlock();
+		void        wrlock();
+		int         trywrlock();
+		void        wrunlock();
 	private:
-		uv_rwlock_t	m_handle;
+		uv_rwlock_t	handle_;
 	};
 
 
@@ -29,42 +29,42 @@ namespace uv
 
 	inline Rwlock::Rwlock()
 	{
-		uv_rwlock_init(&m_handle);
+		uv_rwlock_init(&handle_);
 	}
 
 	inline Rwlock::~Rwlock()
 	{
-		uv_rwlock_destroy(&m_handle);
+		uv_rwlock_destroy(&handle_);
 	}
 
 	inline void Rwlock::rdlock()
 	{
-		uv_rwlock_rdlock(&m_handle);
+		uv_rwlock_rdlock(&handle_);
 	}
 	
 	inline int Rwlock::tryrdlock()
 	{
-		return uv_rwlock_tryrdlock(&m_handle);
+		return uv_rwlock_tryrdlock(&handle_);
 	}
 
 	inline void Rwlock::rdunlock()
 	{
-		uv_rwlock_rdunlock(&m_handle);
+		uv_rwlock_rdunlock(&handle_);
 	}
 
 	inline void Rwlock::wrlock()
 	{
-		uv_rwlock_wrlock(&m_handle);
+		uv_rwlock_wrlock(&handle_);
 	}
 
 	inline int Rwlock::trywrlock()
 	{
-		return uv_rwlock_trywrlock(&m_handle);
+		return uv_rwlock_trywrlock(&handle_);
 	}
 
 	inline void Rwlock::wrunlock()
 	{
-		uv_rwlock_wrunlock(&m_handle);
+		uv_rwlock_wrunlock(&handle_);
 	}
 }
 

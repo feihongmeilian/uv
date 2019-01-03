@@ -17,15 +17,15 @@ namespace uv
 	public:
 		Check();
 
-		void			init(uv::Loop &loop, std::error_code &ec);
-		void			init(uv::Loop &loop);
-		void			start(const std::function<void()> &handler, std::error_code &ec);
-		void			start(const std::function<void()> &handler);
-		void			stop(std::error_code &ec);
-		void			stop();
+		void        init(uv::Loop &loop, std::error_code &ec);
+		void        init(uv::Loop &loop);
+		void        start(const std::function<void()> &handler, std::error_code &ec);
+		void        start(const std::function<void()> &handler);
+		void        stop(std::error_code &ec);
+		void        stop();
 
 	private:
-		std::function<void()>	m_startHandler = []() {};
+		std::function<void()>	startHandler_ = []() {};
 	};
 
 
@@ -34,12 +34,12 @@ namespace uv
 
 	inline Check::Check()
 	{
-		m_handle.data = this;
+		handle_.data = this;
 	}
 
 	inline void Check::init(uv::Loop &loop, std::error_code &ec)
 	{
-		auto status = uv_check_init(loop.value(), &m_handle);
+		auto status = uv_check_init(loop.value(), &handle_);
 
 		if (status != 0) {
 			ec = makeErrorCode(status);
@@ -58,10 +58,10 @@ namespace uv
 
 	inline void Check::start(const std::function<void()> &handler, std::error_code &ec)
 	{
-		m_startHandler = handler;
-		auto status = uv_check_start(&m_handle, [](uv_check_t *handle) {
+		startHandler_ = handler;
+		auto status = uv_check_start(&handle_, [](uv_check_t *handle) {
 			auto &check = *reinterpret_cast<uv::Check *>(handle->data);
-			check.m_startHandler();
+			check.startHandler_();
 		});
 
 		if (status != 0) {
@@ -81,7 +81,7 @@ namespace uv
 
 	inline void Check::stop(std::error_code &ec)
 	{
-		auto status = uv_check_stop(&m_handle);
+		auto status = uv_check_stop(&handle_);
 
 		if (status != 0) {
 			ec = makeErrorCode(status);

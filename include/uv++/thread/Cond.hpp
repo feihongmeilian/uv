@@ -14,12 +14,12 @@ namespace uv
 		Cond();
 		~Cond();
 
-		void			signal();
-		void			broadcast();
-		void			wait(uv::Mutex &mutex);
-		int			timedwait(uv::Mutex &mutex, uint64_t timeout);
+		void        signal();
+		void        broadcast();
+		void        wait(uv::Mutex &mutex);
+		int         timedwait(uv::Mutex &mutex, uint64_t timeout);
 	private:
-		uv_cond_t	m_handle;
+		uv_cond_t   handle_;
 	};
 
 
@@ -28,32 +28,32 @@ namespace uv
 
 	inline Cond::Cond()
 	{
-		uv_cond_init(&m_handle);
+		uv_cond_init(&handle_);
 	}
 
 	inline Cond::~Cond()
 	{
-		uv_cond_destroy(&m_handle);
+		uv_cond_destroy(&handle_);
 	}
 
 	inline void Cond::signal()
 	{
-		uv_cond_signal(&m_handle);
+		uv_cond_signal(&handle_);
 	}
 
 	inline void Cond::broadcast()
 	{
-		uv_cond_broadcast(&m_handle);
+		uv_cond_broadcast(&handle_);
 	}
 
 	inline void Cond::wait(uv::Mutex &mutex)
 	{
-		uv_cond_wait(&m_handle, &mutex.m_handle);
+		uv_cond_wait(&handle_, &mutex.handle_);
 	}
 
 	inline int Cond::timedwait(uv::Mutex &mutex, uint64_t timeout)
 	{
-		return uv_cond_timedwait(&m_handle, &mutex.m_handle, timeout);
+		return uv_cond_timedwait(&handle_, &mutex.handle_, timeout);
 	}
 }
 

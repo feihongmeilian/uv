@@ -15,19 +15,19 @@ namespace uv
     public:
 		Timer();
 
-		void			init(uv::Loop &loop, std::error_code &ec);
-		void			init(uv::Loop &loop);
-		void			start(const std::function<void()> &handler, uint64_t timeout, uint64_t repeat, std::error_code &ec);
-		void			start(const std::function<void()> &handler, uint64_t timeout, uint64_t repeat);
-		void			stop(std::error_code &ec);
-		void			stop();
-		void			again(std::error_code &ec);
-		void			again();
-		void			setRepeat(uint64_t repeat);
-		uint64_t		getRepeat() const;
+		void        init(uv::Loop &loop, std::error_code &ec);
+		void        init(uv::Loop &loop);
+		void        start(const std::function<void()> &handler, uint64_t timeout, uint64_t repeat, std::error_code &ec);
+		void        start(const std::function<void()> &handler, uint64_t timeout, uint64_t repeat);
+		void        stop(std::error_code &ec);
+		void        stop();
+		void        again(std::error_code &ec);
+		void        again();
+		void        setRepeat(uint64_t repeat);
+		uint64_t    getRepeat() const;
 
 	private:
-        std::function<void ()>	m_startHandler = []() {};
+        std::function<void ()>	startHandler_ = []() {};
     };
 
 
@@ -36,12 +36,12 @@ namespace uv
 
 	inline Timer::Timer()
 	{
-		m_handle.data = this;
+		handle_.data = this;
 	}
 
 	inline void Timer::init(uv::Loop &loop, std::error_code &ec)
 	{
-		auto status = uv_timer_init(loop.value(), &m_handle);
+		auto status = uv_timer_init(loop.value(), &handle_);
 
 		if (status != 0) {
 			ec = makeErrorCode(status);
@@ -60,10 +60,10 @@ namespace uv
 
 	inline void Timer::start(const std::function<void()> &handler, uint64_t timeout, uint64_t repeat, std::error_code &ec)
 	{
-		m_startHandler = handler;
-		auto status = uv_timer_start(&m_handle, [](uv_timer_t *handle) {
+		startHandler_ = handler;
+		auto status = uv_timer_start(&handle_, [](uv_timer_t *handle) {
 			auto &timer = *reinterpret_cast<uv::Timer *>(handle->data);
-			timer.m_startHandler();
+			timer.startHandler_();
 		}, timeout, repeat);
 
 		if (status != 0) {
@@ -83,7 +83,7 @@ namespace uv
 
 	inline void Timer::stop(std::error_code &ec)
 	{
-		auto status = uv_timer_stop(&m_handle);
+		auto status = uv_timer_stop(&handle_);
 
 		if (status != 0) {
 			ec = makeErrorCode(status);
@@ -102,7 +102,7 @@ namespace uv
 
 	inline void Timer::again(std::error_code &ec)
 	{
-		auto status = uv_timer_again(&m_handle);
+		auto status = uv_timer_again(&handle_);
 
 		if (status != 0) {
 			ec = makeErrorCode(status);
@@ -121,12 +121,12 @@ namespace uv
 
 	inline void Timer::setRepeat(uint64_t repeat)
 	{
-		uv_timer_set_repeat(&m_handle, repeat);
+		uv_timer_set_repeat(&handle_, repeat);
 	}
 
 	inline uint64_t Timer::getRepeat() const
 	{
-		return uv_timer_get_repeat(&m_handle);
+		return uv_timer_get_repeat(&handle_);
 	}
 }
 

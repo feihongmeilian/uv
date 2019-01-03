@@ -10,14 +10,14 @@ namespace uv
 	class Sem : public Noncopyable
 	{
 	public:
-		explicit		Sem(unsigned int value);
+		explicit    Sem(unsigned int value);
 		~Sem();
 
-		void			post();
-		void			wait();
-		int			trywait();
+		void        post();
+		void        wait();
+		int         trywait();
 	private:
-		uv_sem_t		m_handle;
+		uv_sem_t    handle_;
 	};
 
 
@@ -26,27 +26,27 @@ namespace uv
 
 	inline Sem::Sem(unsigned int value)
 	{
-		uv_sem_init(&m_handle, value);
+		uv_sem_init(&handle_, value);
 	}
 
 	inline Sem::~Sem()
 	{
-		uv_sem_destroy(&m_handle);
+		uv_sem_destroy(&handle_);
 	}
 
 	inline void Sem::post()
 	{
-		uv_sem_post(&m_handle);
+		uv_sem_post(&handle_);
 	}
 
 	inline void Sem::wait()
 	{
-		uv_sem_wait(&m_handle);
+		uv_sem_wait(&handle_);
 	}
 
 	inline int Sem::trywait()
 	{
-		return uv_sem_trywait(&m_handle);
+		return uv_sem_trywait(&handle_);
 	}
 }
 

@@ -17,15 +17,15 @@ namespace uv
 	public:
 		Idle();
 
-		void			init(uv::Loop &loop, std::error_code &ec);
-		void			init(uv::Loop &loop);
-		void			start(const std::function<void()> &handler, std::error_code &ec);
-		void			start(const std::function<void()> &handler);
-		void			stop(std::error_code &ec);
-		void			stop();
+		void        init(uv::Loop &loop, std::error_code &ec);
+		void        init(uv::Loop &loop);
+		void        start(const std::function<void()> &handler, std::error_code &ec);
+		void        start(const std::function<void()> &handler);
+		void        stop(std::error_code &ec);
+		void        stop();
 
 	private:
-		std::function<void()>	m_startHandler = []() {};
+		std::function<void()>	startHandler_ = []() {};
 	};
 
 
@@ -34,12 +34,12 @@ namespace uv
 
 	inline Idle::Idle()
 	{
-		m_handle.data = this;
+		handle_.data = this;
 	}
 
 	inline void Idle::init(uv::Loop &loop, std::error_code &ec)
 	{
-		auto status = uv_idle_init(loop.value(), &m_handle);
+		const auto status = uv_idle_init(loop.value(), &handle_);
 
 		if (status != 0) {
 			ec = makeErrorCode(status);
@@ -58,10 +58,10 @@ namespace uv
 
 	inline void Idle::start(const std::function<void()> &handler, std::error_code &ec)
 	{
-		m_startHandler = handler;
-		auto status = uv_idle_start(&m_handle, [](uv_idle_t *handle) {
+		startHandler_ = handler;
+		auto status = uv_idle_start(&handle_, [](uv_idle_t *handle) {
 			auto &idle = *reinterpret_cast<uv::Idle *>(handle->data);
-			idle.m_startHandler();
+			idle.startHandler_();
 		});
 
 		if (status != 0) {
@@ -81,7 +81,7 @@ namespace uv
 
 	inline void Idle::stop(std::error_code &ec)
 	{
-		auto status = uv_idle_stop(&m_handle);
+		const auto status = uv_idle_stop(&handle_);
 
 		if (status != 0) {
 			ec = makeErrorCode(status);

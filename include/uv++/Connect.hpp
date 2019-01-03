@@ -26,7 +26,7 @@ namespace uv
 
 	inline Connect::Connect()
 	{
-		m_handle.data = this;
+		handle_.data = this;
 	}
 }
 

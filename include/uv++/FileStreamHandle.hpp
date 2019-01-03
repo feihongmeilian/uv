@@ -19,7 +19,7 @@ namespace uv
 		void			recvBufferSize(int &value);
 
     protected:
-        using Handle<T>::m_handle;
+        using Handle<T>::handle_;
 	};
 
 

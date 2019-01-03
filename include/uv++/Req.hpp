@@ -17,7 +17,7 @@ namespace uv
 		void		cancel();
 
 	protected:
-		T			m_handle;
+		T			handle_;
 	};
 
 
@@ -26,7 +26,7 @@ namespace uv
 	template<typename T>
 	inline void Req<T>::cancel(std::error_code &ec)
 	{
-		auto status = uv_cancel(reinterpret_cast<uv_req_t *>(&m_handle));
+		const auto status = uv_cancel(reinterpret_cast<uv_req_t *>(&handle_));
 
 		if (status != 0) {
 			ec = makeErrorCode(status);

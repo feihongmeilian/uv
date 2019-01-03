@@ -17,15 +17,15 @@ namespace uv
 	public:
 		Prepare();
 
-		void			init(uv::Loop &loop, std::error_code &ec);
-		void			init(uv::Loop &loop);
-		void			start(const std::function<void()> &handler, std::error_code &ec);
-		void			start(const std::function<void()> &handler);
-		void			stop(std::error_code &ec);
-		void			stop();
+		void        init(uv::Loop &loop, std::error_code &ec);
+		void        init(uv::Loop &loop);
+		void        start(const std::function<void()> &handler, std::error_code &ec);
+		void        start(const std::function<void()> &handler);
+		void        stop(std::error_code &ec);
+		void        stop();
 
 	private:
-		std::function<void()>	m_startHandler = []() {};
+		std::function<void()>	startHandler_ = []() {};
 	};
 
 
@@ -34,12 +34,12 @@ namespace uv
 
 	inline Prepare::Prepare()
 	{
-		m_handle.data = this;
+		handle_.data = this;
 	}
 
 	inline void Prepare::init(uv::Loop &loop, std::error_code &ec)
 	{
-		auto status = uv_prepare_init(loop.value(), &m_handle);
+		auto status = uv_prepare_init(loop.value(), &handle_);
 
 		if (status != 0) {
 			ec = makeErrorCode(status);
@@ -58,10 +58,10 @@ namespace uv
 
 	inline void Prepare::start(const std::function<void()> &handler, std::error_code &ec)
 	{
-		m_startHandler = handler;
-		auto status = uv_prepare_start(&m_handle, [](uv_prepare_t *handle) {
+		startHandler_ = handler;
+		auto status = uv_prepare_start(&handle_, [](uv_prepare_t *handle) {
 			auto &prepare = *reinterpret_cast<uv::Prepare *>(handle->data);
-			prepare.m_startHandler();
+			prepare.startHandler_();
 		});
 
 		if (status != 0) {
@@ -81,7 +81,7 @@ namespace uv
 
 	inline void Prepare::stop(std::error_code &ec)
 	{
-		auto status = uv_prepare_stop(&m_handle);
+		auto status = uv_prepare_stop(&handle_);
 
 		if (status != 0) {
 			ec = makeErrorCode(status);

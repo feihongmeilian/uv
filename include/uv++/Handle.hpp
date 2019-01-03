@@ -14,18 +14,18 @@ namespace uv
 	class Handle : public Noncopyable
 	{
 	public:
-		bool			isActive();
-		bool			isClosing();
-		void			ref();
-		void			unref();
-		bool			hasRef();
-		uv::Loop		&loop();
-		void			close(const std::function<void()> &handler);
+		bool        isActive();
+		bool        isClosing();
+		void        ref();
+		void        unref();
+		bool        hasRef();
+		uv::Loop    &loop();
+		void        close(const std::function<void()> &handler);
 
 	protected:
-		T			m_handle;
+		T			handle_;
 
-		std::function<void()> m_closeHandler = []() {};
+		std::function<void()> closeHandler_ = []() {};
 	};
 	
 
@@ -35,47 +35,47 @@ namespace uv
 	template<typename T>
 	inline bool Handle<T>::isActive()
 	{
-		return uv_is_active(reinterpret_cast<uv_handle_t *>(&m_handle));
+		return uv_is_active(reinterpret_cast<uv_handle_t *>(&handle_));
 	}
 
 	template<typename T>
 	inline bool Handle<T>::isClosing()
 	{
-		return uv_is_closing(reinterpret_cast<uv_handle_t *>(&m_handle));
+		return uv_is_closing(reinterpret_cast<uv_handle_t *>(&handle_));
 	}
 
 	template<typename T>
 	inline void Handle<T>::ref()
 	{
-		uv_ref(reinterpret_cast<uv_handle_t *>(&m_handle));
+		uv_ref(reinterpret_cast<uv_handle_t *>(&handle_));
 	}
 
 	template<typename T>
 	inline void Handle<T>::unref()
 	{
-		uv_unref(reinterpret_cast<uv_handle_t *>(&m_handle));
+		uv_unref(reinterpret_cast<uv_handle_t *>(&handle_));
 	}
 
 	template<typename T>
 	inline bool Handle<T>::hasRef()
 	{
-		return uv_has_ref(reinterpret_cast<uv_handle_t *>(&m_handle));
+		return uv_has_ref(reinterpret_cast<uv_handle_t *>(&handle_));
 	}
 
 	template<typename T>
 	inline uv::Loop &Handle<T>::loop()
 	{
 		return *reinterpret_cast<uv::Loop *>(
-			reinterpret_cast<uv_handle_t *>(&m_handle)->loop->data);
+			reinterpret_cast<uv_handle_t *>(&handle_)->loop->data);
 	}
 
 	template<typename T>
 	inline void Handle<T>::close(const std::function<void()> &handler)
 	{
-		m_closeHandler = handler;
-		uv_close(reinterpret_cast<uv_handle_t *>(&m_handle), [](uv_handle_t *h) {
+		closeHandler_ = handler;
+		uv_close(reinterpret_cast<uv_handle_t *>(&handle_), [](uv_handle_t *h) {
 			auto &handle = *reinterpret_cast<uv::Handle<T> *>(h->data);
-			handle.m_closeHandler();
+			handle.closeHandler_();
 		});
 	}
 }

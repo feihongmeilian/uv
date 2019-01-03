@@ -19,36 +19,36 @@ namespace uv
 	public:
 		Udp();
 
-		void			init(uv::Loop &loop, std::error_code &ec);
-		void			init(uv::Loop &loop);
-		void			init(uv::Loop &loop, unsigned int flags, std::error_code &ec);
-		void			init(uv::Loop &loop, unsigned int flags);
-		void			open(uv_os_sock_t sock, std::error_code &ec);
-		void			open(uv_os_sock_t sock);
-		void			bind(const struct sockaddr &addr, unsigned int flags, std::error_code &ec);
-		void			bind(const struct sockaddr &addr, unsigned int flags);
-		void			getsockname(struct sockaddr &name, int &namelen, std::error_code &ec) const;
-		void			getsockname(struct sockaddr &name, int &namelen) const;
-		void			setMembership(const std::string &multicast_addr, const std::string &interface_addr,
-							uv_membership membership, std::error_code &ec);
-		void			setMembership(const std::string &multicast_addr,
-							const std::string &interface_addr, uv_membership membership);
-		void			setMulticastLoop(int on, std::error_code &ec);
-		void			setMulticastLoop(int on);
-		void			setMulticastTtl(int ttl, std::error_code &ec);
-		void			setMulticastTtl(int ttl);
-		void			setMulticastInterface(const std::string &interface_addr, std::error_code &ec);
-		void			setMulticastInterface(const std::string &interface_addr);
-		void			setBroadcast(int on, std::error_code &ec);
-		void			setBroadcast(int on);
-		void			setTtl(int ttl, std::error_code &ec);
-		void			setTtl(int ttl);
+		void        init(uv::Loop &loop, std::error_code &ec);
+		void        init(uv::Loop &loop);
+		void        init(uv::Loop &loop, unsigned int flags, std::error_code &ec);
+		void        init(uv::Loop &loop, unsigned int flags);
+		void        open(uv_os_sock_t sock, std::error_code &ec);
+		void        open(uv_os_sock_t sock);
+		void        bind(const struct sockaddr &addr, unsigned int flags, std::error_code &ec);
+		void        bind(const struct sockaddr &addr, unsigned int flags);
+		void        getsockname(struct sockaddr &name, int &namelen, std::error_code &ec) const;
+		void        getsockname(struct sockaddr &name, int &namelen) const;
+		void        setMembership(const std::string &multicast_addr, const std::string &interface_addr,
+			            uv_membership membership, std::error_code &ec);
+		void        setMembership(const std::string &multicast_addr,
+			            const std::string &interface_addr, uv_membership membership);
+		void        setMulticastLoop(int on, std::error_code &ec);
+		void        setMulticastLoop(int on);
+		void        setMulticastTtl(int ttl, std::error_code &ec);
+		void        setMulticastTtl(int ttl);
+		void        setMulticastInterface(const std::string &interface_addr, std::error_code &ec);
+		void        setMulticastInterface(const std::string &interface_addr);
+		void        setBroadcast(int on, std::error_code &ec);
+		void        setBroadcast(int on);
+		void        setTtl(int ttl, std::error_code &ec);
+		void        setTtl(int ttl);
 
-		void			recvStop(std::error_code &ec);
-		void			recvStop();
+		void        recvStop(std::error_code &ec);
+		void        recvStop();
 
 	private:
-		uv::UdpSend	m_udpSend;
+		uv::UdpSend	udpSend_;
 	};
 
 
@@ -57,13 +57,13 @@ namespace uv
 
 	inline Udp::Udp()
 	{
-		m_handle.data = this;
+		handle_.data = this;
 	}
 
 
 	inline void Udp::init(uv::Loop &loop, std::error_code &ec)
 	{
-		auto status = uv_udp_init(loop.value(), &m_handle);
+		const auto status = uv_udp_init(loop.value(), &handle_);
 
 		if (status != 0) {
 			ec = makeErrorCode(status);
@@ -82,7 +82,7 @@ namespace uv
 
 	inline void Udp::init(uv::Loop &loop, unsigned int flags, std::error_code &ec)
 	{
-		auto status = uv_udp_init_ex(loop.value(), &m_handle, flags);
+		const auto status = uv_udp_init_ex(loop.value(), &handle_, flags);
 
 		if (status != 0) {
 			ec = makeErrorCode(status);
@@ -101,7 +101,7 @@ namespace uv
 
 	inline void Udp::open(uv_os_sock_t sock, std::error_code &ec)
 	{
-		auto status = uv_udp_open(&m_handle, sock);
+		const auto status = uv_udp_open(&handle_, sock);
 
 		if (status != 0) {
 			ec = makeErrorCode(status);
@@ -120,7 +120,7 @@ namespace uv
 
 	inline void Udp::bind(const struct sockaddr &addr, unsigned int flags, std::error_code &ec)
 	{
-		auto status = uv_udp_bind(&m_handle, &addr, flags);
+		const auto status = uv_udp_bind(&handle_, &addr, flags);
 
 		if (status != 0) {
 			ec = makeErrorCode(status);
@@ -139,7 +139,7 @@ namespace uv
 
 	inline void Udp::getsockname(struct sockaddr &name, int &namelen, std::error_code &ec) const
 	{
-		auto status = uv_udp_getsockname(&m_handle, &name, &namelen);
+		const auto status = uv_udp_getsockname(&handle_, &name, &namelen);
 
 		if (status != 0) {
 			ec = makeErrorCode(status);
@@ -159,7 +159,7 @@ namespace uv
 	inline void Udp::setMembership(const std::string &multicast_addr,
 		const std::string &interface_addr, uv_membership membership, std::error_code &ec)
 	{
-		auto status = uv_udp_set_membership(&m_handle, multicast_addr.c_str(),
+		const auto status = uv_udp_set_membership(&handle_, multicast_addr.c_str(),
 				interface_addr.c_str(), membership);
 
 		if (status != 0) {
@@ -180,7 +180,7 @@ namespace uv
 
 	inline void Udp::setMulticastLoop(int on, std::error_code &ec)
 	{
-		auto status = uv_udp_set_multicast_loop(&m_handle, on);
+		const auto status = uv_udp_set_multicast_loop(&handle_, on);
 
 		if (status != 0) {
 			ec = makeErrorCode(status);
@@ -199,7 +199,7 @@ namespace uv
 
 	inline void Udp::setMulticastTtl(int ttl, std::error_code &ec)
 	{
-		auto status = uv_udp_set_multicast_ttl(&m_handle, ttl);
+		const auto status = uv_udp_set_multicast_ttl(&handle_, ttl);
 
 		if (status != 0) {
 			ec = makeErrorCode(status);
@@ -218,7 +218,7 @@ namespace uv
 
 	inline void Udp::setMulticastInterface(const std::string &interface_addr, std::error_code &ec)
 	{
-		auto status = uv_udp_set_multicast_interface(&m_handle, interface_addr.c_str());
+		const auto status = uv_udp_set_multicast_interface(&handle_, interface_addr.c_str());
 
 		if (status != 0) {
 			ec = makeErrorCode(status);
@@ -237,7 +237,7 @@ namespace uv
 
 	inline void Udp::setBroadcast(int on, std::error_code &ec)
 	{
-		auto status = uv_udp_set_broadcast(&m_handle, on);
+		const auto status = uv_udp_set_broadcast(&handle_, on);
 
 		if (status != 0) {
 			ec = makeErrorCode(status);
@@ -256,7 +256,7 @@ namespace uv
 
 	inline void Udp::setTtl(int ttl, std::error_code &ec)
 	{
-		auto status = uv_udp_set_ttl(&m_handle, ttl);
+		const auto status = uv_udp_set_ttl(&handle_, ttl);
 
 		if (status != 0) {
 			ec = makeErrorCode(status);
@@ -275,7 +275,7 @@ namespace uv
 
 	inline void Udp::recvStop(std::error_code &ec)
 	{
-		auto status = uv_udp_recv_stop(&m_handle);
+		const auto status = uv_udp_recv_stop(&handle_);
 
 		if (status != 0) {
 			ec = makeErrorCode(status);

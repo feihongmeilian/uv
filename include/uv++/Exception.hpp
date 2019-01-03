@@ -14,27 +14,27 @@ namespace uv
 	{
 	public:
 		Exception(const std::string  &msg, std::error_code ec = makeErrorCode(0))
-			: m_msg(msg.empty() ? ec.message() : msg), m_code(ec)
+			: msg_(msg.empty() ? ec.message() : msg), code_(ec)
 		{}
 
 		explicit Exception(std::error_code ec)
-			: m_msg(ec.message()), m_code(ec)
+			: msg_(ec.message()), code_(ec)
 		{}
 
 		~Exception() throw() {}
 
 		virtual char const * what() const throw()
 		{
-			return m_msg.c_str();
+			return msg_.c_str();
 		}
 
 		std::error_code code() const throw()
 		{
-			return m_code;
+			return code_;
 		}
 
-		const std::string m_msg;
-		std::error_code m_code;
+		const std::string msg_;
+		std::error_code code_;
 	};
 }
 

@@ -17,15 +17,15 @@ namespace uv
     public:
 		Signal();
 
-		void			init(uv::Loop &loop, std::error_code &ec);
-		void			init(uv::Loop &loop);
-		void			start(const std::function<void(int signum)> &handler, int sigNum, std::error_code &ec);
-		void			start(const std::function<void(int signum)> &handler, int sigNum);
-		void			stop(std::error_code &ec);
-		void			stop();
+		void        init(uv::Loop &loop, std::error_code &ec);
+		void        init(uv::Loop &loop);
+		void        start(const std::function<void(int signum)> &handler, int sigNum, std::error_code &ec);
+		void        start(const std::function<void(int signum)> &handler, int sigNum);
+		void        stop(std::error_code &ec);
+		void        stop();
 
 	private:
-        std::function<void(int signum)>	m_startHandler = [](int signum) {};
+        std::function<void(int signum)>	startHandler_ = [](int signum) {};
     };
 
 
@@ -34,12 +34,12 @@ namespace uv
 
 	inline Signal::Signal()
 	{
-		m_handle.data = this;
+		handle_.data = this;
 	}
 
 	inline void Signal::init(uv::Loop &loop, std::error_code &ec)
 	{
-		auto status = uv_signal_init(loop.value(), &m_handle);
+		auto status = uv_signal_init(loop.value(), &handle_);
 
 		if (status != 0) {
 			ec = makeErrorCode(status);
@@ -58,10 +58,10 @@ namespace uv
 
 	inline void Signal::start(const std::function<void(int signum)> &handler, int sigNum, std::error_code &ec)
 	{
-		m_startHandler = handler;
-		auto status = uv_signal_start(&m_handle, [](uv_signal_t *handle, int num) {
+		startHandler_ = handler;
+		auto status = uv_signal_start(&handle_, [](uv_signal_t *handle, int num) {
 			auto &signal = *reinterpret_cast<uv::Signal *>(handle->data);
-			signal.m_startHandler(num);
+			signal.startHandler_(num);
 		}, sigNum);
 
 		if (status != 0) {
@@ -81,7 +81,7 @@ namespace uv
 
 	inline void Signal::stop(std::error_code &ec)
 	{
-		auto status = uv_signal_stop(&m_handle);
+		auto status = uv_signal_stop(&handle_);
 
 		if (status != 0) {
 			ec = makeErrorCode(status);

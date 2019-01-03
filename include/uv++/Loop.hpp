@@ -15,30 +15,30 @@ namespace uv
 		Loop() = default;
 		~Loop();
 
-		void			init(bool is_default, std::error_code &ec);
-		void			init(bool is_default = false);
-		void			run(std::error_code &ec);
-		void			run();
-        void			runOnce(std::error_code &ec);
-		void			runOnce();
-        void			runNowait(std::error_code &ec);
-		void			runNowait();
-		void			stop();
-		void			fork(std::error_code &ec);
-		void			fork();
-		uint64_t		now() const;
-		void			updateTime();
-		bool			alive() const;
-		int				backendFd() const;
-		int				backendTimeout() const;
-		void			printAllHandles(FILE *stream);
-		void			printActiveHandles(FILE *stream);
-		uv_loop_t		&operator()();
-		uv_loop_t		*value();
+		void        init(bool is_default, std::error_code &ec);
+		void        init(bool is_default = false);
+		void        run(std::error_code &ec);
+		void        run();
+        void        runOnce(std::error_code &ec);
+		void        runOnce();
+        void        runNowait(std::error_code &ec);
+		void        runNowait();
+		void        stop();
+		void        fork(std::error_code &ec);
+		void        fork();
+		uint64_t    now() const;
+		void        updateTime();
+		bool        alive() const;
+		int         backendFd() const;
+		int         backendTimeout() const;
+		void        printAllHandles(FILE *stream);
+		void        printActiveHandles(FILE *stream);
+		uv_loop_t   &operator()();
+		uv_loop_t   *value();
 
     private:
-        uv_loop_t	m_loop;	//not use
-        uv_loop_t	*m_loop_ptr;
+        uv_loop_t	loop_;	//not use
+        uv_loop_t	*loop_ptr_;
     };
 
 
@@ -47,29 +47,29 @@ namespace uv
 
 	inline Loop::~Loop()
 	{
-		uv_loop_close(m_loop_ptr);
+		uv_loop_close(loop_ptr_);
 	}
 
 	inline void Loop::init(bool is_default, std::error_code & ec)
 	{
 		if (is_default) {
-			m_loop_ptr = uv_default_loop();
+			loop_ptr_ = uv_default_loop();
 		}
 		else {
-			m_loop_ptr = &m_loop;
-			auto status = uv_loop_init(m_loop_ptr);
+			loop_ptr_ = &loop_;
+			auto status = uv_loop_init(loop_ptr_);
 			if (status != 0) {
 				ec = makeErrorCode(status);
 				return;
 			}
 		}
 
-		if (m_loop_ptr == nullptr) {
+		if (loop_ptr_ == nullptr) {
 			ec = makeErrorCode(ENOMEM);
 			return;
 		}
 
-		m_loop_ptr->data = this;
+		loop_ptr_->data = this;
 	}
 
 	inline void Loop::init(bool is_default)
@@ -84,7 +84,7 @@ namespace uv
 
 	inline void Loop::run(std::error_code &ec)
 	{
-		auto status = uv_run(m_loop_ptr, UV_RUN_DEFAULT);
+		auto status = uv_run(loop_ptr_, UV_RUN_DEFAULT);
 		
 		if (status != 0) {
 			ec = makeErrorCode(status);
@@ -103,7 +103,7 @@ namespace uv
 
 	inline void Loop::runOnce(std::error_code &ec)
     {
-		auto status = uv_run(m_loop_ptr, UV_RUN_ONCE);
+		auto status = uv_run(loop_ptr_, UV_RUN_ONCE);
 
 		if (status != 0) {
 			ec = makeErrorCode(status);
@@ -122,7 +122,7 @@ namespace uv
 
 	inline void Loop::runNowait(std::error_code &ec)
     {
-		auto status = uv_run(m_loop_ptr, UV_RUN_NOWAIT);
+		auto status = uv_run(loop_ptr_, UV_RUN_NOWAIT);
 
 		if (status != 0) {
 			ec = makeErrorCode(status);
@@ -141,12 +141,12 @@ namespace uv
 
 	inline void Loop::stop()
 	{
-		uv_stop(m_loop_ptr);
+		uv_stop(loop_ptr_);
 	}
 
 	inline void Loop::fork(std::error_code &ec)
 	{
-		auto status = uv_loop_fork(m_loop_ptr);
+		auto status = uv_loop_fork(loop_ptr_);
 
 		if (status != 0) {
 			ec = makeErrorCode(status);
@@ -165,46 +165,46 @@ namespace uv
 
 	inline uint64_t Loop::now() const
 	{
-		return uv_now(m_loop_ptr);
+		return uv_now(loop_ptr_);
 	}
 
 	inline void Loop::updateTime()
 	{
-		uv_update_time(m_loop_ptr);
+		uv_update_time(loop_ptr_);
 	}
 
 	inline bool Loop::alive() const
 	{
-		return uv_loop_alive(m_loop_ptr);
+		return uv_loop_alive(loop_ptr_);
 	}
 
 	inline int Loop::backendFd() const
 	{
-		return uv_backend_fd(m_loop_ptr);
+		return uv_backend_fd(loop_ptr_);
 	}
 
 	inline int Loop::backendTimeout() const
 	{
-		return uv_backend_timeout(m_loop_ptr);
+		return uv_backend_timeout(loop_ptr_);
 	}
 
 	inline void Loop::printAllHandles(FILE *stream)
 	{
-		uv_print_all_handles(m_loop_ptr, stream);
+		uv_print_all_handles(loop_ptr_, stream);
 	}
 
 	inline void Loop::printActiveHandles(FILE *stream)
 	{
-		uv_print_active_handles(m_loop_ptr, stream);
+		uv_print_active_handles(loop_ptr_, stream);
 	}
 
 	inline uv_loop_t &Loop::operator()()
 	{
-		return *m_loop_ptr;
+		return *loop_ptr_;
 	}
 	inline uv_loop_t * Loop::value()
 	{
-		return m_loop_ptr;
+		return loop_ptr_;
 	}
 }
 

@@ -16,14 +16,14 @@ namespace uv
 		Mutex();
 		~Mutex();
 
-		void			lock();
-		int			trylock();
-		void			unlock();
+		void        lock();
+		int         trylock();
+		void        unlock();
 
 	private:
 		friend class Cond;
 	private:
-		uv_mutex_t		m_handle;
+		uv_mutex_t  handle_;
 	};
 
 
@@ -32,27 +32,27 @@ namespace uv
 
 	inline Mutex::Mutex()
 	{
-		uv_mutex_init( &m_handle);
+		uv_mutex_init( &handle_);
 	}
 
 	inline Mutex::~Mutex()
 	{
-		uv_mutex_destroy(&m_handle);
+		uv_mutex_destroy(&handle_);
 	}
 
 	inline void Mutex::lock()
 	{
-		uv_mutex_lock(&m_handle);
+		uv_mutex_lock(&handle_);
 	}
 
 	inline int Mutex::trylock()
 	{
-		return uv_mutex_trylock(&m_handle);
+		return uv_mutex_trylock(&handle_);
 	}
 
 	inline void Mutex::unlock()
 	{
-		uv_mutex_unlock(&m_handle);
+		uv_mutex_unlock(&handle_);
 	}
 }
 

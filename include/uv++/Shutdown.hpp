@@ -24,7 +24,7 @@ namespace uv
 
 	inline Shutdown::Shutdown()
 	{
-		m_handle.data = this;
+		handle_.data = this;
 	}
 }
 

@@ -18,7 +18,7 @@ namespace uv
 	private:
 		template<typename T> friend class Stream;
 	private:
-		uv_buf_t		m_buf;
+		uv_buf_t		buf_;
 	};
 
 
@@ -27,9 +27,9 @@ namespace uv
 
 	inline Write::Write(const char *p, ssize_t len)
 	{
-		m_buf.base = const_cast<char*>(p);
-		m_buf.len = static_cast<size_t>(len);
-		m_handle.data = this;
+		buf_.base = const_cast<char*>(p);
+		buf_.len = static_cast<size_t>(len);
+		handle_.data = this;
 	}
 }
 
