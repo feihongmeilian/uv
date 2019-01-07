@@ -21,7 +21,7 @@ namespace uv
 		void			close();
 
 	private:
-		uv_lib_t		m_lib;
+		uv_lib_t		lib_;
 	};
 
 
@@ -30,7 +30,7 @@ namespace uv
 
 	inline void DynamicLibrary::open(const std::string &filename, std::error_code &ec)
 	{
-		auto status = uv_dlopen(filename.c_str(), &m_lib);
+		auto status = uv_dlopen(filename.c_str(), &lib_);
 
 		if (status != 0) {
 			ec = makeErrorCode(status);
@@ -43,13 +43,13 @@ namespace uv
 
 		open(filename, ec);
 		if (ec) {
-			throw uv::Exception(uv_dlerror(&m_lib));
+			throw uv::Exception(uv_dlerror(&lib_));
 		}
 	}
 
 	inline void DynamicLibrary::sym(const std::string &name, void **ptr, std::error_code &ec)
 	{
-		auto status = uv_dlsym(&m_lib, name.c_str(), ptr);
+		auto status = uv_dlsym(&lib_, name.c_str(), ptr);
 
 		if (status != 0) {
 			ec = makeErrorCode(status);
@@ -62,13 +62,13 @@ namespace uv
 
 		sym(name, ptr, ec);
 		if (ec) {
-			throw uv::Exception(uv_dlerror(&m_lib));
+			throw uv::Exception(uv_dlerror(&lib_));
 		}
 	}
 
 	inline void DynamicLibrary::close()
 	{
-		uv_dlclose(&m_lib);
+		uv_dlclose(&lib_);
 	}
 
 

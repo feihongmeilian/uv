@@ -1,5 +1,5 @@
-#ifndef UV_FILE_STREAM_HANDLE_HPP
-#define UV_FILE_STREAM_HANDLE_HPP
+#ifndef UV_FILE_STREAhandle__HPP
+#define UV_FILE_STREAhandle__HPP
 
 #include <uv.h>
 
@@ -28,7 +28,7 @@ namespace uv
 	template<typename T>
 	inline void FileStreamHandle<T>::sendBufferSize(int &value, std::error_code &ec)
 	{
-		auto status = uv_send_buffer_size(reinterpret_cast<uv_handle_t *>(&m_handle), &value);
+		auto status = uv_send_buffer_size(reinterpret_cast<uv_handle_t *>(&handle_), &value);
 
 		if (status != 0) {
 			ec = makeErrorCode(status);
@@ -49,7 +49,7 @@ namespace uv
 	template<typename T>
 	inline void FileStreamHandle<T>::recvBufferSize(int &value, std::error_code &ec)
 	{
-		auto status = uv_recv_buffer_size(reinterpret_cast<uv_handle_t *>(&m_handle), &value);
+		auto status = uv_recv_buffer_size(reinterpret_cast<uv_handle_t *>(&handle_), &value);
 
 		if (status != 0) {
 			ec = makeErrorCode(status);

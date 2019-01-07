@@ -26,7 +26,7 @@ namespace uv
 	template<typename T>
 	inline void FileHandle<T>::fileno(uv_os_fd_t &fd, std::error_code &ec)
 	{
-		auto status = uv_fileno(reinterpret_cast<uv_handle_t *>(&m_handle), &fd);
+		auto status = uv_fileno(reinterpret_cast<uv_handle_t *>(&handle_), &fd);
 
 		if (status != 0) {
 			ec = makeErrorCode(status);
